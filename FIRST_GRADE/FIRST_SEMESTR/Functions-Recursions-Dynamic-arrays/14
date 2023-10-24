@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <malloc.h>
+
+
+void fill(int** arr, int len) {
+    int num = 1, layer, i;
+
+    for (layer = 0; layer < len / 2; layer++) {
+
+        for (i = layer; i < len - layer; i++)
+            arr[layer][i] = num++;
+
+        for (i = layer + 1; i < len - layer; i++)
+            arr[i][len - layer - 1] = num++;
+
+        for (i = len - layer - 2; i >= layer; i--)
+            arr[len - layer - 1][i] = num++;
+
+        for (i = len - layer - 2; i > layer; i--)
+            arr[i][layer] = num++;
+    }
+    if (len % 2 == 1)
+        arr[len / 2][len / 2] = num;
+}
+
+
+int main() {
+    int n, **arr;
+    scanf_s("%d", &n);
+    arr = (int **)malloc(n * sizeof(int *));
+
+    for (int i = 0; i < n; i++)
+        arr[i] = (int*)malloc(n * sizeof(int));
+    fill(arr, n);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++)
+            printf("%d\t", arr[i][j]);
+        puts("\n");
+    }
+
+    for(int i = 0; i < n; i++)
+        free(arr[i]);
+    free(arr);
+    return 0;
+}

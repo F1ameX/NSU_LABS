@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+
+int* convert(char* str) {
+    int len = strlen(str), *arr;
+    arr = (int*)malloc(sizeof(int) * (len + 1));
+    arr[0] = len;
+
+    for (int i = 0; i < len; i++)
+        arr[i + 1] = str[i] - '0';
+    return arr;
+}
+
+
+int* slide(int* arr, int n) {
+    for (int i = arr[0]; i > n; i--)
+        arr[i] = arr[i - n];
+
+    for (int i = 1; i <= n; i++)
+        arr[i] = 0;
+    return arr;
+}
+
+
+int* fact(int* arr) {
+    int n = 0, leftover;
+    for (int i = arr[0]; i > 0; i--)
+        n += arr[i] * (int)pow(10, arr[0] - i);
+
+    for (int i = n - 1; i > 1; i--) {
+        for (int j = arr[0]; j > 0; j--)
+            arr[j] *= i;
+
+        leftover = 0;
+        for (int j = arr[0]; j > 0; j--) {
+            arr[j] += leftover;
+            leftover = arr[j] / 10;
+            arr[j] %= 10;
+        }
+
+        while (leftover > 0) {
+            arr[0]++;
+            arr = realloc(arr, sizeof(int) * (arr[0] + 1));
+            slide(arr, 1);
+            arr[1] = leftover;
+            leftover = 0;
+
+            for (int j = arr[0]; j > 0; j--) {
+                arr[j] += leftover;
+                leftover = arr[j] / 10;
+                arr[j] %= 10;
+            }
+        }
+    }
+
+    return arr;
+}
+
+int main() {
+    int* num;
+    char input[100];
+    scanf("%99s", input);
+
+    num = convert(input);
+    num = fact(num);
+
+    if (num[0] == 2 && num[1] == 0)
+        printf("1");
+    else
+        for (int i = 1; i <= num[0]; i++)
+            printf("%d", num[i]);
+
+    free(num);
+    return 0;
+}

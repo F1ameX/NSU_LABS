@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <malloc.h>
+
+int maxEl(int* arr, int* start, int* end) {
+    int current, maxInRest;
+    
+    if (start == end)
+        return *arr;
+    
+    current = *start;
+    maxInRest = maxEl(arr, start + 1, end);
+
+    if (current > maxInRest)
+        return current;
+    return maxInRest;
+}
+
+int main() {
+    int len, *arr, max = 0;
+    scanf_s("%d", &len);
+    arr = (int*)malloc(len * sizeof(int));
+
+    for (int i = 0; i < len; i++)
+        scanf_s("%d", &arr[i]);
+
+    max = maxEl(arr, arr, arr + len);
+    printf("%d", max);
+
+    free(arr);
+    return 0;
+}

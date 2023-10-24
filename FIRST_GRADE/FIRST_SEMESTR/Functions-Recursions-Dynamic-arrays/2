@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <malloc.h>
+
+
+int GCD(int a, int b){
+    while (a != 0 && b != 0){
+        if (a > b)
+            a = a % b;
+        else
+            b = b % a;
+    }
+    return a + b;
+}
+
+
+int arrGCD(int len, int * arr){
+    int result = arr[0];
+
+    for(int i = 1; i < len; i++)
+        result = GCD(result, arr[i]);
+
+    return result;
+}
+
+
+int main(){
+    int len, *arr;
+    scanf_s("%d", &len);
+
+    arr = (int *)malloc(len * sizeof(int));
+    for(int i = 0; i < len; i++)
+        scanf_s("%d", &arr[i]);
+
+    printf("%d", arrGCD(len, arr));
+}

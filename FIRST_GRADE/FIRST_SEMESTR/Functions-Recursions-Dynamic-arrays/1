@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <math.h>
+#include <malloc.h>
+
+
+int fullSqr(int num){
+    if (sqrt(num) - (int)sqrt(num) == 0)
+        return 1;
+    return 0;
+}
+
+
+int main(){
+    int len, *arr, cnt = 0;
+    scanf_s("%d", &len);
+    arr = (int *)malloc(len * sizeof(int));
+
+    for(int i = 0; i < len; i++)
+        scanf_s("%d", &arr[i]);
+    
+    for(int i = 0; i < len; i++)
+        if (fullSqr(arr[i]))
+            cnt ++;
+    
+    printf("%d", cnt);
+    free(arr);
+    return 0;
+}

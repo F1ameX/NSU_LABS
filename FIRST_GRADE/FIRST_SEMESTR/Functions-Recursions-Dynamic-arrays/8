@@ -1,0 +1,25 @@
+#include <stdio.h>
+
+
+int isSimple(int num, int div){
+    if (div < num) {
+        if (num % div == 0)
+            return 0;
+        else {
+            div++;
+            return isSimple(num, div);
+        }
+    }
+    return 1;
+}
+
+
+int main(){
+    int num, div = 2;
+    scanf_s("%d", &num);
+    if (isSimple(num, div))
+        printf("%d is simple number", num);
+    else
+        printf("%d is not simple number", num);
+    return 0;
+}

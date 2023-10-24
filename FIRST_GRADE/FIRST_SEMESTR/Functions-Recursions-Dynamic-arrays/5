@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+
+float sideLen(int x1, int x2, int y1, int y2) {
+    return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+}
+
+
+float areaOfTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+    float aSide, bSide, cSide, area;
+    aSide = sideLen(x1, x2, y1, y2);
+    bSide = sideLen(x2, x3, y2, y3);
+    cSide = sideLen(x3, x1, y3, y1);
+    area = (aSide + bSide + cSide) / 2;
+    return sqrt(area * (area- aSide) * (area- bSide) * (area- cSide));
+}
+
+
+float totalArea(int len, int *arr) {
+    float total = 0;
+    for (int i = 2; i < len - 2; i += 2)
+        total += areaOfTriangle(arr[0], arr[1], arr[i], arr[i + 1], arr[i + 2], arr[i + 3]);
+    return total;
+}
+
+
+int main() {
+    int len, *arr;
+    scanf_s("%d", &len);
+    arr = (int *)malloc(len * sizeof(int));
+
+    for (int i = 0; i < len; i++)
+        scanf_s("%d", &arr[i]);
+
+    printf("%f", totalArea(len, arr));
+    free(arr);
+    return 0;
+}

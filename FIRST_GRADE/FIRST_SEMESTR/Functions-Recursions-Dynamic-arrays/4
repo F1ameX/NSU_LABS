@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <malloc.h>
+
+
+int max(int num1, int num2){
+     if (num1 > num2)
+         return num1;
+     return num2;
+}
+
+
+int oddCnt(int len, int* arr){
+    int cnt = 0, result = 0;
+
+    for(int i = 0; i < len; i++){
+        if (arr[i] % 2 == 0){
+            result = max(result, cnt);
+            cnt = 0;
+        }
+        else
+            cnt += 1;
+    }
+    return max(result, cnt);
+}
+
+
+int main(){
+    int len, *arr;
+    scanf_s("%d", &len);
+    arr = (int *)malloc(len * sizeof(int));
+
+    for(int i = 0; i < len; i++)
+        scanf_s("%d", &arr[i]);
+
+    printf("%d", oddCnt(len, arr));
+}

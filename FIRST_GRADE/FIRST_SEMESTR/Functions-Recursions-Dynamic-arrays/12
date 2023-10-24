@@ -1,0 +1,110 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <malloc.h>
+#include <string.h>
+
+
+int max(int a, int b){
+    if (a > b)
+        return a;
+    return b;
+}
+
+
+char *getStr(int *len) {
+    *len = 0;
+    int capacity = 1;                                   // Capacity of the string
+    char *str = (char*) malloc(sizeof(char)), c;
+    c = getchar();                                      // Read the first of entered character
+
+    while (c != '\n') {                                 // Reading until user press enter
+        str[(*len)++] = c;                              // Add character to the string
+
+        if (*len >= capacity) {                         // If current capacity lower than length, double the capacity
+            capacity *= 2;
+            str = (char*)realloc(str, capacity * sizeof(char)); //Reallocating memory of string
+        }
+        c = getchar();                                  // Read the next character
+    }
+    str[*len] = '\0';
+    return str;
+}
+
+
+void convert(char* inputArr, int* outputArr){
+    for(int i = 0; i < strlen(inputArr); i++)
+        outputArr[i] = inputArr[i] - '0';
+}
+
+
+int* rmvZeros(int* arr, int*len){
+    int nonZeroIndex = 0, *result;
+    
+    while (nonZeroIndex < *len && arr[nonZeroIndex] == 0)    // Find first non-zero element
+        nonZeroIndex++;
+    
+    if (nonZeroIndex == *len) {                                 // If whole array consits of zeros return 0
+        int* result = (int*)malloc(sizeof(int));
+        *result = 0;
+        *len = 1;
+        free(arr);
+        return result;
+    }
+    result = (int*)malloc((*len - nonZeroIndex) * sizeof(int));         // New array with non leading zeroes
+    
+    for (int i = nonZeroIndex; i < *len; i++)
+        result[i - nonZeroIndex] = arr[i];
+
+    free(arr);
+    *len = *len - nonZeroIndex;
+    return result;
+}
+
+
+int* sum(int* num1, int* num2, int len1, int len2, int* resultLen) {
+    int maxLen = max(len1, len2), carry = 0;
+    int* result = (int*)malloc((maxLen + 1) * sizeof(int));
+
+    for (int i = 0; i < maxLen; i++) {
+        int digit1, digit2, sum;
+        digit1 = (i < len1) ? num1[len1 - 1 - i] : 0; // Extract digits from the first number
+        digit2 = (i < len2) ? num2[len2 - 1 - i] : 0; // Extract digits from the second number
+        sum = digit1 + digit2 + carry; // Add digits and carry
+        carry = sum / 10; // Calculate the carry for the next iteration
+        result[i] = sum % 10; // Save the rightmost digit of the sum
+    }
+
+    if (carry > 0) {
+        result[maxLen] = carry; // If there is a carry after all additions, store it in the result
+        *resultLen = maxLen + 1; // Set the result length accordingly
+    } 
+    else 
+        *resultLen = maxLen; // Set the result length without the carry
+    
+    return result;// Return the result as an integer array
+}
+
+
+int main() {
+    int lenNum1, lenNum2, *newNum1, *newNum2, *result, resultLen;
+    char *num1, *num2;
+    num1 = getStr(&lenNum1);
+    num2 = getStr(&lenNum2);
+    newNum1 = (int*)malloc(lenNum1 * sizeof(int));
+    newNum2 = (int*)malloc(lenNum2 * sizeof(int));
+
+    convert(num1, newNum1);
+    convert(num2, newNum2);
+    free(num1);
+    free(num2);
+
+    result = sum(newNum1, newNum2, lenNum1, lenNum2, &resultLen);
+
+    for(int i = 0; i < resultLen; i++)
+        printf("%d", result[resultLen - 1 - i]);
+
+    free(newNum1);
+    free(newNum2);
+    free(result);
+    return 0;
+}
