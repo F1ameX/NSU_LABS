@@ -60,7 +60,6 @@ int main()
         text = (char *)realloc(text, text_len * sizeof(char));
         text[text_len - 1] = (char)symbol;
         symbol = fgetc(stdin);
-
     }
 
     /*Changing comparing text index position*/
