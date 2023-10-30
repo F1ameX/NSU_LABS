@@ -46,11 +46,10 @@ int main()
     /*Initialization text`s length, template`s length, text comparing index*/
     int text_len = 0, template_len, check_idx, symbol;
     char *text, template[TEMPLATE_LEN];
-
     gets(template);
     template_len = strlen(template);
     text = (char *)malloc(sizeof(char) * 0);
-    symbol = getc(stdin);
+    symbol = fgetc(stdin);
     /*Initially - check_idx equals template`s last index*/
     check_idx = template_len - 1;
 
@@ -60,7 +59,7 @@ int main()
         text_len++;
         text = (char *)realloc(text, text_len * sizeof(char));
         text[text_len - 1] = (char)symbol;
-        symbol = getc(stdin);
+        symbol = fgetc(stdin);
 
     }
 
