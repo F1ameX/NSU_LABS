@@ -13,12 +13,10 @@ void swap(int* a, int* b)
 
 void quick_sort(int* array, int left, int right)
 {
+    int checker = array[(left + right) / 2], i = left, j = right;
 
     if (left < right)
     {
-        int checker = array[(left + right) / 2], i = left, j = right;
-        int p;
-
         while (i <= j)
         {
             while (array[i] < checker)
@@ -29,7 +27,6 @@ void quick_sort(int* array, int left, int right)
 
             if (i <= j)
                 swap(&array[i++], &array[j--]);
-
         }
         quick_sort(array, left, j);
         quick_sort(array, i, right);
