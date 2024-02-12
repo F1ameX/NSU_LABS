@@ -9,7 +9,7 @@ int main() {
 
     AVL_TREE* root = NULL;
 
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < N; i++) {
         int key;
         scanf("%d", &key);
         if (root == NULL)
