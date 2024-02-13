@@ -126,7 +126,7 @@ AVL_TREE* create_node(int key, int value)
 
 void delete_tree(AVL_TREE* root)
 {
-   if (root)
+   if (root != NULL)
    {
        delete_tree(root->left);
        delete_tree(root->right);
