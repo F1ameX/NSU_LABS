@@ -124,59 +124,14 @@ AVL_TREE* create_node(int key, int value)
 }
 
 
-void delete_node(AVL_TREE** root, int key)
+void delete_tree(AVL_TREE* root)
 {
-    if (*root == NULL)
-        return;
-    else if (key < (*root)->key)
-        delete_node(&((*root)->left), key);
-    else if (key > (*root)->key)
-        delete_node(&((*root)->right), key);
-    else
-    {
-        if ((*root)->left == NULL || (*root)->right == NULL)
-        {
-            AVL_TREE* temp = (*root)->left ? (*root)->left : (*root)->right;
-            if (temp == NULL)
-            {
-                free(*root);
-                *root = NULL;
-            }
-            else
-            {
-                (*root)->key = temp->key;
-                (*root)->value = temp->value;
-                (*root)->left = (*root)->right = NULL;
-                free(temp);
-            }
-        }
-        else
-        {
-            AVL_TREE* child = (*root)->right;
-            while (child->left != NULL)
-                child = child->left;
-            (*root)->key = child->key;
-            (*root)->value = child->value;
-            delete_node(&((*root)->right), child->key);
-        }
-    }
-    if (*root != NULL)
-    {
-        update_height(*root);
-        balance(*root);
-    }
-}
-
-
-void delete_tree(AVL_TREE** root)
-{
-    if (*root != NULL)
-    {
-        delete_tree(&((*root)->left));
-        delete_tree(&((*root)->right));
-        free(*root);
-        *root = NULL;
-    }
+   if (root)
+   {
+       delete_tree(root->left);
+       delete_tree(root->right);
+       free(root);
+   }
 }
 
 
