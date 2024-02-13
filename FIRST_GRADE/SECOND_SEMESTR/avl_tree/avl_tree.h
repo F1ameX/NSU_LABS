@@ -152,12 +152,12 @@ void delete_node(AVL_TREE** root, int key)
         }
         else
         {
-            AVL_TREE* successor = (*root)->right;
-            while (successor->left != NULL)
-                successor = successor->left;
-            (*root)->key = successor->key;
-            (*root)->value = successor->value;
-            delete_node(&((*root)->right), successor->key);
+            AVL_TREE* child = (*root)->right;
+            while (child->left != NULL)
+                child = child->left;
+            (*root)->key = child->key;
+            (*root)->value = child->value;
+            delete_node(&((*root)->right), child->key);
         }
     }
     if (*root != NULL)
