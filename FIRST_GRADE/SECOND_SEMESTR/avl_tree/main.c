@@ -17,9 +17,7 @@ int main() {
         else
             insert(root, i, key);
     }
-    
     printf("%d\n", get_height(root) + 1);
-    delete_tree(&root);
-    
+    delete_tree(root);
     return 0;
 }
