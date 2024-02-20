@@ -2,6 +2,7 @@
 #define AVL_TREE_AVL_TREE_H
 #pragma once
 
+#include <stdio.h>
 #include <stdlib.h>
 
 
@@ -135,6 +136,16 @@ void delete_tree(AVL_TREE* root)
 }
 
 
+void in_order(AVL_TREE* node)
+{
+    if (node == NULL)
+        return;
+    in_order(node->left);
+    printf("%d ", node->value);
+    in_order(node->right);
+}
+
+
 void insert(AVL_TREE* node, int key, int value)
 {
     if (key < node->key)
@@ -150,5 +161,25 @@ void insert(AVL_TREE* node, int key, int value)
     }
     update_height(node);
     balance(node);
+}
+
+
+void post_order(AVL_TREE* node)
+{
+    if (node == NULL)
+        return;
+    post_order(node->left);
+    post_order(node->right);
+    printf("%d ", node->value);
+}
+
+
+void pre_order(AVL_TREE* node)
+{
+    if (node == NULL)
+        return;
+    printf("%d ", node->value);
+    pre_order(node->left);
+    pre_order(node->right);
 }
 #endif
