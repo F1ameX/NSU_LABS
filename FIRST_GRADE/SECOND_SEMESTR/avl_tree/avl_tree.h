@@ -6,6 +6,13 @@
 #include <stdlib.h>
 
 
+typedef struct AVL_TREE {
+    int value;
+    struct AVL_TREE* left;
+    struct AVL_TREE* right;
+} AVL_TREE;
+
+
 int max(int num_1, int num_2)
 {
     if (num_1 > num_2)
@@ -14,20 +21,11 @@ int max(int num_1, int num_2)
 }
 
 
-typedef struct AVL_TREE {
-    int key;
-    int value;
-    int height;
-    struct AVL_TREE* left;
-    struct AVL_TREE* right;
-} AVL_TREE;
-
-
 int get_height(AVL_TREE* node)
 {
     if (node == NULL)
         return -1;
-    return node->height;
+    return max(get_height(node->left), get_height(node->right)) + 1;
 }
 
 
@@ -41,20 +39,9 @@ int get_balance(AVL_TREE* node)
 
 void swap_node(AVL_TREE* node_1, AVL_TREE* node_2)
 {
-    int key_1 = node_1->key;
     int value_1 = node_1->value;
-
-    node_1->key = node_2->key;
-    node_2->key = key_1;
-
     node_1->value = node_2->value;
     node_2->value = value_1;
-}
-
-
-void update_height(AVL_TREE* node)
-{
-    node->height = max(get_height(node->left), get_height(node->right)) + 1;
 }
 
 
@@ -62,15 +49,10 @@ void left_rotate(AVL_TREE* node)
 {
     AVL_TREE* buffer = node->left;
     swap_node(node, node->right);
-
     node->left = node->right;
     node->right = node->left->right;
-    node->right->left = node->right->right;
     node->left->right = node->left->left;
     node->left->left = buffer;
-
-    update_height(node->left);
-    update_height(node);
 }
 
 
@@ -78,20 +60,16 @@ void right_rotate(AVL_TREE* node)
 {
     AVL_TREE* buffer = node->right;
     swap_node(node, node->left);
-
     node->right = node->left;
     node->left = node->right->left;
     node->right->left = node->right->right;
     node->right->right = buffer;
-
-    update_height(node->right);
-    update_height(node);
 }
 
 
 void balance(AVL_TREE* node)
 {
-    int balance = get_height(node);
+    int balance = get_balance(node);
     if (balance == -2)
     {
         if (get_balance(node->left) == 1)
@@ -107,32 +85,29 @@ void balance(AVL_TREE* node)
 }
 
 
-AVL_TREE* create_node(int key, int value)
+AVL_TREE* create_node(int value)
 {
     AVL_TREE* node = (AVL_TREE*)malloc(sizeof(AVL_TREE));
 
     if (node != NULL)
     {
-        node->key = key;
         node->value = value;
         node->left = NULL;
         node->right = NULL;
-        node->height = 0;
     }
-    else
-        node->height = -1;
+
     return node;
 }
 
 
 void delete_tree(AVL_TREE* root)
 {
-   if (root != NULL)
-   {
-       delete_tree(root->left);
-       delete_tree(root->right);
-       free(root);
-   }
+    if (root != NULL)
+    {
+        delete_tree(root->left);
+        delete_tree(root->right);
+        free(root);
+    }
 }
 
 
@@ -146,40 +121,40 @@ void in_order(AVL_TREE* node)
 }
 
 
-void insert(AVL_TREE* node, int key, int value)
+void insert(AVL_TREE* node, int value)
 {
-    if (key < node->key)
+    if (value < node->value)
     {
-        if (node->left == NULL) node->left = create_node(key, value);
-        else insert(node->left, key, value);
+        if (node->left == NULL)
+            node->left = create_node(value);
+        else
+            insert(node->left, value);
+    }
+    else if (value >= node->value)
+    {
+        if (node->right == NULL)
+            node->right = create_node(value);
+        else
+            insert(node->right, value);
     }
 
-    else if (key >= node->key)
-    {
-        if (node->right == NULL) node->right = create_node(key, value);
-        else insert(node->right, key, value);
-    }
-    update_height(node);
     balance(node);
 }
 
 
-void post_order(AVL_TREE* node)
+int search(AVL_TREE* node, int key)
 {
     if (node == NULL)
-        return;
-    post_order(node->left);
-    post_order(node->right);
-    printf("%d ", node->value);
+        return -1;
+
+    else if (node->value == key)
+        return node->value;
+
+    else if (node->value < key)
+        search(node->right, key);
+    else
+        search(node->left, key);
 }
 
 
-void pre_order(AVL_TREE* node)
-{
-    if (node == NULL)
-        return;
-    printf("%d ", node->value);
-    pre_order(node->left);
-    pre_order(node->right);
-}
 #endif
