@@ -15,7 +15,7 @@ int min_weight(Node* queue, Visited* visited)
     if (!queue)
         return -1;
 
-    while (currentNode)
+    while (currentNode != NULL)
     {
         current_vertex = currentNode->vertex;
         if (!visited[current_vertex].passed && visited[current_vertex].distance <= min_distance)
@@ -62,7 +62,7 @@ void dijkstra(Graph* graph, int start, int end)
         visited[min_edge].passed = 1;
         temp = graph->adjacency_list[min_edge];
 
-        while (temp)
+        while (temp != NULL)
         {
             adjacency_vertex = temp->vertex - 1;
             similar_path = visited[min_edge].distance + temp->weight;
@@ -129,7 +129,9 @@ void dijkstra(Graph* graph, int start, int end)
 
     for (int i = 0; i < path_len; i++)
         printf("%d ", path[i]);
-
+    
+    free(visited);
+    free(node);
     putchar('\n');
 }
 
