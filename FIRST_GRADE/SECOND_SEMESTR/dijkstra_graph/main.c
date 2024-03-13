@@ -10,20 +10,20 @@ int min_weight(Node* queue, Visited* visited)
 {
     int current_vertex, min_weight = -1;
     long int min_distance = LONG_MAX;
-    Node* currentNode = queue;
+    Node* current_node = queue;
 
     if (!queue)
         return -1;
 
-    while (currentNode != NULL)
+    while (current_node != NULL)
     {
-        current_vertex = currentNode->vertex;
+        current_vertex = current_node->vertex;
         if (!visited[current_vertex].passed && visited[current_vertex].distance <= min_distance)
         {
             min_distance = visited[current_vertex].distance;
             min_weight = current_vertex;
         }
-        currentNode = currentNode->next;
+        current_node = current_node->next;
     }
     return min_weight;
 }
@@ -129,7 +129,7 @@ void dijkstra(Graph* graph, int start, int end)
 
     for (int i = 0; i < path_len; i++)
         printf("%d ", path[i]);
-    
+
     free(visited);
     free(node);
     putchar('\n');
