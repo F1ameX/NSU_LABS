@@ -29,6 +29,28 @@ int min_weight(Node* queue, Visited* visited)
 }
 
 
+int error_check(int vertex, int edge, int start, int end)
+{
+    if (vertex < 0 || vertex > 5000)
+    {
+        puts("bad number of vertices");
+        return -1;
+    }
+
+    if (edge < 0 || edge > EDGE_LIMIT)
+    {
+        puts("bad number of edges");
+        return -1;
+    }
+
+    if (start < 1 || start > vertex || end < 1 || end > vertex)
+    {
+        puts("bad vertex");
+        return -1;
+    }
+    return 0;
+}
+
 
 void dijkstra(Graph* graph, int start, int end)
 {
@@ -133,29 +155,6 @@ void dijkstra(Graph* graph, int start, int end)
     free(visited);
     free(node);
     putchar('\n');
-}
-
-
-int error_check(int vertex, int edge, int start, int end)
-{
-    if (vertex < 0 || vertex > 5000)
-    {
-        puts("bad number of vertices");
-        return -1;
-    }
-
-    if (edge < 0 || edge > EDGE_LIMIT)
-    {
-        puts("bad number of edges");
-        return -1;
-    }
-
-    if (start < 1 || start > vertex || end < 1 || end > vertex)
-    {
-        puts("bad vertex");
-        return -1;
-    }
-    return 0;
 }
 
 
