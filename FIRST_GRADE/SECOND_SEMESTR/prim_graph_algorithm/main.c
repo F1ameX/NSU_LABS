@@ -1,13 +1,15 @@
+#include "graph.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#define VERTEX_MAX 5000
 #define EDGE_MAX ((vertex_num * (vertex_num + 1)) / 2)
 
 
 int error_check(int vertex_num, int edge_num)
 {
-    if (vertex_num < 0 || vertex_num > 5000)
+    if (vertex_num < 0 || vertex_num > VERTEX_MAX)
     {
         puts("bad number of vertices");
         return -1;
@@ -55,5 +57,6 @@ int main()
         puts("bad number of lines");
         return 0;
     }
+
     return 0;
 }
