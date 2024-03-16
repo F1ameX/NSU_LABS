@@ -3,16 +3,16 @@
 #include <stdlib.h>
 
 
-typedef struct Node{
-    int node_num;
-    int** adjacency_list;
-}Node;
-
-
 typedef struct Edge{
     int start;
     int end;
     int weight;
+    int passed;
 }Edge;
 
 
+typedef struct Graph{
+    int vertex_num;
+    int passed;
+    Edge** adjacency_list;
+}Graph;
