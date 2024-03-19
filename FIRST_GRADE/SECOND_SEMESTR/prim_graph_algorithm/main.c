@@ -14,6 +14,20 @@ typedef struct Edge{
 }Edge;
 
 
+int check_span(long long int** graph, int edge_num, int vertex_num)
+{
+    if (vertex_num - edge_num == 1)
+    {
+        for (int i = 0; i < edge_num + 1; i++)
+            for (int j = i + 1; j < edge_num + 1; j++)
+                if (graph[i][j] != 0)
+                    printf("%d %d\n", i + 1, j + 1);
+        return 1;
+    }
+    return -1;
+}
+
+
 int error_check(int vertex_num, int edge_num)
 {
     if (vertex_num < 0 || vertex_num > VERTEX_MAX)
@@ -57,20 +71,6 @@ long long int min_key(int edge_num, int included[], long long int min_edge[])
         }
     }
     return min_index;
-}
-
-
-int check_span(long long int** graph, int edge_num, int vertex_num)
-{
-    if (vertex_num - edge_num == 1)
-    {
-        for (int i = 0; i < edge_num + 1; i++)
-            for (int j = i + 1; j < edge_num + 1; j++)
-                if (graph[i][j] != 0)
-                    printf("%d %d\n", i + 1, j + 1);
-        return 1;
-    }
-    return -1;
 }
 
 
@@ -121,7 +121,7 @@ void prim(long long int** graph, int edge_num, int vertex_num)
 int main()
 {
     FILE* file = fopen("in.txt", "r");
-    int cnt = 0, vertex_num, edge_num, edge_start, edge_end;
+    int cnt = 0, edge_end, edge_num, edge_start, vertex_num;
     long long int edge_weight;
     fscanf(file, "%d", &vertex_num);
     fscanf(file, "%d", &edge_num);
@@ -151,7 +151,7 @@ int main()
         }
 
         else if (edge_start < 1 || edge_start > vertex_num ||
-            edge_end < 1 || edge_end > vertex_num)
+                 edge_end < 1 || edge_end > vertex_num)
         {
             fclose(file);
             puts("bad vertex");
@@ -173,7 +173,7 @@ int main()
 
     if (check_span(graph, edge_num, vertex_num) == 1)
         return 0;
-    
+
     prim(graph, edge_num, vertex_num);
 
     for (int i = 0; i < vertex_num; i++)
