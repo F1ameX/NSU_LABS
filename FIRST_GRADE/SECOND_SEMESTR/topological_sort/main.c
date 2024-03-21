@@ -27,7 +27,7 @@ int error_check(int edge_num, int vertex_num) {
     return 0;
 }
 
-// Function to perform topological sorting
+
 int topological_sort(Graph* graph, int* result, int vertex_num) {
     int* indegree = graph->indegree;
     int* adjacency_list = graph->adjacency_list;
