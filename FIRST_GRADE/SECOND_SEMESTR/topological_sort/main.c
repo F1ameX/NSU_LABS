@@ -67,7 +67,7 @@ int topological_sort(Graph* graph, int* result)
 int main() {
     int edge_end, edge_num, edge_start, vertex_num;
     int* result;
-    FILE* input_file = fopen("/Users/andrewf1amex/Documents/Lab tests/in.txt", "r");
+    FILE* input_file = fopen("in.txt", "r");
 
     fscanf(input_file, "%d", &vertex_num);
     fscanf(input_file, "%d", &edge_num);
