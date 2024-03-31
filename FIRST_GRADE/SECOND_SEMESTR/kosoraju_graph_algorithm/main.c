@@ -44,7 +44,6 @@ void kosaraju(Graph *graph)
 }
 
 
-
 int error_check(int edge_num, int vertex_num)
 {
     if (vertex_num < 0 || vertex_num > VERTEX_MAX)
@@ -61,6 +60,7 @@ int error_check(int edge_num, int vertex_num)
 
     return 0;
 }
+
 
 int main() {
     int component_size, component_num = 1, edge_end, edge_num, edge_start,
