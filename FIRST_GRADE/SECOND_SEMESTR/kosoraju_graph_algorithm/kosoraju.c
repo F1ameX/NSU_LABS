@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 
-void console_output(Graph* graph)
+void print_result(Graph* graph)
 {
     int component_num = 1, component_size, max_component = 0;
 
@@ -54,5 +54,5 @@ void kosoraju(Graph *graph)
     }
 
     free(stack.data);
-    console_output(graph);
+    print_result(graph);
 }
