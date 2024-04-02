@@ -1,4 +1,5 @@
 #include "graph.h"
+#include "stack.h"
 #include <stdlib.h>
 
 
@@ -6,6 +7,19 @@ void add_edge(Graph* graph, int start, int end)
 {
     graph->connections[start][end] = 1;
     graph->transposed_connections[end][start] = 1;
+}
+
+
+void dfs(Graph* graph, int vertex, int component, int** connections, Stack* stack)
+{
+    graph->visited[vertex] = component;
+
+    for (int i = 0; i < graph->vertex_num; i++)
+        if (connections[vertex][i] && !graph->visited[i])
+            dfs(graph, i, component, connections, stack);
+
+    if (stack != NULL)
+        push(stack, vertex);
 }
 
 
