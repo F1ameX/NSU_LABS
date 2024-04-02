@@ -6,6 +6,7 @@
 #define EDGE_MAX ((VERTEX_MAX * (VERTEX_MAX + 1) / 2))
 
 
+// Graph input issues checking function
 int error_check(int edge_num, int vertex_num)
 {
     if (vertex_num < 0 || vertex_num > VERTEX_MAX)
@@ -41,6 +42,7 @@ int main() {
     {
         scanf("%d %d", &edge_start, &edge_end);
 
+        // Checking for cycle of a graph
         if (edge_start == edge_end)
         {
             puts("bad vertex");
@@ -48,6 +50,7 @@ int main() {
             return 0;
         }
 
+        // Checking limits of vertices
         if (edge_start < 1 || edge_start > vertex_num || edge_end < 1 || edge_end > vertex_num)
         {
             puts("bad vertex");
