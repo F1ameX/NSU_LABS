@@ -1,5 +1,5 @@
 #pragma once
 #include "graph.h"
 
-void console_output(Graph* graph);
+void print_result(Graph* graph);
 void kosoraju(Graph* graph);
