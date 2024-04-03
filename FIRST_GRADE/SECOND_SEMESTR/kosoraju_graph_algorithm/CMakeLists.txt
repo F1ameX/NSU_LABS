@@ -7,4 +7,6 @@ add_executable(kosoraju_graph_algorithm main.c
         stack.h
         stack.c
         graph.h
-        graph.c)
+        graph.c
+        kosoraju.h
+        kosoraju.c)
