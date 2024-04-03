@@ -67,6 +67,12 @@ build CMakeFiles/kosoraju_graph_algorithm.dir/graph.c.o: C_COMPILER__kosoraju_gr
   OBJECT_DIR = CMakeFiles/kosoraju_graph_algorithm.dir
   OBJECT_FILE_DIR = CMakeFiles/kosoraju_graph_algorithm.dir
 
+build CMakeFiles/kosoraju_graph_algorithm.dir/kosoraju.c.o: C_COMPILER__kosoraju_graph_algorithm_unscanned_Debug /Users/andrewf1amex/Programming/kosoraju_graph_algorithm/kosoraju.c || cmake_object_order_depends_target_kosoraju_graph_algorithm
+  DEP_FILE = CMakeFiles/kosoraju_graph_algorithm.dir/kosoraju.c.o.d
+  FLAGS = -g -std=gnu2x -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/kosoraju_graph_algorithm.dir
+  OBJECT_FILE_DIR = CMakeFiles/kosoraju_graph_algorithm.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target kosoraju_graph_algorithm
@@ -75,7 +81,7 @@ build CMakeFiles/kosoraju_graph_algorithm.dir/graph.c.o: C_COMPILER__kosoraju_gr
 #############################################
 # Link the executable kosoraju_graph_algorithm
 
-build kosoraju_graph_algorithm: C_EXECUTABLE_LINKER__kosoraju_graph_algorithm_Debug CMakeFiles/kosoraju_graph_algorithm.dir/main.c.o CMakeFiles/kosoraju_graph_algorithm.dir/stack.c.o CMakeFiles/kosoraju_graph_algorithm.dir/graph.c.o
+build kosoraju_graph_algorithm: C_EXECUTABLE_LINKER__kosoraju_graph_algorithm_Debug CMakeFiles/kosoraju_graph_algorithm.dir/main.c.o CMakeFiles/kosoraju_graph_algorithm.dir/stack.c.o CMakeFiles/kosoraju_graph_algorithm.dir/graph.c.o CMakeFiles/kosoraju_graph_algorithm.dir/kosoraju.c.o
   FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk
   OBJECT_DIR = CMakeFiles/kosoraju_graph_algorithm.dir
   POST_BUILD = :
