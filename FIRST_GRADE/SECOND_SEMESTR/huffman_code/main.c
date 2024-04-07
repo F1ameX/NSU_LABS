@@ -51,7 +51,7 @@ void enqueue(PriorityQueue* queue, Node* node)
 {
     resize_queue(queue, queue->capacity + 1);
     int idx = queue->capacity - 1;
-    while (idx > 0 && node->frequency < queue->heap[idx - 1]->frequency)
+    while (idx > 0 && node->frequency >= queue->heap[idx - 1]->frequency)
     {
         queue->heap[idx] = queue->heap[idx - 1];
         idx--;
@@ -80,23 +80,12 @@ int main()
             {
                 queue->heap[i]->frequency++;
 
-                while (i > 0 && queue->heap[i]->frequency < queue->heap[i - 1]->frequency)
+                while (i > 0 && queue->heap[i]->frequency >= queue->heap[i - 1]->frequency)
                 {
                     Node* temp = queue->heap[i];
                     queue->heap[i] = queue->heap[i - 1];
                     queue->heap[i - 1] = temp;
                     i--;
-                }
-
-                while (i < queue->capacity - 1 && queue->heap[i]->frequency == queue->heap[i + 1]->frequency && i < queue->capacity - 1)
-                {
-                    if (queue->heap[i]->symbol > queue->heap[i + 1]->symbol)
-                    {
-                        Node* temp = queue->heap[i];
-                        queue->heap[i] = queue->heap[i + 1];
-                        queue->heap[i + 1] = temp;
-                    }
-                    i++;
                 }
 
                 found_flag = 1;
@@ -110,6 +99,7 @@ int main()
             enqueue(queue, symbol_node);
         }
     }
+
     for (int i = 0; i < queue->capacity; i++)
         printf("%lc %d\n", queue->heap[i]->symbol, queue->heap[i]->frequency);
     fclose(input_file);
