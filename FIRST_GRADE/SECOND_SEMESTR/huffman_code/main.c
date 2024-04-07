@@ -10,14 +10,14 @@ typedef struct Node
     int frequency;
     struct Node* left;
     struct Node* right;
-}Node;
+} Node;
 
 
 typedef struct PriorityQueue
 {
     Node** heap;
     int capacity;
-}PriorityQueue;
+} PriorityQueue;
 
 
 PriorityQueue* init_queue()
@@ -57,6 +57,37 @@ void enqueue(PriorityQueue* queue, Node* node)
         idx--;
     }
     queue->heap[idx] = node;
+}
+
+
+Node* combine_nodes(Node* left, Node* right)
+{
+    Node* combined = create_node(L'\0', left->frequency + right->frequency);
+    combined->left = left;
+    combined->right = right;
+    return combined;
+}
+
+
+void print_huffman_tree(Node* root, char* code, int depth)
+{
+    if (root == NULL)
+        return;
+
+
+    if (root->left == NULL && root->right == NULL)
+    {
+        printf("%lc: %s\n", root->symbol, code);
+        return;
+    }
+
+    code[depth] = '0';
+    code[depth + 1] = '\0';
+    print_huffman_tree(root->left, code, depth + 1);
+
+    code[depth] = '1';
+    code[depth + 1] = '\0';
+    print_huffman_tree(root->right, code, depth + 1);
 }
 
 
@@ -100,8 +131,17 @@ int main()
         }
     }
 
-    for (int i = 0; i < queue->capacity; i++)
-        printf("%lc %d\n", queue->heap[i]->symbol, queue->heap[i]->frequency);
     fclose(input_file);
+
+
+    while (queue->capacity > 1)
+    {
+        Node* left = queue->heap[--queue->capacity];
+        Node* right = queue->heap[--queue->capacity];
+        Node* combined = combine_nodes(left, right);
+        enqueue(queue, combined);
+    }
+    char code[256] = "";
+    print_huffman_tree(queue->heap[0], code, 0);
     return 0;
 }
