@@ -1,6 +1,7 @@
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <wchar.h>
 
 
@@ -18,6 +19,13 @@ typedef struct PriorityQueue
     Node** heap;
     int capacity;
 } PriorityQueue;
+
+
+typedef struct HuffmanCode
+{
+    wchar_t symbol;
+    char code[256];
+} HuffmanCode;
 
 
 PriorityQueue* init_queue()
@@ -69,25 +77,29 @@ Node* combine_nodes(Node* left, Node* right)
 }
 
 
-void print_huffman_tree(Node* root, char* code, int depth)
+void build_huffman_code(HuffmanCode** huffman_array, int* huffman_len, Node* root, char* code, int depth)
 {
     if (root == NULL)
         return;
 
-
     if (root->left == NULL && root->right == NULL)
     {
-        printf("%lc: %s\n", root->symbol, code);
+        HuffmanCode huffman_code;
+        huffman_code.symbol = root->symbol;
+        strcpy(huffman_code.code, code);
+        *huffman_array = realloc(*huffman_array, (*huffman_len + 1) * sizeof(HuffmanCode));
+        (*huffman_array)[*huffman_len] = huffman_code;
+        (*huffman_len)++;
         return;
     }
 
     code[depth] = '0';
     code[depth + 1] = '\0';
-    print_huffman_tree(root->left, code, depth + 1);
+    build_huffman_code(huffman_array, huffman_len, root->left, code, depth + 1);
 
     code[depth] = '1';
     code[depth + 1] = '\0';
-    print_huffman_tree(root->right, code, depth + 1);
+    build_huffman_code(huffman_array, huffman_len, root->right, code, depth + 1);
 }
 
 
@@ -95,7 +107,7 @@ int main()
 {
     setlocale(LC_ALL, "");
     PriorityQueue* queue = init_queue();
-    FILE* input_file;
+    FILE* input_file, *output_file;
     wchar_t c;
 
     input_file = fopen("../in.txt", "r");
@@ -133,7 +145,6 @@ int main()
 
     fclose(input_file);
 
-
     while (queue->capacity > 1)
     {
         Node* left = queue->heap[--queue->capacity];
@@ -141,7 +152,27 @@ int main()
         Node* combined = combine_nodes(left, right);
         enqueue(queue, combined);
     }
+    
+    HuffmanCode* huffman_array = (HuffmanCode*)malloc(0);
+    int huffman_len = 0;
     char code[256] = "";
-    print_huffman_tree(queue->heap[0], code, 0);
+    build_huffman_code(&huffman_array, &huffman_len, queue->heap[0], code, 0);
+    input_file = fopen("../in.txt", "r");
+    output_file = fopen("../out.txt", "w+");
+
+    while (fwscanf(input_file, L"%lc", &c) == 1)
+    {
+        for (int i = 0; i < huffman_len; i++)
+        {
+            if (huffman_array[i].symbol == c)
+            {
+                fprintf(output_file, "%s", huffman_array[i].code);
+                break;
+            }
+        }
+    }
+    fclose(input_file);
+    fclose(output_file);
+
     return 0;
 }
