@@ -152,7 +152,7 @@ int main()
         Node* combined = combine_nodes(left, right);
         enqueue(queue, combined);
     }
-    
+
     HuffmanCode* huffman_array = (HuffmanCode*)malloc(0);
     int huffman_len = 0;
     char code[256] = "";
@@ -173,6 +173,28 @@ int main()
     }
     fclose(input_file);
     fclose(output_file);
+
+    output_file = fopen("../out.txt", "r");
+    int len = 0;
+    char bit;
+    char *buffer = (char *)malloc((len + 1) * sizeof(char));
+
+    while (fscanf(output_file, "%c", &bit) == 1)
+    {
+        buffer[len] = bit;
+        buffer[++len] = '\0';
+        buffer = realloc(buffer, (len + 1) * sizeof(char));
+        for (int i = 0; i < huffman_len; i++)
+        {
+            if (strcmp(buffer, huffman_array[i].code) == 0)
+            {
+                printf("%lc", huffman_array[i].symbol);
+                buffer[0] = '\0';
+                len = 0;
+                break;
+            }
+        }
+    }
 
     return 0;
 }
