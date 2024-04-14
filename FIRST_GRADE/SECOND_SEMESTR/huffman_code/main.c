@@ -103,31 +103,20 @@ void build_huffman_code(HuffmanCode** huffman_array, int* huffman_len, Node* roo
 }
 
 
-int main(int argc, char *argv[])
+void code_data(int *huffman_len, HuffmanCode *huffman_array)
 {
-    setlocale(LC_ALL, "");
-    char* flag = argv[1];
-    if (strcmp(flag, "c") == 0)
-    {
-        puts("code mode");
-        return 0;
-    }
-    else if (strcmp(flag, "d") == 0)
-    {
-        puts("decode mode");
-        return 0;
-    }
+    FILE* input_file, *output_file;
+    input_file = fopen("in.txt", "r+");
 
     PriorityQueue* queue = init_queue();
-    FILE* input_file, *output_file;
     wchar_t c;
-
-    input_file = fopen("../in.txt", "r");
+    int found_flag;
+    char code[256] = "";
 
     while (fwscanf(input_file, L"%lc", &c) == 1)
     {
         Node* symbol_node = NULL;
-        int found_flag = 0;
+        found_flag = 0;
 
         for (int i = 0; i < queue->capacity; i++)
         {
@@ -165,16 +154,14 @@ int main(int argc, char *argv[])
         enqueue(queue, combined);
     }
 
-    HuffmanCode* huffman_array = (HuffmanCode*)malloc(0);
-    int huffman_len = 0;
-    char code[256] = "";
-    build_huffman_code(&huffman_array, &huffman_len, queue->heap[0], code, 0);
-    input_file = fopen("../in.txt", "r");
-    output_file = fopen("../out.txt", "w+");
+    build_huffman_code(&huffman_array, huffman_len, queue->heap[0], code, 0);
+
+    input_file = fopen("in.txt", "r+");
+    output_file = fopen("out.txt", "w+");
 
     while (fwscanf(input_file, L"%lc", &c) == 1)
     {
-        for (int i = 0; i < huffman_len; i++)
+        for (int i = 0; i < *huffman_len; i++)
         {
             if (huffman_array[i].symbol == c)
             {
@@ -185,23 +172,30 @@ int main(int argc, char *argv[])
     }
     fclose(input_file);
     fclose(output_file);
+}
 
-    output_file = fopen("../out.txt", "r");
+
+void decode_data(int *huffman_len, HuffmanCode *huffman_array)
+{
+    FILE* input_file, *output_file;
+    input_file = fopen("in.txt", "r+");
+    output_file = fopen("out.txt", "w+");
     int len = 0;
-    char bit;
-    char *buffer = (char *)malloc(sizeof(char));
+    char bit, *buffer = (char *)malloc(sizeof(char));
 
-    while (fscanf(output_file, "%c", &bit) == 1)
+    while (fscanf(input_file, "%c", &bit) == 1)
     {
-        if (bit == '0' || bit == '1') {
+        if (bit == '0' || bit == '1')
+        {
             buffer[len++] = bit;
             buffer = realloc(buffer, len + 1);
             buffer[len] = '\0';
-            for (int i = 0; i < huffman_len; i++)
+
+            for (int i = 0; i < *huffman_len; i++)
             {
                 if (strcmp(buffer, huffman_array[i].code) == 0)
                 {
-                    printf("%lc", huffman_array[i].symbol);
+                    fprintf(output_file,"%lc", huffman_array[i].symbol);
                     len = 0;
                     break;
                 }
@@ -210,7 +204,25 @@ int main(int argc, char *argv[])
     }
 
     free(buffer);
+    fclose(input_file);
     fclose(output_file);
+}
+
+
+int main(int argc, char *argv[])
+{
+    setlocale(LC_ALL, "");
+    int huffman_len = 0;
+    HuffmanCode* huffman_array = (HuffmanCode*)malloc(huffman_len);
+    char* flag = argv[1];
+
+    if (strcmp(flag, "c") == 0)
+    {
+        code_data(&huffman_len, huffman_array);
+        return 0;
+    }
+    else if (strcmp(flag, "d") == 0)
+        decode_data(&huffman_len, huffman_array);
 
     return 0;
 }
