@@ -103,9 +103,21 @@ void build_huffman_code(HuffmanCode** huffman_array, int* huffman_len, Node* roo
 }
 
 
-int main()
+int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, "");
+    char* flag = argv[1];
+    if (strcmp(flag, "c") == 0)
+    {
+        puts("code mode");
+        return 0;
+    }
+    else if (strcmp(flag, "d") == 0)
+    {
+        puts("decode mode");
+        return 0;
+    }
+
     PriorityQueue* queue = init_queue();
     FILE* input_file, *output_file;
     wchar_t c;
@@ -177,24 +189,28 @@ int main()
     output_file = fopen("../out.txt", "r");
     int len = 0;
     char bit;
-    char *buffer = (char *)malloc((len + 1) * sizeof(char));
+    char *buffer = (char *)malloc(sizeof(char));
 
     while (fscanf(output_file, "%c", &bit) == 1)
     {
-        buffer[len] = bit;
-        buffer[++len] = '\0';
-        buffer = realloc(buffer, (len + 1) * sizeof(char));
-        for (int i = 0; i < huffman_len; i++)
-        {
-            if (strcmp(buffer, huffman_array[i].code) == 0)
+        if (bit == '0' || bit == '1') {
+            buffer[len++] = bit;
+            buffer = realloc(buffer, len + 1);
+            buffer[len] = '\0';
+            for (int i = 0; i < huffman_len; i++)
             {
-                printf("%lc", huffman_array[i].symbol);
-                buffer[0] = '\0';
-                len = 0;
-                break;
+                if (strcmp(buffer, huffman_array[i].code) == 0)
+                {
+                    printf("%lc", huffman_array[i].symbol);
+                    len = 0;
+                    break;
+                }
             }
         }
     }
+
+    free(buffer);
+    fclose(output_file);
 
     return 0;
 }
