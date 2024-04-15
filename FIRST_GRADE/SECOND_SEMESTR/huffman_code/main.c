@@ -103,6 +103,55 @@ void build_huffman_code(HuffmanCode** huffman_array, int* huffman_len, Node* roo
 }
 
 
+void save_huffman_code(HuffmanCode *huffman_array, int huffman_len)
+{
+    FILE* data_file = fopen("data.txt", "r+");
+    for (int i = 0; i < huffman_len; i++)
+        fprintf(data_file, "%lc %s\t", huffman_array[i].symbol, huffman_array[i].code);
+    fclose(data_file);
+}
+
+
+void load_huffman_code(HuffmanCode **huffman_array, int *huffman_len)
+{
+    FILE *data_file = fopen("data.txt", "r+");
+    wchar_t symbol;
+    char code[256] = "";
+    int index = 0;
+
+    while (1)
+    {
+        symbol = fgetwc(data_file);
+
+        if (symbol == '\n')
+        {
+            fscanf(data_file, "%s\t", code);
+            *huffman_array = realloc(*huffman_array, (*huffman_len + 1) * sizeof(HuffmanCode));
+            (*huffman_array)[index].symbol = '\n';
+            strcpy((*huffman_array)[index].code, code);
+        }
+        else if (symbol == ' ')
+            continue;
+
+        else if (symbol != '\n' || symbol != ' ')
+        {
+            ungetwc(symbol, data_file);
+            fscanf(data_file, "%lc %s\t", &symbol, code);
+            *huffman_array = realloc(*huffman_array, (*huffman_len + 1) * sizeof(HuffmanCode));
+            (*huffman_array)[index].symbol = symbol;
+            strcpy((*huffman_array)[index].code, code);
+        }
+        else
+            break;
+        index++;
+        printf("%s %lc\n", (*huffman_array)[index - 1].code, (*huffman_array)[index - 1].symbol);
+
+    }
+    *huffman_len = index;
+    fclose(data_file);
+}
+
+
 void code_data(int *huffman_len, HuffmanCode *huffman_array)
 {
     FILE* input_file, *output_file;
@@ -163,6 +212,7 @@ void code_data(int *huffman_len, HuffmanCode *huffman_array)
     {
         for (int i = 0; i < *huffman_len; i++)
         {
+
             if (huffman_array[i].symbol == c)
             {
                 fprintf(output_file, "%s", huffman_array[i].code);
@@ -170,6 +220,7 @@ void code_data(int *huffman_len, HuffmanCode *huffman_array)
             }
         }
     }
+    save_huffman_code(huffman_array, *huffman_len);
     fclose(input_file);
     fclose(output_file);
 }
@@ -178,51 +229,58 @@ void code_data(int *huffman_len, HuffmanCode *huffman_array)
 void decode_data(int *huffman_len, HuffmanCode *huffman_array)
 {
     FILE* input_file, *output_file;
-    input_file = fopen("in.txt", "r+");
-    output_file = fopen("out.txt", "w+");
+    input_file = fopen("in.txt", "r");
+    output_file = fopen("out.txt", "w");
+    char bit;
+    char buffer[256];
     int len = 0;
-    char bit, *buffer = (char *)malloc(sizeof(char));
+    load_huffman_code(&huffman_array, huffman_len);
+    printf("%d", *huffman_len);
+    for (int i = 0; i < *huffman_len; i++)
+        printf("%s %lc", huffman_array[i].code, huffman_array[i].symbol);
 
     while (fscanf(input_file, "%c", &bit) == 1)
     {
         if (bit == '0' || bit == '1')
         {
             buffer[len++] = bit;
-            buffer = realloc(buffer, len + 1);
             buffer[len] = '\0';
-
             for (int i = 0; i < *huffman_len; i++)
             {
                 if (strcmp(buffer, huffman_array[i].code) == 0)
                 {
-                    fprintf(output_file,"%lc", huffman_array[i].symbol);
-                    len = 0;
+                    fprintf(output_file, "%lc", huffman_array[i].symbol);
+                    len = 0; // Reset buffer
                     break;
                 }
             }
         }
     }
 
-    free(buffer);
     fclose(input_file);
     fclose(output_file);
 }
+
+
 
 
 int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, "");
     int huffman_len = 0;
-    HuffmanCode* huffman_array = (HuffmanCode*)malloc(huffman_len);
-    char* flag = argv[1];
+    HuffmanCode* huffman_array = (HuffmanCode*)malloc(huffman_len * sizeof(HuffmanCode));
 
-    if (strcmp(flag, "c") == 0)
+    //char* flag = argv[1];
+
+    /*if (strcmp(flag, "c") != 0)
     {
-        code_data(&huffman_len, huffman_array);
+        /*code_data(&huffman_len, huffman_array);/*
         return 0;
     }
     else if (strcmp(flag, "d") == 0)
-        decode_data(&huffman_len, huffman_array);
+    */
+    decode_data(&huffman_len, huffman_array);/*
+    */
 
     return 0;
 }
