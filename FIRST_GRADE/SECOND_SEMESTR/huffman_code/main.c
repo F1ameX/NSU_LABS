@@ -107,49 +107,44 @@ void save_huffman_code(HuffmanCode *huffman_array, int huffman_len)
 {
     FILE* data_file = fopen("data.txt", "r+");
     for (int i = 0; i < huffman_len; i++)
-        fprintf(data_file, "%lc %s\t", huffman_array[i].symbol, huffman_array[i].code);
+        fprintf(data_file, "_%lc %s\t", huffman_array[i].symbol, huffman_array[i].code);
     fclose(data_file);
 }
 
 
 void load_huffman_code(HuffmanCode **huffman_array, int *huffman_len)
 {
-    FILE *data_file = fopen("data.txt", "r+");
+    FILE *data_file = fopen("data.txt", "r");
     wchar_t symbol;
     char code[256] = "";
-    int index = 0;
+    int index = 0, is_code = 0, len_code = 0;
 
-    while (1)
+    while ((symbol = getwc(data_file)) != WEOF)
     {
-        symbol = fgetwc(data_file);
-
-        if (symbol == '\n')
+        if (symbol == L'_')
         {
-            fscanf(data_file, "%s\t", code);
+            symbol = getwc(data_file);
             *huffman_array = realloc(*huffman_array, (*huffman_len + 1) * sizeof(HuffmanCode));
-            (*huffman_array)[index].symbol = '\n';
-            strcpy((*huffman_array)[index].code, code);
+            (*huffman_array)[*huffman_len].symbol = symbol;
+            is_code = 1;
         }
-        else if (symbol == ' ')
-            continue;
-
-        else if (symbol != '\n' || symbol != ' ')
+        else if ((symbol == L'0' || symbol == L'1') && is_code)
         {
-            ungetwc(symbol, data_file);
-            fscanf(data_file, "%lc %s\t", &symbol, code);
-            *huffman_array = realloc(*huffman_array, (*huffman_len + 1) * sizeof(HuffmanCode));
-            (*huffman_array)[index].symbol = symbol;
-            strcpy((*huffman_array)[index].code, code);
+            code[len_code++] = (char)symbol;
+            code[len_code] = '\0';
         }
-        else
-            break;
-        index++;
-        printf("%s %lc\n", (*huffman_array)[index - 1].code, (*huffman_array)[index - 1].symbol);
-
+        else if (symbol == L'\t')
+        {
+            strcpy((*huffman_array)[*huffman_len].code, code);
+            (*huffman_len)++;
+            is_code = 0;
+            len_code = 0;
+        }
     }
-    *huffman_len = index;
+
     fclose(data_file);
 }
+
 
 
 void code_data(int *huffman_len, HuffmanCode *huffman_array)
@@ -236,6 +231,7 @@ void decode_data(int *huffman_len, HuffmanCode *huffman_array)
     int len = 0;
     load_huffman_code(&huffman_array, huffman_len);
     printf("%d", *huffman_len);
+
     for (int i = 0; i < *huffman_len; i++)
         printf("%s %lc", huffman_array[i].code, huffman_array[i].symbol);
 
@@ -250,7 +246,7 @@ void decode_data(int *huffman_len, HuffmanCode *huffman_array)
                 if (strcmp(buffer, huffman_array[i].code) == 0)
                 {
                     fprintf(output_file, "%lc", huffman_array[i].symbol);
-                    len = 0; // Reset buffer
+                    len = 0;
                     break;
                 }
             }
@@ -278,8 +274,8 @@ int main(int argc, char *argv[])
         return 0;
     }
     else if (strcmp(flag, "d") == 0)
-    */
-    decode_data(&huffman_len, huffman_array);/*
+
+    */decode_data(&huffman_len, huffman_array);/*
     */
 
     return 0;
