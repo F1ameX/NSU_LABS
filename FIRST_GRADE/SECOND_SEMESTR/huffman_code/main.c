@@ -117,7 +117,7 @@ void load_huffman_code(HuffmanCode **huffman_array, int *huffman_len)
     FILE *data_file = fopen("data.txt", "r");
     wchar_t symbol;
     char code[256] = "";
-    int index = 0, is_code = 0, len_code = 0;
+    int is_code = 0, len_code = 0;
 
     while ((symbol = getwc(data_file)) != WEOF)
     {
@@ -230,10 +230,7 @@ void decode_data(int *huffman_len, HuffmanCode *huffman_array)
     char buffer[256];
     int len = 0;
     load_huffman_code(&huffman_array, huffman_len);
-    printf("%d", *huffman_len);
 
-    for (int i = 0; i < *huffman_len; i++)
-        printf("%s %lc", huffman_array[i].code, huffman_array[i].symbol);
 
     while (fscanf(input_file, "%c", &bit) == 1)
     {
@@ -258,25 +255,18 @@ void decode_data(int *huffman_len, HuffmanCode *huffman_array)
 }
 
 
-
-
 int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, "");
     int huffman_len = 0;
     HuffmanCode* huffman_array = (HuffmanCode*)malloc(huffman_len * sizeof(HuffmanCode));
 
-    //char* flag = argv[1];
+    char* flag = argv[1];
 
-    /*if (strcmp(flag, "c") != 0)
-    {
-        /*code_data(&huffman_len, huffman_array);/*
-        return 0;
-    }
+    if (strcmp(flag, "c") == 0)
+        code_data(&huffman_len, huffman_array);
     else if (strcmp(flag, "d") == 0)
-
-    */decode_data(&huffman_len, huffman_array);/*
-    */
+        decode_data(&huffman_len, huffman_array);
 
     return 0;
 }
