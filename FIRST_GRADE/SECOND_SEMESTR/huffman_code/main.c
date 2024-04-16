@@ -146,11 +146,27 @@ void load_huffman_code(HuffmanCode **huffman_array, int *huffman_len)
 }
 
 
+int is_tree()
+{
+    wchar_t symbol;
+    char code[256];
+    FILE* data_input;
+    data_input = fopen("data.txt", "r+");
+    if (fscanf(data_input, "_%lc %s", &symbol, code) == 2)
+        return 1;
+    return 0;
+}
+
 
 void code_data(int *huffman_len, HuffmanCode *huffman_array)
 {
-    FILE* input_file, *output_file;
+
+    FILE* input_file, *data_input, *output_file;
     input_file = fopen("in.txt", "r+");
+    data_input = fopen("data.txt", "r+");
+
+    if (is_tree() == 1)
+        return;
 
     PriorityQueue* queue = init_queue();
     wchar_t c;
@@ -223,6 +239,7 @@ void code_data(int *huffman_len, HuffmanCode *huffman_array)
 
 void decode_data(int *huffman_len, HuffmanCode *huffman_array)
 {
+
     FILE* input_file, *output_file;
     input_file = fopen("in.txt", "r");
     output_file = fopen("out.txt", "w");
@@ -231,7 +248,8 @@ void decode_data(int *huffman_len, HuffmanCode *huffman_array)
     int len = 0;
     load_huffman_code(&huffman_array, huffman_len);
 
-
+    if (is_tree() == 0)
+        return;
     while (fscanf(input_file, "%c", &bit) == 1)
     {
         if (bit == '0' || bit == '1')
