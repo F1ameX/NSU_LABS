@@ -55,6 +55,18 @@ build CMakeFiles/lab_0b.dir/main.cpp.o: CXX_COMPILER__lab_0b_unscanned_Debug /Us
   OBJECT_DIR = CMakeFiles/lab_0b.dir
   OBJECT_FILE_DIR = CMakeFiles/lab_0b.dir
 
+build CMakeFiles/lab_0b.dir/word_data.cpp.o: CXX_COMPILER__lab_0b_unscanned_Debug /Users/andrewf1amex/Programming/lab_0b/word_data.cpp || cmake_object_order_depends_target_lab_0b
+  DEP_FILE = CMakeFiles/lab_0b.dir/word_data.cpp.o.d
+  FLAGS = -g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/lab_0b.dir
+  OBJECT_FILE_DIR = CMakeFiles/lab_0b.dir
+
+build CMakeFiles/lab_0b.dir/csv_writer.cpp.o: CXX_COMPILER__lab_0b_unscanned_Debug /Users/andrewf1amex/Programming/lab_0b/csv_writer.cpp || cmake_object_order_depends_target_lab_0b
+  DEP_FILE = CMakeFiles/lab_0b.dir/csv_writer.cpp.o.d
+  FLAGS = -g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/lab_0b.dir
+  OBJECT_FILE_DIR = CMakeFiles/lab_0b.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target lab_0b
@@ -63,7 +75,7 @@ build CMakeFiles/lab_0b.dir/main.cpp.o: CXX_COMPILER__lab_0b_unscanned_Debug /Us
 #############################################
 # Link the executable lab_0b
 
-build lab_0b: CXX_EXECUTABLE_LINKER__lab_0b_Debug CMakeFiles/lab_0b.dir/main.cpp.o
+build lab_0b: CXX_EXECUTABLE_LINKER__lab_0b_Debug CMakeFiles/lab_0b.dir/main.cpp.o CMakeFiles/lab_0b.dir/word_data.cpp.o CMakeFiles/lab_0b.dir/csv_writer.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk
   OBJECT_DIR = CMakeFiles/lab_0b.dir
   POST_BUILD = :
