@@ -33,7 +33,6 @@ BitArray& BitArray::operator=(const BitArray& b)
 
 void BitArray::resize(int new_size, bool value)
 {
-
     if (new_size < 0)
         throw std::invalid_argument("New size must be non-negative");
 
@@ -70,7 +69,8 @@ BitArray& BitArray::operator&=(const BitArray& b)
     return *this;
 }
 
-BitArray& BitArray::operator|=(const BitArray& b) {
+BitArray& BitArray::operator|=(const BitArray& b)
+{
     if (num_bits != b.num_bits)
         throw std::invalid_argument("Bit arrays must be of the same size for bitwise operations");
 
@@ -80,7 +80,8 @@ BitArray& BitArray::operator|=(const BitArray& b) {
     return *this;
 }
 
-BitArray& BitArray::operator^=(const BitArray& b){
+BitArray& BitArray::operator^=(const BitArray& b)
+{
     if (num_bits != b.num_bits)
         throw std::invalid_argument("Bit arrays must be of the same size for bitwise operations");
 
@@ -90,12 +91,15 @@ BitArray& BitArray::operator^=(const BitArray& b){
     return *this;
 }
 
-BitArray& BitArray::operator<<=(int n) {
+BitArray& BitArray::operator<<=(int n)
+{
     if (n < 0) return *this >>= -n;
-    if (n >= num_bits) {
+    if (n >= num_bits)
+    {
         reset();
         return *this;
     }
+
     int full_shifts = n / BITS_PER_LONG;
     int bit_shifts = n % BITS_PER_LONG;
 
