@@ -4,6 +4,15 @@ static constexpr int BITS_PER_LONG = sizeof(unsigned long) * 8;
 
 BitArray::BitArray() : num_bits(0) {}
 BitArray::~BitArray() = default;
+BitArray::BitArray(const BitArray& b) : data(b.data), num_bits(b.num_bits) {};
+BitArray& BitArray::reset(int n) {return set(n, false);}
+
+int BitArray::size() const {return num_bits;}
+bool BitArray::empty() const {return num_bits == 0;}
+bool operator==(const BitArray & a, const BitArray & b) {return a.size() == b.size() && a.data == b.data;}
+bool operator!=(const BitArray & a, const BitArray & b) {return !(a == b);}
+bool BitArray::none() const {return !any();}
+
 
 BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits)
 {
@@ -13,13 +22,12 @@ BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits)
 }
 
 
-BitArray::BitArray(const BitArray& b) : data(b.data), num_bits(b.num_bits) {};
-
 void BitArray::swap(BitArray& b)
 {
     std::swap(data, b.data);
     std::swap(num_bits, b.num_bits);
 }
+
 
 BitArray& BitArray::operator=(const BitArray& b)
 {
@@ -30,6 +38,7 @@ BitArray& BitArray::operator=(const BitArray& b)
     }
     return *this;
 }
+
 
 void BitArray::resize(int new_size, bool value)
 {
@@ -46,17 +55,20 @@ void BitArray::resize(int new_size, bool value)
     num_bits = new_size;
 }
 
+
 void BitArray::clear()
 {
     data.clear();
     num_bits = 0;
 }
 
+
 void BitArray::push_back(bool bit)
 {
     resize(num_bits + 1);
     set(num_bits - 1, bit);
 }
+
 
 BitArray& BitArray::operator&=(const BitArray& b)
 {
@@ -69,6 +81,7 @@ BitArray& BitArray::operator&=(const BitArray& b)
     return *this;
 }
 
+
 BitArray& BitArray::operator|=(const BitArray& b)
 {
     if (num_bits != b.num_bits)
@@ -80,6 +93,7 @@ BitArray& BitArray::operator|=(const BitArray& b)
     return *this;
 }
 
+
 BitArray& BitArray::operator^=(const BitArray& b)
 {
     if (num_bits != b.num_bits)
@@ -90,6 +104,7 @@ BitArray& BitArray::operator^=(const BitArray& b)
 
     return *this;
 }
+
 
 BitArray& BitArray::operator<<=(int n)
 {
@@ -117,6 +132,7 @@ BitArray& BitArray::operator<<=(int n)
     return *this;
 }
 
+
 BitArray& BitArray::operator>>=(int n)
 {
     if (n < 0) return *this <<= -n;
@@ -142,17 +158,20 @@ BitArray& BitArray::operator>>=(int n)
     return *this;
 }
 
+
 BitArray BitArray::operator<<(int n) const
 {
     BitArray result(*this);
     return result <<= n;
 }
 
+
 BitArray BitArray::operator>>(int n) const
 {
     BitArray result(*this);
     return result >>= n;
 }
+
 
 BitArray& BitArray::set(int n, bool val)
 {
@@ -167,19 +186,20 @@ BitArray& BitArray::set(int n, bool val)
     return *this;
 }
 
+
 BitArray& BitArray::set()
 {
     std::fill(data.begin(), data.end(), ~0UL);
     return *this;
 }
 
-BitArray& BitArray::reset(int n) {return set(n, false);}
 
 BitArray& BitArray::reset()
 {
     std::fill(data.begin(), data.end(), 0);
     return *this;
 }
+
 
 bool BitArray::any() const
 {
@@ -189,7 +209,6 @@ bool BitArray::any() const
     return false;
 }
 
-bool BitArray::none() const {return !any();}
 
 BitArray BitArray::operator~() const
 {
@@ -199,6 +218,7 @@ BitArray BitArray::operator~() const
     return result;
 }
 
+
 int BitArray::count() const
 {
     int count = 0;
@@ -207,6 +227,7 @@ int BitArray::count() const
     return count;
 }
 
+
 bool BitArray::operator[](int i) const
 {
     if (i < 0 || i >= num_bits)
@@ -214,9 +235,6 @@ bool BitArray::operator[](int i) const
     return data[i / BITS_PER_LONG] & (1UL << (i % BITS_PER_LONG));
 }
 
-int BitArray::size() const {return num_bits;}
-
-bool BitArray::empty() const {return num_bits == 0;}
 
 std::string BitArray::to_string() const
 {
@@ -226,9 +244,6 @@ std::string BitArray::to_string() const
     return result;
 }
 
-bool operator==(const BitArray & a, const BitArray & b) {return a.size() == b.size() && a.data == b.data;}
-
-bool operator!=(const BitArray & a, const BitArray & b) {return !(a == b);}
 
 BitArray operator&(const BitArray& b1, const BitArray& b2)
 {
@@ -244,6 +259,7 @@ BitArray operator|(const BitArray& b1, const BitArray& b2)
     result |= b2;
     return result;
 }
+
 
 BitArray operator^(const BitArray& b1, const BitArray& b2)
 {
