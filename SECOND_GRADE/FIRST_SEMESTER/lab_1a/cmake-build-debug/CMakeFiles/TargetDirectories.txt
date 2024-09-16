@@ -1,3 +1,4 @@
 /Users/andrewf1amex/Programming/lab_1a/cmake-build-debug/CMakeFiles/lab_1a.dir
+/Users/andrewf1amex/Programming/lab_1a/cmake-build-debug/CMakeFiles/my_tests.dir
 /Users/andrewf1amex/Programming/lab_1a/cmake-build-debug/CMakeFiles/edit_cache.dir
 /Users/andrewf1amex/Programming/lab_1a/cmake-build-debug/CMakeFiles/rebuild_cache.dir
