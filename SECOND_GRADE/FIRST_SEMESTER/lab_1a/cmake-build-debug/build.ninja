@@ -51,13 +51,13 @@ build cmake_object_order_depends_target_lab_1a: phony || CMakeFiles/lab_1a.dir
 
 build CMakeFiles/lab_1a.dir/main.cpp.o: CXX_COMPILER__lab_1a_unscanned_Debug /Users/andrewf1amex/Programming/lab_1a/main.cpp || cmake_object_order_depends_target_lab_1a
   DEP_FILE = CMakeFiles/lab_1a.dir/main.cpp.o.d
-  FLAGS = -g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
   OBJECT_DIR = CMakeFiles/lab_1a.dir
   OBJECT_FILE_DIR = CMakeFiles/lab_1a.dir
 
 build CMakeFiles/lab_1a.dir/bit_array.cpp.o: CXX_COMPILER__lab_1a_unscanned_Debug /Users/andrewf1amex/Programming/lab_1a/bit_array.cpp || cmake_object_order_depends_target_lab_1a
   DEP_FILE = CMakeFiles/lab_1a.dir/bit_array.cpp.o.d
-  FLAGS = -g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
   OBJECT_DIR = CMakeFiles/lab_1a.dir
   OBJECT_FILE_DIR = CMakeFiles/lab_1a.dir
 
@@ -88,14 +88,14 @@ build cmake_object_order_depends_target_my_tests: phony || CMakeFiles/my_tests.d
 
 build CMakeFiles/my_tests.dir/bit_array_test.cpp.o: CXX_COMPILER__my_tests_unscanned_Debug /Users/andrewf1amex/Programming/lab_1a/bit_array_test.cpp || cmake_object_order_depends_target_my_tests
   DEP_FILE = CMakeFiles/my_tests.dir/bit_array_test.cpp.o.d
-  FLAGS = -g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
   INCLUDES = -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/my_tests.dir
   OBJECT_FILE_DIR = CMakeFiles/my_tests.dir
 
 build CMakeFiles/my_tests.dir/bit_array.cpp.o: CXX_COMPILER__my_tests_unscanned_Debug /Users/andrewf1amex/Programming/lab_1a/bit_array.cpp || cmake_object_order_depends_target_my_tests
   DEP_FILE = CMakeFiles/my_tests.dir/bit_array.cpp.o.d
-  FLAGS = -g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
   INCLUDES = -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/my_tests.dir
   OBJECT_FILE_DIR = CMakeFiles/my_tests.dir
@@ -110,7 +110,7 @@ build CMakeFiles/my_tests.dir/bit_array.cpp.o: CXX_COMPILER__my_tests_unscanned_
 
 build my_tests: CXX_EXECUTABLE_LINKER__my_tests_Debug CMakeFiles/my_tests.dir/bit_array_test.cpp.o CMakeFiles/my_tests.dir/bit_array.cpp.o | /opt/homebrew/lib/libgtest_main.a /opt/homebrew/lib/libgtest.a
   FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk
-  LINK_LIBRARIES = /opt/homebrew/lib/libgtest_main.a  /opt/homebrew/lib/libgtest.a
+  LINK_LIBRARIES = -lpthread  /opt/homebrew/lib/libgtest_main.a  /opt/homebrew/lib/libgtest.a
   OBJECT_DIR = CMakeFiles/my_tests.dir
   POST_BUILD = :
   PRE_LINK = :
