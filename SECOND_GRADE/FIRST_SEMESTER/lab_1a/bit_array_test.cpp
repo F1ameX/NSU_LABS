@@ -59,3 +59,17 @@ TEST(BitArrayTest, SwapAndResizeBit)
     ASSERT_EQ(bitArray_2.to_string(), "11");
     ASSERT_EQ(bitArray_2.size(), 2);
 }
+
+
+TEST(BitArrayTest, PushAndClearBit) {
+    BitArray bitArray(8, 5);
+    bitArray.push_back(true);
+
+    ASSERT_TRUE(bitArray[8]);
+    ASSERT_EQ(bitArray.size(), 9);
+
+    bitArray.clear();
+
+    ASSERT_EQ(bitArray.size(), 0);
+    ASSERT_EQ(bitArray.to_string(), "");
+}
