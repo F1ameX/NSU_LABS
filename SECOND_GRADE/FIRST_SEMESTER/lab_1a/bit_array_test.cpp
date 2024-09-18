@@ -1,6 +1,7 @@
 #include "bit_array.h"
 #include "gtest/gtest.h"
 #include <iostream>
+#include <type_traits>
 
 
 TEST(bitArrayTest, DefaultConstructor)
@@ -8,6 +9,14 @@ TEST(bitArrayTest, DefaultConstructor)
     BitArray bitArray;
     ASSERT_EQ(bitArray.size(), 0);
     ASSERT_TRUE(bitArray.empty());
+}
+
+
+TEST(bitArrayTest, SetAndStringBit)
+{
+    BitArray bitArray(5, 5);
+    ASSERT_EQ(bitArray.to_string(), "00101");
+    ASSERT_TRUE((std::is_same<decltype(bitArray.to_string()), std::string>::value));
 }
 
 
@@ -72,4 +81,94 @@ TEST(BitArrayTest, PushAndClearBit) {
 
     ASSERT_EQ(bitArray.size(), 0);
     ASSERT_EQ(bitArray.to_string(), "");
+}
+
+
+TEST(BitArrayTest, SetAndAnalyzeBit)
+{
+    BitArray bitArray(5, 0);
+
+    ASSERT_FALSE(bitArray.any());
+    ASSERT_EQ(bitArray.count(), 0);
+
+    bitArray.push_back(true);
+
+    ASSERT_TRUE(bitArray.any());
+    ASSERT_EQ(bitArray.count(), 1);
+
+    bitArray.push_back(true);
+
+    ASSERT_EQ(bitArray.count(), 2);
+
+    bitArray.push_back(true);
+    bitArray.push_back(true);
+
+    ASSERT_EQ(bitArray.count(), 4);
+}
+
+
+TEST(BitArrayTest, SetAndCheckNoneBit)
+{
+    BitArray bitArray_1, bitArray_2(5, 5);
+
+    ASSERT_TRUE(bitArray_1.none());
+    ASSERT_FALSE(bitArray_2.none());
+}
+
+
+TEST(BitArrayTest, SetAndCompareBit)
+{
+    BitArray bitArray_1(5, 31), bitArray_2(5, 30);
+
+    ASSERT_TRUE(bitArray_1 != bitArray_2);
+    ASSERT_FALSE(bitArray_1 == bitArray_2);
+
+    bitArray_2.set(0, true);
+
+    ASSERT_TRUE(bitArray_1 == bitArray_2);
+    ASSERT_FALSE(bitArray_1 != bitArray_2);
+}
+
+
+TEST(BitArrayTest, SetAndNegativeBit)
+{
+    BitArray bitArray(3, 5);
+
+    ASSERT_EQ(bitArray.to_string(), "101");
+    ASSERT_EQ((~bitArray).to_string(), "010");
+}
+
+
+TEST(BitArrayTest, SetAndEquateBit)
+{
+    BitArray bitArray_1(3, 5), bitArray_2;
+    bitArray_2 = bitArray_1;
+    ASSERT_TRUE(bitArray_1 == bitArray_2);
+    ASSERT_EQ(bitArray_2.to_string(), "101");
+}
+
+
+TEST(BitArrayTest, SetAndBitwiseOpsBit)
+{
+    BitArray bitArray_1(3, 5), bitArray_2(3, 2), bitArray_3(4, 5);
+    bitArray_1 &= bitArray_2;
+
+    ASSERT_EQ(bitArray_1.to_string(), "000");
+    ASSERT_THROW(bitArray_1 &= bitArray_3, std::invalid_argument);
+
+    bitArray_1 = BitArray(3, 5);
+    bitArray_1 |= bitArray_2;
+
+    ASSERT_EQ(bitArray_1.to_string(), "111");
+    ASSERT_THROW(bitArray_1 |= bitArray_3, std::invalid_argument);
+
+    bitArray_2 = BitArray(3, 3);
+    bitArray_1 ^= bitArray_2;
+
+    ASSERT_EQ(bitArray_1.to_string(), "100");
+    ASSERT_THROW(bitArray_1 ^= bitArray_3, std::invalid_argument);
+
+    ASSERT_EQ((bitArray_1 & bitArray_2).to_string(), "000");
+    ASSERT_EQ((bitArray_1 | bitArray_2).to_string(), "111");
+    ASSERT_EQ((bitArray_1 ^ bitArray_2).to_string(), "111");
 }
