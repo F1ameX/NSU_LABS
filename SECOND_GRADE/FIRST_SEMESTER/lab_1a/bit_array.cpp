@@ -56,14 +56,14 @@ void BitArray::resize(int new_size, bool value) // tested
 }
 
 
-void BitArray::clear()
+void BitArray::clear() //tested
 {
     data.clear();
     num_bits = 0;
 }
 
 
-void BitArray::push_back(bool bit)
+void BitArray::push_back(bool bit) //tested
 {
     resize(num_bits + 1);
     set(num_bits - 1, bit);
