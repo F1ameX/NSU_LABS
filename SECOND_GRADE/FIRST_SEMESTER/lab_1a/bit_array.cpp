@@ -2,19 +2,19 @@
 
 static constexpr int BITS_PER_LONG = sizeof(unsigned long) * 8;
 
-BitArray::BitArray() : num_bits(0) {}
-BitArray::~BitArray() = default;
-BitArray::BitArray(const BitArray& b) : data(b.data), num_bits(b.num_bits) {};
-BitArray& BitArray::reset(int n) {return set(n, false);}
+BitArray::BitArray() : num_bits(0) {} // tested
+BitArray::~BitArray() = default; // default deconstructor
+BitArray::BitArray(const BitArray& b) : data(b.data), num_bits(b.num_bits) {}; //tested
+BitArray& BitArray::reset(int n) {return set(n, false);} //tested
 
-int BitArray::size() const {return num_bits;}
-bool BitArray::empty() const {return num_bits == 0;}
+int BitArray::size() const {return num_bits;} //tested
+bool BitArray::empty() const {return num_bits == 0;} // tested
 bool operator==(const BitArray & a, const BitArray & b) {return a.size() == b.size() && a.data == b.data;}
 bool operator!=(const BitArray & a, const BitArray & b) {return !(a == b);}
 bool BitArray::none() const {return !any();}
 
 
-BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits)
+BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits) // tested
 {
     data.resize((num_bits + BITS_PER_LONG - 1) / BITS_PER_LONG, 0);
     if (num_bits > 0 && !data.empty())
@@ -22,7 +22,7 @@ BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits)
 }
 
 
-void BitArray::swap(BitArray& b)
+void BitArray::swap(BitArray& b) //tested
 {
     std::swap(data, b.data);
     std::swap(num_bits, b.num_bits);
@@ -40,7 +40,7 @@ BitArray& BitArray::operator=(const BitArray& b)
 }
 
 
-void BitArray::resize(int new_size, bool value)
+void BitArray::resize(int new_size, bool value) // tested
 {
     if (new_size < 0)
         throw std::invalid_argument("New size must be non-negative");
