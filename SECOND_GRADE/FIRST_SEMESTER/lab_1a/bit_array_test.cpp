@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
+
 TEST(bitArrayTest, DefaultConstructor)
 {
     BitArray bitArray;
@@ -56,4 +57,5 @@ TEST(BitArrayTest, SwapAndResizeBit)
 
     ASSERT_EQ(bitArray_1.to_string().substr(5), "101");
     ASSERT_EQ(bitArray_2.to_string(), "11");
+    ASSERT_EQ(bitArray_2.size(), 2);
 }
