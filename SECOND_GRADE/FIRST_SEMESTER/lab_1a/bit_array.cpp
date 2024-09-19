@@ -2,19 +2,19 @@
 
 static constexpr int BITS_PER_LONG = sizeof(unsigned long) * 8;
 
-BitArray::BitArray() : num_bits(0) {} // tested
-BitArray::~BitArray() = default; // default deconstructor
-BitArray::BitArray(const BitArray& b) : data(b.data), num_bits(b.num_bits) {}; //tested
-BitArray& BitArray::reset(int n) {return set(n, false);} //tested
+BitArray::BitArray() : num_bits(0) {} 
+BitArray::~BitArray() = default; 
+BitArray::BitArray(const BitArray& b) : data(b.data), num_bits(b.num_bits) {}; 
+BitArray& BitArray::reset(int n) {return set(n, false);} 
 
-int BitArray::size() const {return num_bits;} //tested
-bool BitArray::empty() const {return num_bits == 0;} // tested
-bool operator==(const BitArray & a, const BitArray & b) {return a.size() == b.size() && a.data == b.data;} //tested
-bool operator!=(const BitArray & a, const BitArray & b) {return !(a == b);} //tested
-bool BitArray::none() const {return !any();} //tested
+int BitArray::size() const {return num_bits;} 
+bool BitArray::empty() const {return num_bits == 0;} 
+bool operator==(const BitArray & a, const BitArray & b) {return a.size() == b.size() && a.data == b.data;} 
+bool operator!=(const BitArray & a, const BitArray & b) {return !(a == b);} 
+bool BitArray::none() const {return !any();} 
 
 
-BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits) // tested
+BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits) 
 {
     data.resize((num_bits + BITS_PER_LONG - 1) / BITS_PER_LONG, 0);
     if (num_bits > 0 && !data.empty())
@@ -22,14 +22,14 @@ BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits) // te
 }
 
 
-void BitArray::swap(BitArray& b) //tested
+void BitArray::swap(BitArray& b) 
 {
     std::swap(data, b.data);
     std::swap(num_bits, b.num_bits);
 }
 
 
-BitArray& BitArray::operator=(const BitArray& b) // tested
+BitArray& BitArray::operator=(const BitArray& b) 
 {
     if (this != &b)
     {
@@ -40,7 +40,7 @@ BitArray& BitArray::operator=(const BitArray& b) // tested
 }
 
 
-void BitArray::resize(int new_size, bool value) // tested
+void BitArray::resize(int new_size, bool value) 
 {
     if (new_size < 0)
         throw std::invalid_argument("New size must be non-negative");
@@ -56,21 +56,21 @@ void BitArray::resize(int new_size, bool value) // tested
 }
 
 
-void BitArray::clear() //tested
+void BitArray::clear() 
 {
     data.clear();
     num_bits = 0;
 }
 
 
-void BitArray::push_back(bool bit) //tested
+void BitArray::push_back(bool bit) 
 {
     resize(num_bits + 1);
     set(num_bits - 1, bit);
 }
 
 
-BitArray& BitArray::operator&=(const BitArray& b) // tested
+BitArray& BitArray::operator&=(const BitArray& b) 
 {
     if (num_bits != b.num_bits)
         throw std::invalid_argument("Bit arrays must be of the same size for bitwise operations");
@@ -82,7 +82,7 @@ BitArray& BitArray::operator&=(const BitArray& b) // tested
 }
 
 
-BitArray& BitArray::operator|=(const BitArray& b) //tested
+BitArray& BitArray::operator|=(const BitArray& b) 
 {
     if (num_bits != b.num_bits)
         throw std::invalid_argument("Bit arrays must be of the same size for bitwise operations");
@@ -94,7 +94,7 @@ BitArray& BitArray::operator|=(const BitArray& b) //tested
 }
 
 
-BitArray& BitArray::operator^=(const BitArray& b) //tested
+BitArray& BitArray::operator^=(const BitArray& b) 
 {
     if (num_bits != b.num_bits)
         throw std::invalid_argument("Bit arrays must be of the same size for bitwise operations");
@@ -173,7 +173,7 @@ BitArray BitArray::operator>>(int n) const
 }
 
 
-BitArray& BitArray::set(int n, bool val) // tested
+BitArray& BitArray::set(int n, bool val) 
 {
     if (n < 0 || n >= num_bits)
         throw std::out_of_range("Bit index out of range");
@@ -187,21 +187,21 @@ BitArray& BitArray::set(int n, bool val) // tested
 }
 
 
-BitArray& BitArray::set() //tested
+BitArray& BitArray::set()
 {
     std::fill(data.begin(), data.end(), ~0UL);
     return *this;
 }
 
 
-BitArray& BitArray::reset() //tested
+BitArray& BitArray::reset()
 {
     std::fill(data.begin(), data.end(), 0);
     return *this;
 }
 
 
-bool BitArray::any() const // tested
+bool BitArray::any() const
 {
     for (const auto& chunk : data)
         if (chunk != 0)
@@ -210,7 +210,7 @@ bool BitArray::any() const // tested
 }
 
 
-BitArray BitArray::operator~() const // tested
+BitArray BitArray::operator~() const
 {
     BitArray result(*this);
     for (auto& chunk : result.data)
@@ -219,7 +219,7 @@ BitArray BitArray::operator~() const // tested
 }
 
 
-int BitArray::count() const //tested
+int BitArray::count() const
 {
     int count = 0;
     for (const auto& chunk : data)
@@ -228,7 +228,7 @@ int BitArray::count() const //tested
 }
 
 
-bool BitArray::operator[](int i) const //tested
+bool BitArray::operator[](int i) const
 {
     if (i < 0 || i >= num_bits)
         throw std::out_of_range("Bit index out of range");
@@ -236,7 +236,7 @@ bool BitArray::operator[](int i) const //tested
 }
 
 
-std::string BitArray::to_string() const //tested
+std::string BitArray::to_string() const
 {
     std::string result;
     for (int i = num_bits - 1; i >= 0; --i)
@@ -245,7 +245,7 @@ std::string BitArray::to_string() const //tested
 }
 
 
-BitArray operator&(const BitArray& b1, const BitArray& b2) //tested
+BitArray operator&(const BitArray& b1, const BitArray& b2)
 {
     BitArray result(b1);
     result &= b2;
@@ -253,7 +253,7 @@ BitArray operator&(const BitArray& b1, const BitArray& b2) //tested
 }
 
 
-BitArray operator|(const BitArray& b1, const BitArray& b2) //tested
+BitArray operator|(const BitArray& b1, const BitArray& b2)
 {
     BitArray result(b1);
     result |= b2;
@@ -261,7 +261,7 @@ BitArray operator|(const BitArray& b1, const BitArray& b2) //tested
 }
 
 
-BitArray operator^(const BitArray& b1, const BitArray& b2) //tested
+BitArray operator^(const BitArray& b1, const BitArray& b2)
 {
     BitArray result(b1);
     result ^= b2;
