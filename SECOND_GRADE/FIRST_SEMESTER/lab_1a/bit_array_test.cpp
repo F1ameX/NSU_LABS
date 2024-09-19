@@ -172,3 +172,43 @@ TEST(BitArrayTest, SetAndBitwiseOpsBit)
     ASSERT_EQ((bitArray_1 | bitArray_2).to_string(), "111");
     ASSERT_EQ((bitArray_1 ^ bitArray_2).to_string(), "111");
 }
+
+
+TEST(BitArrayTest, SetAndShiftBit)
+{
+        BitArray bitArray(8, 5);
+        ASSERT_EQ(bitArray.to_string(), "00000101");
+
+        BitArray shifted_left = bitArray << 2;
+        ASSERT_EQ(shifted_left.to_string(), "00010100");
+
+        BitArray shifted_right = bitArray >> 2;
+        ASSERT_EQ(shifted_right.to_string(), "00000001");
+
+        ASSERT_EQ((bitArray << 0).to_string(), bitArray.to_string());
+        ASSERT_EQ((bitArray >> 0).to_string(), bitArray.to_string());
+
+        BitArray bitArray_large_shift(8, 5);
+        ASSERT_EQ((bitArray_large_shift << 8).to_string(), "00000000");
+        ASSERT_EQ((bitArray_large_shift >> 8).to_string(), "00000000");
+
+        BitArray bitArray_pattern(16, 0b1010101010101010);
+        ASSERT_EQ(bitArray_pattern.to_string(), "1010101010101010");
+
+        bitArray_pattern <<= 4;
+        ASSERT_EQ(bitArray_pattern.to_string(), "1010101010100000");
+
+        bitArray_pattern = BitArray(16, 0b1010101010101010);
+        ASSERT_EQ(bitArray_pattern.to_string(), "1010101010101010");
+
+        bitArray_pattern >>= 4;
+        ASSERT_EQ(bitArray_pattern.to_string(), "0000101010101010");
+
+        bitArray_pattern = BitArray(16, 0b1010101010101010);
+        bitArray_pattern <<= 16;
+        ASSERT_EQ(bitArray_pattern.to_string(), "0000000000000000");
+
+        bitArray_pattern = BitArray(16, 0b1010101010101010);
+        bitArray_pattern >>= 16;
+        ASSERT_EQ(bitArray_pattern.to_string(), "0000000000000000");
+}
