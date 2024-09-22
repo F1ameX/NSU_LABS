@@ -4,7 +4,6 @@
 
 using namespace std;
 
-
 int main(int argc, char** argv)
 {
     if (argc != 3)
@@ -17,9 +16,9 @@ int main(int argc, char** argv)
     string output_file_name = argv[2];
 
     WordData word_data;
-    word_data.process_file(input_file_name);
+    word_data.process_file_data(input_file_name);
 
-    CSVWriter::write_to_file(output_file_name, word_data.get_words_map(), word_data.get_words_counter());
+    CSVWriter::write_to_file(output_file_name, word_data.get_words_map());
 
     return 0;
 }
