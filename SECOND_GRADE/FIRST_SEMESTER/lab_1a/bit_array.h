@@ -229,7 +229,88 @@ public:
 
     friend bool operator==(const BitArray &a, const BitArray &b);
     friend bool operator!=(const BitArray &a, const BitArray &b);
+
+    /**
+ * @class BitArray::Iterator
+ * @brief A forward iterator for the BitArray class.
+ *
+ * This class provides a way to iterate over the bits in a BitArray object.
+ * It follows the standard iterator conventions, supporting operations like
+ * dereferencing, incrementing, and comparison.
+ */
+    class Iterator {
+    private:
+        const BitArray* bit_array;  ///< Pointer to the BitArray instance being iterated over
+        int index;                  ///< The current index within the bit array
+
+    public:
+        /**
+         * @brief Constructs an iterator for the BitArray class.
+         *
+         * @param ba Pointer to the BitArray to iterate over.
+         * @param idx The starting index for the iterator.
+         */
+        Iterator(const BitArray* ba, int idx);
+
+        /**
+         * @brief Dereference operator.
+         *
+         * Returns the value of the bit at the current position in the BitArray.
+         * @return true if the current bit is set to 1, false otherwise.
+         */
+        bool operator*() const;
+
+        /**
+         * @brief Pre-increment operator.
+         *
+         * Moves the iterator to the next bit in the BitArray.
+         * @return A reference to the incremented iterator.
+         */
+        Iterator& operator++();
+
+        /**
+         * @brief Inequality comparison operator.
+         *
+         * Compares two iterators for inequality. Two iterators are unequal if they point
+         * to different positions in their respective BitArrays.
+         * @param other The iterator to compare with.
+         * @return true if the iterators point to different positions, false otherwise.
+         */
+        bool operator!=(const Iterator& other) const;
+
+        /**
+         * @brief Equality comparison operator.
+         *
+         * Compares two iterators for equality. Two iterators are equal if they point
+         * to the same position in their respective BitArrays.
+         * @param other The iterator to compare with.
+         * @return true if the iterators point to the same position, false otherwise.
+         */
+        bool operator==(const Iterator& other) const;
+
+    };
+    /**
+     * @brief Returns an iterator to the beginning of the BitArray.
+     *
+     * This method allows iteration over the bits in the BitArray, starting from the first bit.
+     * The returned iterator points to the first bit in the array.
+     *
+     * @return An iterator pointing to the first bit in the BitArray.
+     */
+    Iterator begin() const;
+
+    /**
+     * @brief Returns an iterator to the end of the BitArray.
+     *
+     * This method allows iteration over the bits in the BitArray until the end.
+     * The returned iterator points to one past the last bit in the array (i.e., the "end").
+     *
+     * @return An iterator pointing to one past the last bit in the BitArray.
+     */
+    Iterator end() const;
 };
+
+
 
 /**
  * Equality operator.
@@ -275,4 +356,3 @@ BitArray operator|(const BitArray& b1, const BitArray& b2);
  * @return A new bit array that is the result of b1 ^ b2.
  */
 BitArray operator^(const BitArray& b1, const BitArray& b2);
-
