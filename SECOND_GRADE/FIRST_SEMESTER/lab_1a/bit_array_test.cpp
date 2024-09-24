@@ -220,15 +220,34 @@ TEST(BitArrayIteratorTest, BeginEndTest) {
     auto it_begin = bitArray.begin();
     auto it_end = bitArray.end();
 
-
     ASSERT_TRUE(*it_begin);
-    ASSERT_NE(*it_begin, *it_end);
-
+    
     ++it_begin;
     ASSERT_FALSE(*it_begin);
 
     ++it_begin;
     ASSERT_TRUE(*it_begin);
+
     ++it_begin;
-    ASSERT_EQ(*it_begin, *it_end);
+    ASSERT_FALSE(*it_begin);
+
+    ++it_begin;
+    ASSERT_FALSE(*it_begin);
+
+    ++it_begin;
+    ASSERT_EQ(it_begin, it_end);
+}
+
+
+TEST(BitArrayIteratorTest, CompareStringAndIterator)
+{
+    BitArray bitArray(6, 6);
+    std::string comparable_string;
+
+    for (auto it = bitArray.begin(); it != bitArray.end(); ++it)
+        comparable_string += std::to_string(*it);
+
+    std::reverse(comparable_string.begin(), comparable_string.end());
+
+    ASSERT_EQ(bitArray.to_string(), comparable_string);
 }
