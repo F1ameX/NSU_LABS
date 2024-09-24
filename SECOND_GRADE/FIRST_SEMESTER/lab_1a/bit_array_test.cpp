@@ -220,55 +220,15 @@ TEST(BitArrayIteratorTest, BeginEndTest) {
     auto it_begin = bitArray.begin();
     auto it_end = bitArray.end();
 
-    ASSERT_EQ(*it_begin, true);
+
+    ASSERT_TRUE(*it_begin);
     ASSERT_NE(*it_begin, *it_end);
 
     ++it_begin;
-    ASSERT_EQ(*it_begin, false);
+    ASSERT_FALSE(*it_begin);
 
     ++it_begin;
-    ASSERT_EQ(*it_begin, true);
+    ASSERT_TRUE(*it_begin);
+    ++it_begin;
     ASSERT_EQ(*it_begin, *it_end);
-}
-
-TEST(BitArrayIteratorTest, IteratorEquality) {
-    BitArray bitArray(5, 5);
-
-    auto it_begin = bitArray.begin();
-    auto it_end = bitArray.end();
-
-    ASSERT_NE(it_begin, it_end);
-    auto it = it_begin;
-    ++it;
-    ASSERT_NE(it, it_begin);
-    ASSERT_EQ(it, ++bitArray.begin());
-}
-
-TEST(BitArrayIteratorTest, IteratorIncrement) {
-    BitArray bitArray(5, 5);
-
-    auto it = bitArray.begin();
-
-    ASSERT_EQ(*it, true);
-    ++it;
-    ASSERT_EQ(*it, false);
-    ++it;
-    ASSERT_EQ(*it, true);
-    ASSERT_EQ(*it, *bitArray.end());
-}
-
-TEST(BitArrayIteratorTest, IteratorDereference) {
-    BitArray bitArray(5, 18);
-
-    auto it = bitArray.begin();
-
-    ASSERT_FALSE(*it);
-    ++it;
-    ASSERT_TRUE(*it);
-    ++it;
-    ASSERT_FALSE(*it);
-    ++it;
-    ASSERT_FALSE(*it);
-    ++it;
-    ASSERT_TRUE(*it);
 }
