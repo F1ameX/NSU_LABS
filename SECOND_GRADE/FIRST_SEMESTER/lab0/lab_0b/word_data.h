@@ -9,11 +9,9 @@
 
 class WordData{
 private:
-    int words_counter = 0;
     std::map<std::string, int> words_map;
 
 public:
-    [[nodiscard]] int get_words_counter() const;
     [[nodiscard]] const std::map<std::string, int>& get_words_map() const;
     void process_file_data(const std::string& input_file_name);
 };
