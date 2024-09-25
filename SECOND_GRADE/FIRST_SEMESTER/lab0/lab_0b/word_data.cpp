@@ -1,6 +1,5 @@
 #include "word_data.h"
 
-int WordData::get_words_counter() const { return words_counter; }
 const std::map<std::string, int>& WordData::get_words_map() const { return words_map; }
 
 void WordData::process_file_data(const std::string& input_file_name)
@@ -20,7 +19,6 @@ void WordData::process_file_data(const std::string& input_file_name)
         {
             std::string word = (*i).str();
             std::transform(word.begin(), word.end(), word.begin(), ::tolower);
-            words_counter++;
             words_map[word]++;
         }
     }
