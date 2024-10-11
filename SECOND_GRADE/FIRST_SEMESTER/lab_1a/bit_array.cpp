@@ -13,6 +13,12 @@ bool operator==(const BitArray & a, const BitArray & b) {return a.size() == b.si
 bool operator!=(const BitArray & a, const BitArray & b) {return !(a == b);}
 bool BitArray::none() const {return !any();}
 
+BitArray::Iterator BitArray::begin() const {return Iterator(this, 0);}
+BitArray::Iterator BitArray::end() const { return Iterator(this, num_bits); }
+BitArray::Iterator::Iterator(const BitArray* ba, int idx) : bit_array(ba), index(idx) {}
+
+bool BitArray::Iterator::operator!=(const BitArray::Iterator& other) const{return index != other.index;}
+bool BitArray::Iterator::operator==(const BitArray::Iterator& other) const{ return index == other.index;}
 
 BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits)
 {
@@ -269,9 +275,6 @@ BitArray operator^(const BitArray& b1, const BitArray& b2)
 }
 
 
-BitArray::Iterator BitArray::begin() const {return Iterator(this, 0);}
-BitArray::Iterator BitArray::end() const { return Iterator(this, num_bits); }
-BitArray::Iterator::Iterator(const BitArray* ba, int idx) : bit_array(ba), index(idx) {}
 bool BitArray::Iterator::operator*() const
 {
     if (index < 0 || index >= bit_array->num_bits)
@@ -279,8 +282,7 @@ bool BitArray::Iterator::operator*() const
     return (*bit_array)[index];
 }
 
-bool BitArray::Iterator::operator!=(const BitArray::Iterator& other) const{return index != other.index;}
-bool BitArray::Iterator::operator==(const BitArray::Iterator& other) const{ return index == other.index;}
+
 BitArray::Iterator& BitArray::Iterator::operator++()
 {
     ++index;
