@@ -228,9 +228,6 @@ TEST(BitArrayTest, ArtemiyLox)
 }
 
 
-
-
-
 TEST(BitArrayIteratorTest, BeginEndTest) {
     BitArray bitArray(5, 5);
 
@@ -265,6 +262,22 @@ TEST(BitArrayIteratorTest, CompareStringAndIterator)
         comparable_string += std::to_string(*it);
 
     std::reverse(comparable_string.begin(), comparable_string.end());
-
     ASSERT_EQ(bitArray.to_string(), comparable_string);
+}
+
+// Fix the for auto/ for i through ecualing
+TEST(BitArrayIteratorTest, AutoTest)
+{
+    BitArray ba(8, 255);
+    for (int i = ba.size(); i >= 0; i--)
+        ba[i] = false;
+    EXPECT_TRUE(ba.none());
+}
+
+TEST(BitArrayTEst, ResizeTest)
+{
+    BitArray ba;
+    ba.resize(65, 0);
+    EXPECT_EQ(ba.to_string().size(), 65);
+    std::cout << ba.size();
 }
