@@ -214,6 +214,14 @@ TEST(BitArrayTest, SetAndShiftBit)
 }
 
 
+TEST(BitArrayTest, ArtemiyLox)
+{
+    BitArray bitArr_1(3, 7), bitArr_2(3, 6), bitArr_3(4, 10);
+    bitArr_1 &= bitArr_2;
+    ASSERT_EQ(bitArr_1.to_string(), "110");
+}
+
+
 TEST(BitArrayIteratorTest, BeginEndTest) {
     BitArray bitArray(5, 5);
 
@@ -221,7 +229,7 @@ TEST(BitArrayIteratorTest, BeginEndTest) {
     auto it_end = bitArray.end();
 
     ASSERT_TRUE(*it_begin);
-    
+
     ++it_begin;
     ASSERT_FALSE(*it_begin);
 
@@ -251,3 +259,5 @@ TEST(BitArrayIteratorTest, CompareStringAndIterator)
 
     ASSERT_EQ(bitArray.to_string(), comparable_string);
 }
+
+
