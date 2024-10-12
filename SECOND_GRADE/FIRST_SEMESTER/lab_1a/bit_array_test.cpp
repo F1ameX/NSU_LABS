@@ -19,6 +19,12 @@ TEST(bitArrayTest, SetAndStringBit)
     ASSERT_TRUE((std::is_same<decltype(bitArray.to_string()), std::string>::value));
 }
 
+TEST(BitArrayTests, toStringTest)
+{
+    BitArray bitArr(16, 170);
+    ASSERT_EQ(bitArr.to_string(), "0000000010101010");
+}
+
 
 TEST(BitArrayTest, ConstructorWithValue)
 {
@@ -222,6 +228,9 @@ TEST(BitArrayTest, ArtemiyLox)
 }
 
 
+
+
+
 TEST(BitArrayIteratorTest, BeginEndTest) {
     BitArray bitArray(5, 5);
 
@@ -259,5 +268,3 @@ TEST(BitArrayIteratorTest, CompareStringAndIterator)
 
     ASSERT_EQ(bitArray.to_string(), comparable_string);
 }
-
-
