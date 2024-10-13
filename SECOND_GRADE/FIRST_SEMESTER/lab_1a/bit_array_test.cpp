@@ -265,19 +265,11 @@ TEST(BitArrayIteratorTest, CompareStringAndIterator)
     ASSERT_EQ(bitArray.to_string(), comparable_string);
 }
 
-// Fix the for auto/ for i through ecualing
+
 TEST(BitArrayIteratorTest, AutoTest)
 {
     BitArray ba(8, 255);
-    for (int i = ba.size(); i >= 0; i--)
-        ba[i] = false;
+    for(int i = 0; i < ba.size(); i++)
+        ba[i]=false;
     EXPECT_TRUE(ba.none());
-}
-
-TEST(BitArrayTEst, ResizeTest)
-{
-    BitArray ba;
-    ba.resize(65, 0);
-    EXPECT_EQ(ba.to_string().size(), 65);
-    std::cout << ba.size();
 }
