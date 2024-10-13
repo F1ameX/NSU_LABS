@@ -1,358 +1,306 @@
-#include <iostream>
-#include <vector>
-#include <stdexcept>
-#include <algorithm>
-#include <string>
+#include "bit_array.h"
 
-/**
- * @class BitArray
- * @brief A dynamic array of bits that allows bitwise operations and resizing.
- *
- * This class provides a flexible bit array, supporting bitwise operations, dynamic resizing,
- * and memory-efficient storage of bits. It can be used for various applications such as
- * bit manipulation tasks, set representation, and more.
- */
-class BitArray {
-private:
-    int num_bits;  ///< Number of bits in the array
-    std::vector<unsigned long> data;  ///< Underlying storage for the bit array
+static constexpr int BITS_PER_LONG = sizeof(unsigned long) * 8;
 
-public:
-    /**
-     * Default constructor.
-     * Initializes an empty bit array.
-     */
-    BitArray();
+BitArray::BitArray() : num_bits(0) {}
+BitArray::~BitArray() = default;
+BitArray::BitArray(const BitArray& b) : data(b.data), num_bits(b.num_bits) {};
+BitArray& BitArray::reset(int n) {return set(n, false);}
 
-    /**
-     * Destructor.
-     * Releases any allocated memory.
-     */
-    ~BitArray();
+int BitArray::size() const {return num_bits;}
+bool BitArray::empty() const {return num_bits == 0;}
+bool operator==(const BitArray & a, const BitArray & b) {return a.size() == b.size() && a.data == b.data;}
+bool operator!=(const BitArray & a, const BitArray & b) {return !(a == b);}
+bool BitArray::none() const {return !any();}
 
-    /**
-     * Constructs a bit array of the specified size.
-     * Optionally initializes the first bits with a provided value.
-     * @param num_bits The number of bits in the array.
-     * @param value The initial value for the first bits (optional).
-     */
-    explicit BitArray(int num_bits, unsigned long value = 0);
+BitArray::Iterator BitArray::begin() const {return Iterator(this, 0);}
+BitArray::Iterator BitArray::end() const { return Iterator(this, num_bits); }
+BitArray::Iterator::Iterator(const BitArray* ba, int idx) : bit_array(ba), index(idx) {}
 
-    /**
-     * Copy constructor.
-     * Creates a copy of an existing bit array.
-     * @param b The bit array to copy.
-     */
-    BitArray(const BitArray& b);
+bool BitArray::Iterator::operator!=(const BitArray::Iterator& other) const{return index != other.index;}
+bool BitArray::Iterator::operator==(const BitArray::Iterator& other) const{ return index == other.index;}
 
-    /**
-     * Swaps the contents of this bit array with another.
-     * @param b The other bit array to swap with.
-     */
-    void swap(BitArray& b);
+BitArray::BitReference::BitReference(unsigned long& ref, int bit_pos) : ref_(ref), bit_pos_(bit_pos) {}
 
-    /**
-     * Assignment operator.
-     * Assigns another bit array to this one.
-     * @param b The bit array to assign.
-     * @return Reference to this bit array.
-     */
-    BitArray& operator=(const BitArray& b);
-
-    /**
-     * Resizes the bit array to the new size.
-     * Newly added bits will be initialized to the given value.
-     * @param num_bits The new size of the bit array.
-     * @param value The value to initialize new bits with.
-     * @throws std::invalid_argument if the new size is negative.
-     */
-    void resize(int num_bits, bool value = false);
-
-    /**
-     * Clears the bit array, removing all bits.
-     */
-    void clear();
-
-    /**
-     * Adds a new bit to the end of the array.
-     * Resizes the array if necessary.
-     * @param bit The bit to add.
-     */
-    void push_back(bool bit);
-
-    /**
-     * Bitwise AND operation.
-     * Modifies this array by applying a bitwise AND with another bit array.
-     * Both arrays must be of the same size.
-     * @param b The other bit array to AND with.
-     * @return Reference to this bit array.
-     * @throws std::invalid_argument if the arrays have different sizes.
-     */
-    BitArray& operator&=(const BitArray& b);
-
-    /**
-     * Bitwise OR operation.
-     * Modifies this array by applying a bitwise OR with another bit array.
-     * Both arrays must be of the same size.
-     * @param b The other bit array to OR with.
-     * @return Reference to this bit array.
-     * @throws std::invalid_argument if the arrays have different sizes.
-     */
-    BitArray& operator|=(const BitArray& b);
-
-    /**
-     * Bitwise XOR operation.
-     * Modifies this array by applying a bitwise XOR with another bit array.
-     * Both arrays must be of the same size.
-     * @param b The other bit array to XOR with.
-     * @return Reference to this bit array.
-     * @throws std::invalid_argument if the arrays have different sizes.
-     */
-    BitArray& operator^=(const BitArray& b);
-
-    /**
-     * Left shift operation.
-     * Shifts all bits in the array to the left by the given number of positions.
-     * Zeroes are shifted into the empty spaces.
-     * @param n The number of positions to shift.
-     * @return Reference to this bit array.
-     */
-    BitArray& operator<<=(int n);
-
-    /**
-     * Right shift operation.
-     * Shifts all bits in the array to the right by the given number of positions.
-     * Zeroes are shifted into the empty spaces.
-     * @param n The number of positions to shift.
-     * @return Reference to this bit array.
-     */
-    BitArray& operator>>=(int n);
-
-    /**
-     * Left shift operation (const version).
-     * Returns a new bit array with bits shifted left by the given number of positions.
-     * Zeroes are shifted into the empty spaces.
-     * @param n The number of positions to shift.
-     * @return A new bit array shifted to the left.
-     */
-    BitArray operator<<(int n) const;
-
-    /**
-     * Right shift operation (const version).
-     * Returns a new bit array with bits shifted right by the given number of positions.
-     * Zeroes are shifted into the empty spaces.
-     * @param n The number of positions to shift.
-     * @return A new bit array shifted to the right.
-     */
-    BitArray operator>>(int n) const;
-
-    /**
-     * Sets the bit at the specified index to the given value.
-     * @param n The index of the bit to set.
-     * @param val The value to set the bit to (true for 1, false for 0).
-     * @return Reference to the current BitArray object.
-     * @throws std::out_of_range if the index is out of bounds.
-     */
-    BitArray& set(int n, bool val = true);
-
-    /**
-     * Sets all bits in the array to 1 (true).
-     * @return Reference to the current BitArray object.
-     */
-    BitArray& set();
-
-    /**
-     * Resets the bit at the specified index to 0 (false).
-     * @param n The index of the bit to reset.
-     * @return Reference to the current BitArray object.
-     * @throws std::out_of_range if the index is out of bounds.
-     */
-    BitArray& reset(int n);
-
-    /**
-     * Resets all bits in the array to 0 (false).
-     * @return Reference to the current BitArray object.
-     */
-    BitArray& reset();
-
-    /**
-     * Checks if any bits in the array are set to 1.
-     * @return true if at least one bit is set to 1, false otherwise.
-     */
-    [[nodiscard]]bool any() const;
-
-    /**
-     * Checks if all bits in the array are 0.
-     * @return true if all bits are 0, false otherwise.
-     */
-    [[nodiscard]]bool none() const;
-
-    /**
-     * Bitwise NOT operation.
-     * Returns a new bit array with all bits inverted (0 becomes 1, and 1 becomes 0).
-     * @return A new bit array with inverted bits.
-     */
-    BitArray operator~() const;
-
-    /**
-     * Counts the number of bits set to 1 in the array.
-     * @return The number of bits set to 1.
-     */
-    [[nodiscard]]int count() const;
-
-    /**
-     * Accessor operator.
-     * Returns the value of the bit at the specified index.
-     * @param i The index of the bit to access.
-     * @return The value of the bit at the specified index.
-     * @throws std::out_of_range if the index is out of bounds.
-     */
-    bool operator[](int i) const;
-
-    /**
-     * Returns the size of the bit array (number of bits).
-     * @return The number of bits in the array.
-     */
-    [[nodiscard]]int size() const;
-
-    /**
-     * Checks if the bit array is empty.
-     * @return true if the bit array is empty, false otherwise.
-     */
-    [[nodiscard]]bool empty() const;
-
-    /**
-     * Returns a string representation of the bit array.
-     * @return A string representing the bit array.
-     */
-    [[nodiscard]] std::string to_string() const;
-
-    friend bool operator==(const BitArray &a, const BitArray &b);
-    friend bool operator!=(const BitArray &a, const BitArray &b);
-
-    /**
- * @class BitArray::Iterator
- * @brief A forward iterator for the BitArray class.
- *
- * This class provides a way to iterate over the bits in a BitArray object.
- * It follows the standard iterator conventions, supporting operations like
- * dereferencing, incrementing, and comparison.
- */
-    class Iterator {
-    private:
-        const BitArray* bit_array;  ///< Pointer to the BitArray instance being iterated over
-        int index;                  ///< The current index within the bit array
-
-    public:
-        /**
-         * @brief Constructs an iterator for the BitArray class.
-         *
-         * @param ba Pointer to the BitArray to iterate over.
-         * @param idx The starting index for the iterator.
-         */
-        Iterator(const BitArray* ba, int idx);
-
-        /**
-         * @brief Dereference operator.
-         *
-         * Returns the value of the bit at the current position in the BitArray.
-         * @return true if the current bit is set to 1, false otherwise.
-         */
-        bool operator*() const;
-
-        /**
-         * @brief Pre-increment operator.
-         *
-         * Moves the iterator to the next bit in the BitArray.
-         * @return A reference to the incremented iterator.
-         */
-        Iterator& operator++();
-
-        /**
-         * @brief Inequality comparison operator.
-         *
-         * Compares two iterators for inequality. Two iterators are unequal if they point
-         * to different positions in their respective BitArrays.
-         * @param other The iterator to compare with.
-         * @return true if the iterators point to different positions, false otherwise.
-         */
-        bool operator!=(const Iterator& other) const;
-
-        /**
-         * @brief Equality comparison operator.
-         *
-         * Compares two iterators for equality. Two iterators are equal if they point
-         * to the same position in their respective BitArrays.
-         * @param other The iterator to compare with.
-         * @return true if the iterators point to the same position, false otherwise.
-         */
-        bool operator==(const Iterator& other) const;
-
-    };
-    /**
-     * @brief Returns an iterator to the beginning of the BitArray.
-     *
-     * This method allows iteration over the bits in the BitArray, starting from the first bit.
-     * The returned iterator points to the first bit in the array.
-     *
-     * @return An iterator pointing to the first bit in the BitArray.
-     */
-    Iterator begin() const;
-
-    /**
-     * @brief Returns an iterator to the end of the BitArray.
-     *
-     * This method allows iteration over the bits in the BitArray until the end.
-     * The returned iterator points to one past the last bit in the array (i.e., the "end").
-     *
-     * @return An iterator pointing to one past the last bit in the BitArray.
-     */
-    Iterator end() const;
-};
+BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits)
+{
+    data.resize((num_bits + BITS_PER_LONG - 1) / BITS_PER_LONG, 0);
+    if (num_bits > 0 && !data.empty())
+        data[0] = value;
+}
 
 
+void BitArray::swap(BitArray& b)
+{
+    std::swap(data, b.data);
+    std::swap(num_bits, b.num_bits);
+}
 
-/**
- * Equality operator.
- * Checks if two bit arrays are equal.
- * @param a The first bit array.
- * @param b The second bit array.
- * @return true if the arrays are equal, false otherwise.
- */
-bool operator==(const BitArray & a, const BitArray & b);
 
-/**
- * Inequality operator.
- * Checks if two bit arrays are not equal.
- * @param a The first bit array.
- * @param b The second bit array.
- * @return true if the arrays are not equal, false otherwise.
- */
-bool operator!=(const BitArray & a, const BitArray & b);
+BitArray& BitArray::operator=(const BitArray& b)
+{
+    if (this != &b)
+    {
+        data = b.data;
+        num_bits = b.num_bits;
+    }
+    return *this;
+}
 
-/**
- * Bitwise AND operator.
- * Returns a new bit array that is the result of bitwise AND between two arrays.
- * @param b1 The first bit array.
- * @param b2 The second bit array.
- * @return A new bit array that is the result of b1 & b2.
- */
-BitArray operator&(const BitArray& b1, const BitArray& b2);
 
-/**
- * Bitwise OR operator.
- * Returns a new bit array that is the result of bitwise OR between two arrays.
- * @param b1 The first bit array.
- * @param b2 The second bit array.
- * @return A new bit array that is the result of b1 | b2.
- */
-BitArray operator|(const BitArray& b1, const BitArray& b2);
+void BitArray::resize(int new_size, bool value)
+{
+    if (new_size < 0)
+        throw std::invalid_argument("New size must be non-negative");
 
-/**
- * Bitwise XOR operator.
- * Returns a new bit array that is the result of bitwise XOR between two arrays.
- * @param b1 The first bit array.
- * @param b2 The second bit array.
- * @return A new bit array that is the result of b1 ^ b2.
- */
-BitArray operator^(const BitArray& b1, const BitArray& b2);
+    std::vector<unsigned long> new_data((new_size + BITS_PER_LONG - 1) / BITS_PER_LONG, value ? ~0UL : 0);
+    int copy_bits = std::min(num_bits, new_size);
+    for (int i = 0; i < copy_bits; ++i)
+        if ((*this)[i])
+            new_data[i / BITS_PER_LONG] |= (1UL << (i % BITS_PER_LONG));
+
+    data = std::move(new_data);
+    num_bits = new_size;
+}
+
+
+void BitArray::clear()
+{
+    data.clear();
+    num_bits = 0;
+}
+
+
+void BitArray::push_back(bool bit)
+{
+    resize(num_bits + 1);
+    set(num_bits - 1, bit);
+}
+
+
+BitArray& BitArray::operator&=(const BitArray& b)
+{
+    if (num_bits != b.num_bits)
+        throw std::invalid_argument("Bit arrays must be of the same size for bitwise operations");
+
+    for (size_t i = 0; i < data.size(); ++i)
+        data[i] &= b.data[i];
+
+    return *this;
+}
+
+
+BitArray& BitArray::operator|=(const BitArray& b)
+{
+    if (num_bits != b.num_bits)
+        throw std::invalid_argument("Bit arrays must be of the same size for bitwise operations");
+
+    for (size_t i = 0; i < data.size(); ++i)
+        data[i] |= b.data[i];
+
+    return *this;
+}
+
+
+BitArray& BitArray::operator^=(const BitArray& b)
+{
+    if (num_bits != b.num_bits)
+        throw std::invalid_argument("Bit arrays must be of the same size for bitwise operations");
+
+    for (size_t i = 0; i < data.size(); ++i)
+        data[i] ^= b.data[i];
+
+    return *this;
+}
+
+
+BitArray& BitArray::operator<<=(int n)
+{
+    if (n < 0) return *this >>= -n;
+    if (n >= num_bits)
+    {
+        reset();
+        return *this;
+    }
+
+    int full_shifts = n / BITS_PER_LONG;
+    int bit_shifts = n % BITS_PER_LONG;
+
+    if (bit_shifts == 0)
+        std::move(data.begin(), data.end() - full_shifts, data.begin() + full_shifts);
+    else
+    {
+        for (int i = data.size() - 1; i > full_shifts; --i)
+            data[i] = (data[i - full_shifts] << bit_shifts) |
+                      (data[i - full_shifts - 1] >> (BITS_PER_LONG - bit_shifts));
+
+        data[full_shifts] = data[0] << bit_shifts;
+    }
+    std::fill(data.begin(), data.begin() + full_shifts, 0);
+    return *this;
+}
+
+
+BitArray& BitArray::operator>>=(int n)
+{
+    if (n < 0) return *this <<= -n;
+    if (n >= num_bits)
+    {
+        reset();
+        return *this;
+    }
+    int full_shifts = n / BITS_PER_LONG;
+    int bit_shifts = n % BITS_PER_LONG;
+
+    if (bit_shifts == 0)
+        std::move(data.begin() + full_shifts, data.end(), data.begin());
+    else
+    {
+        for (int i = 0; i < data.size() - full_shifts - 1; ++i)
+            data[i] = (data[i + full_shifts] >> bit_shifts) |
+                      (data[i + full_shifts + 1] << (BITS_PER_LONG - bit_shifts));
+
+        data[data.size() - full_shifts - 1] = data.back() >> bit_shifts;
+    }
+    std::fill(data.end() - full_shifts, data.end(), 0);
+    return *this;
+}
+
+
+BitArray BitArray::operator<<(int n) const
+{
+    BitArray result(*this);
+    return result <<= n;
+}
+
+
+BitArray BitArray::operator>>(int n) const
+{
+    BitArray result(*this);
+    return result >>= n;
+}
+
+
+BitArray& BitArray::set(int n, bool val)
+{
+    if (n < 0 || n >= num_bits)
+        throw std::out_of_range("Bit index out of range");
+
+    if (val)
+        data[n / BITS_PER_LONG] |= (1UL << (n % BITS_PER_LONG));
+    else
+        data[n / BITS_PER_LONG] &= ~(1UL << (n % BITS_PER_LONG));
+
+    return *this;
+}
+
+
+BitArray& BitArray::set()
+{
+    std::fill(data.begin(), data.end(), ~0UL);
+    return *this;
+}
+
+
+BitArray& BitArray::reset()
+{
+    std::fill(data.begin(), data.end(), 0);
+    return *this;
+}
+
+
+bool BitArray::any() const
+{
+    for (const auto& chunk : data)
+        if (chunk != 0)
+            return true;
+    return false;
+}
+
+
+BitArray BitArray::operator~() const
+{
+    BitArray result(*this);
+    for (auto& chunk : result.data)
+        chunk = ~chunk;
+    return result;
+}
+
+
+int BitArray::count() const
+{
+    int count = 0;
+    for (const auto& chunk : data)
+        count += __builtin_popcountl(chunk);
+    return count;
+}
+
+
+BitArray::BitReference BitArray::operator[](int i) {
+    if (i < 0 || i >= num_bits)
+        throw std::out_of_range("Bit index out of range");
+    return BitReference(data[i / BITS_PER_LONG], i % BITS_PER_LONG);
+}
+
+
+bool BitArray::operator[](int i) const
+{
+    if (i < 0 || i >= num_bits)
+        throw std::out_of_range("Bit index out of range");
+    return data[i / BITS_PER_LONG] & (1UL << (i % BITS_PER_LONG));
+}
+
+
+std::string BitArray::to_string() const
+{
+    std::string result;
+    for (int i = num_bits - 1; i >= 0; --i)
+        result += (*this)[i] ? '1' : '0';
+    return result;
+}
+
+
+BitArray operator&(const BitArray& b1, const BitArray& b2)
+{
+    BitArray result(b1);
+    result &= b2;
+    return result;
+}
+
+
+BitArray operator|(const BitArray& b1, const BitArray& b2)
+{
+    BitArray result(b1);
+    result |= b2;
+    return result;
+}
+
+
+BitArray operator^(const BitArray& b1, const BitArray& b2)
+{
+    BitArray result(b1);
+    result ^= b2;
+    return result;
+}
+
+
+BitArray::BitReference BitArray::Iterator::operator*() const {
+    if (index < 0 || index >= bit_array->num_bits)
+        throw std::out_of_range("Iterator out of bounds");
+    return BitReference(bit_array->data[index / BITS_PER_LONG], index % BITS_PER_LONG);
+}
+
+
+BitArray::Iterator& BitArray::Iterator::operator++()
+{
+    ++index;
+    return *this;
+}
+
+BitArray::BitReference& BitArray::BitReference::operator=(bool val) {
+    if (val) ref_ |= (1UL << bit_pos_);
+    else ref_ &= ~(1UL << bit_pos_);
+    return *this;
+}
+
+BitArray::BitReference::operator bool() const {return (ref_ & (1UL << bit_pos_)) != 0;}
