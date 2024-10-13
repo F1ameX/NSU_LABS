@@ -20,7 +20,9 @@ BitArray::Iterator::Iterator(const BitArray* ba, int idx) : bit_array(ba), index
 bool BitArray::Iterator::operator!=(const BitArray::Iterator& other) const{return index != other.index;}
 bool BitArray::Iterator::operator==(const BitArray::Iterator& other) const{ return index == other.index;}
 
-BitArray::BitReference::BitReference(unsigned long& ref, int bit_pos) : ref_(ref), bit_pos_(bit_pos) {}
+BitArray::BitReference::BitReference(const unsigned long& ref, int bit_pos) : ref_(const_cast<unsigned long &>(ref)), bit_pos_(bit_pos) {}
+BitArray::BitReference::operator bool() const {return (ref_ & (1UL << bit_pos_)) != 0;}
+
 
 BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits)
 {
@@ -284,7 +286,8 @@ BitArray operator^(const BitArray& b1, const BitArray& b2)
 }
 
 
-BitArray::BitReference BitArray::Iterator::operator*() const {
+BitArray::BitReference BitArray::Iterator::operator*() const
+{
     if (index < 0 || index >= bit_array->num_bits)
         throw std::out_of_range("Iterator out of bounds");
     return BitReference(bit_array->data[index / BITS_PER_LONG], index % BITS_PER_LONG);
@@ -297,10 +300,10 @@ BitArray::Iterator& BitArray::Iterator::operator++()
     return *this;
 }
 
-BitArray::BitReference& BitArray::BitReference::operator=(bool val) {
+
+BitArray::BitReference& BitArray::BitReference::operator=(bool val)
+{
     if (val) ref_ |= (1UL << bit_pos_);
     else ref_ &= ~(1UL << bit_pos_);
     return *this;
 }
-
-BitArray::BitReference::operator bool() const {return (ref_ & (1UL << bit_pos_)) != 0;}
