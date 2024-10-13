@@ -20,6 +20,8 @@ BitArray::Iterator::Iterator(const BitArray* ba, int idx) : bit_array(ba), index
 bool BitArray::Iterator::operator!=(const BitArray::Iterator& other) const{return index != other.index;}
 bool BitArray::Iterator::operator==(const BitArray::Iterator& other) const{ return index == other.index;}
 
+BitArray::BitReference::BitReference(unsigned long& ref, int bit_pos) : ref_(ref), bit_pos_(bit_pos) {}
+
 BitArray::BitArray(int num_bits, unsigned long value) : num_bits(num_bits)
 {
     data.resize((num_bits + BITS_PER_LONG - 1) / BITS_PER_LONG, 0);
@@ -234,6 +236,13 @@ int BitArray::count() const
 }
 
 
+BitArray::BitReference BitArray::operator[](int i) {
+    if (i < 0 || i >= num_bits)
+        throw std::out_of_range("Bit index out of range");
+    return BitReference(data[i / BITS_PER_LONG], i % BITS_PER_LONG);
+}
+
+
 bool BitArray::operator[](int i) const
 {
     if (i < 0 || i >= num_bits)
@@ -275,11 +284,10 @@ BitArray operator^(const BitArray& b1, const BitArray& b2)
 }
 
 
-bool BitArray::Iterator::operator*() const
-{
+BitArray::BitReference BitArray::Iterator::operator*() const {
     if (index < 0 || index >= bit_array->num_bits)
         throw std::out_of_range("Iterator out of bounds");
-    return (*bit_array)[index];
+    return BitReference(bit_array->data[index / BITS_PER_LONG], index % BITS_PER_LONG);
 }
 
 
@@ -288,3 +296,11 @@ BitArray::Iterator& BitArray::Iterator::operator++()
     ++index;
     return *this;
 }
+
+BitArray::BitReference& BitArray::BitReference::operator=(bool val) {
+    if (val) ref_ |= (1UL << bit_pos_);
+    else ref_ &= ~(1UL << bit_pos_);
+    return *this;
+}
+
+BitArray::BitReference::operator bool() const {return (ref_ & (1UL << bit_pos_)) != 0;}
