@@ -67,6 +67,12 @@ build CMakeFiles/lab_2b.dir/file_manager.cpp.o: CXX_COMPILER__lab_2b_unscanned_D
   OBJECT_DIR = CMakeFiles/lab_2b.dir
   OBJECT_FILE_DIR = CMakeFiles/lab_2b.dir
 
+build CMakeFiles/lab_2b.dir/console_parser.cpp.o: CXX_COMPILER__lab_2b_unscanned_Debug /Users/andrewf1amex/Programming/lab_2b/console_parser.cpp || cmake_object_order_depends_target_lab_2b
+  DEP_FILE = CMakeFiles/lab_2b.dir/console_parser.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/lab_2b.dir
+  OBJECT_FILE_DIR = CMakeFiles/lab_2b.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target lab_2b
@@ -75,7 +81,7 @@ build CMakeFiles/lab_2b.dir/file_manager.cpp.o: CXX_COMPILER__lab_2b_unscanned_D
 #############################################
 # Link the executable lab_2b
 
-build lab_2b: CXX_EXECUTABLE_LINKER__lab_2b_Debug CMakeFiles/lab_2b.dir/main.cpp.o CMakeFiles/lab_2b.dir/game.cpp.o CMakeFiles/lab_2b.dir/file_manager.cpp.o
+build lab_2b: CXX_EXECUTABLE_LINKER__lab_2b_Debug CMakeFiles/lab_2b.dir/main.cpp.o CMakeFiles/lab_2b.dir/game.cpp.o CMakeFiles/lab_2b.dir/file_manager.cpp.o CMakeFiles/lab_2b.dir/console_parser.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk
   OBJECT_DIR = CMakeFiles/lab_2b.dir
   POST_BUILD = :
