@@ -4,17 +4,8 @@
 #include <fstream>
 
 class FileManager {
-private:
-    std::ifstream input_file;
-    std::ofstream output_file;
 public:
-    FileManager();
-    ~FileManager();
-
-    void load_from_file(const std::string& input_file_path);
-    void save_to_file(const std::string& output_file_path);
+    static bool load_from_file(const std::string& filename, std::vector<std::vector<bool>>& field, std::string& universe_name, std::string& rule);
+    static void save_to_file(const std::string& filename, const std::vector<std::vector<bool>>& grid, const std::string& universeName, const std::string& rule);
 
 };
-
-
-
