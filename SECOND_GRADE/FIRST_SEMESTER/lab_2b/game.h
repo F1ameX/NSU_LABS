@@ -1,18 +1,23 @@
 #pragma once
 
+#include "file_manager.h"
+#include "console_parser.h"
 #include <iostream>
+#include <cstdlib>
 
 
-class Game{
+class Game {
 private:
-    int current_iteration;
     int field_size;
-    std::vector<std::vector<char>> game_field;
-    std::string transition_rule;
+    int current_iteration;
+    std::string universe_name;
+    std::string rule;
+    std::vector<std::vector<bool>> game_field;
 public:
-    Game();
+    Game(int field_size);
     ~Game();
 
-    void initialize_field();
-    void display_field();
+    static bool is_valid_rule(const std::string& rule);
+    bool prepare_game(ConsoleParser& parser, FileManager& file_manager);
+    void generate_random_universe();
 };
