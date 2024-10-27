@@ -1,7 +1,7 @@
 #include "game.h"
 
 
-Game::Game(int field_size) : field_size(field_size), current_iteration(0), game_field(field_size, std::vector<bool>(field_size)) {}
+Game::Game(int field_size) : field_size(field_size), current_iteration(0), game_field(field_size, std::vector<Cell>(field_size)) {}
 Game::~Game() = default;
 
 
@@ -9,8 +9,7 @@ void Game::generate_random_universe()
 {
     for (std::size_t x = 0; x < field_size; x++)
         for (std::size_t y = 0; y < field_size; y++)
-            game_field[x][y] = (rand() % 2 == 0);
-
+            game_field[x][y].set_current_state(rand() % 2 == 0);
 }
 
 

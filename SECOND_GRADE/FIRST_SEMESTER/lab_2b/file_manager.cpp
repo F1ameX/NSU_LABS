@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-bool FileManager::load_from_file(const std::string& filename, std::vector<std::vector<bool>> &field, std::string &universe_name, std::string &rule)
+bool FileManager::load_from_file(const std::string& filename, std::vector<std::vector<Cell>> &field, std::string &universe_name, std::string &rule)
 {
     std::ifstream input_file(filename);
     if (!input_file.is_open())
@@ -11,8 +11,8 @@ bool FileManager::load_from_file(const std::string& filename, std::vector<std::v
         return false;
     }
 
-    int row = 0;
-    bool name_found = false, rule_found = false;
+
+    bool is_first = true, name_found = false, rule_found = false;
     std::string line;
 
     while(getline(input_file, line))
@@ -20,7 +20,7 @@ bool FileManager::load_from_file(const std::string& filename, std::vector<std::v
         if (line[0] == '#')
         {
 
-            if (row == 0 && line.substr(1) != "Life 1.06")
+            if (is_first && line.substr(1) != "Life 1.06")
             {
                 std::cerr << "Wrong universe file format. Expected Life 1.06, received: " << line.substr(1) << std::endl;
                 input_file.close();
@@ -46,7 +46,7 @@ bool FileManager::load_from_file(const std::string& filename, std::vector<std::v
             if (sscanf(line.c_str(), "%d %d", &x, &y) == 2)
             {
                 if (x >= 0 && y >= 0 && x < field.size() && y < field[0].size())
-                    field[x][y] = true;
+                    field[x][y].set_current_state(true);
 
                 else
                 {
@@ -62,7 +62,7 @@ bool FileManager::load_from_file(const std::string& filename, std::vector<std::v
                 return false;
             }
         }
-        row++;
+        is_first = true;
     }
     input_file.close();
 
@@ -76,7 +76,7 @@ bool FileManager::load_from_file(const std::string& filename, std::vector<std::v
 }
 
 
-void FileManager::save_to_file(const std::string& filename, const std::vector<std::vector<bool>>& field, const std::string& universe_name, const std::string& rule)
+void FileManager::save_to_file(const std::string& filename, const std::vector<std::vector<Cell>>& field, const std::string& universe_name, const std::string& rule)
 {
     std::ofstream output_file(filename);
 
@@ -92,7 +92,7 @@ void FileManager::save_to_file(const std::string& filename, const std::vector<st
 
     for (size_t y = 0; y < field.size(); y++)
         for(size_t x = 0; x < field[y].size(); x++)
-            if (field[y][x])
+            if (field[y][x].is_alive())
                 output_file << x << ' ' << y << std::endl;
 
     output_file.close();

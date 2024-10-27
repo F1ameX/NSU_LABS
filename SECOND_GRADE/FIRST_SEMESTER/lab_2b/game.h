@@ -2,6 +2,7 @@
 
 #include "file_manager.h"
 #include "console_parser.h"
+#include "cell.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -12,7 +13,7 @@ private:
     int current_iteration;
     std::string universe_name;
     std::string rule;
-    std::vector<std::vector<bool>> game_field;
+    std::vector<std::vector<Cell>> game_field;
 public:
     Game(int field_size);
     ~Game();
