@@ -11,7 +11,6 @@ bool FileManager::load_from_file(const std::string& filename, std::vector<std::v
         return false;
     }
 
-
     bool is_first = true, name_found = false, rule_found = false;
     std::string line;
 
@@ -19,27 +18,29 @@ bool FileManager::load_from_file(const std::string& filename, std::vector<std::v
     {
         if (line[0] == '#')
         {
-
-            if (is_first && line.substr(1) != "Life 1.06")
+            // Проверка формата первой строки
+            if (is_first && line != "#Life 1.06")
             {
-                std::cerr << "Wrong universe file format. Expected Life 1.06, received: " << line.substr(1) << std::endl;
+                std::cerr << "Wrong universe file format. Expected #Life 1.06, received: " << line << std::endl;
                 input_file.close();
                 return false;
             }
+            is_first = false;  // Устанавливаем после первой строки
 
+            // Проверка имени вселенной
             if (line[1] == 'N')
             {
                 universe_name = line.substr(3);
                 name_found = true;
             }
 
+            // Проверка правила перехода
             if (line[1] == 'R')
             {
                 rule = line.substr(3);
                 rule_found = true;
             }
         }
-
         else
         {
             int x, y;
@@ -47,22 +48,18 @@ bool FileManager::load_from_file(const std::string& filename, std::vector<std::v
             {
                 if (x >= 0 && y >= 0 && x < field.size() && y < field[0].size())
                     field[x][y].set_current_state(true);
-
                 else
                 {
                     std::cerr << "Coordinates in file out of bounds: " << x << ", " << y << std::endl;
                     return false;
                 }
-
             }
-
             else
             {
                 std::cerr << "Invalid format for coordinates in file: " << line << std::endl;
                 return false;
             }
         }
-        is_first = true;
     }
     input_file.close();
 
@@ -74,6 +71,7 @@ bool FileManager::load_from_file(const std::string& filename, std::vector<std::v
 
     return true;
 }
+
 
 
 void FileManager::save_to_file(const std::string& filename, const std::vector<std::vector<Cell>>& field, const std::string& universe_name, const std::string& rule)
