@@ -1,39 +1,38 @@
 #include "console_parser.h"
 
 ConsoleParser::ConsoleParser() : iterations(0), mode(false), input_file("none"), output_file("none") {}
-
 bool ConsoleParser::is_offline_mode() const { return mode; }
+bool ConsoleParser::help_requested() const { return help_requested_; }
 std::size_t ConsoleParser::get_iterations() const { return iterations; }
 std::string ConsoleParser::get_input_file() const { return input_file; }
 std::string ConsoleParser::get_output_file() const { return output_file; }
 
+
 bool ConsoleParser::parse(int argc, char* argv[])
 {
-    for (size_t i = 1; i < argc; i++)
+    for (int i = 1; i < argc; i++)
     {
-        const char* current_arg = argv[i];
-
-        if (strcmp(current_arg, "-f") == 0 || strcmp(current_arg, "--file") == 0)
+        if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--file") == 0)
         {
             if (i + 1 < argc)
                 input_file = std::string(argv[++i]);
             else
             {
-                std::cerr << "Error. Can't read input filename. For usage call -h or --help flag." << std::endl;
+                std::cerr << "Error: No input filename provided. Use -h or --help for usage." << std::endl;
                 return false;
             }
         }
-        else if (strcmp(current_arg, "-o") == 0 || strcmp(current_arg, "--output") == 0)
+        else if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0)
         {
             if (i + 1 < argc)
                 output_file = std::string(argv[++i]);
             else
             {
-                std::cerr << "Error. Can't read output filename. For usage call -h or --help flag." << std::endl;
+                std::cerr << "Error: No output filename provided. Use -h or --help for usage." << std::endl;
                 return false;
             }
         }
-        else if (strcmp(current_arg, "-i") == 0 || strcmp(current_arg, "--iterations") == 0)
+        else if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--iterations") == 0)
         {
             if (i + 1 < argc)
             {
@@ -43,50 +42,56 @@ bool ConsoleParser::parse(int argc, char* argv[])
                 }
                 catch (const std::invalid_argument& e)
                 {
-                    std::cerr << "Error. Invalid value for iterations. For usage call -h or --help flag." << std::endl;
+                    std::cerr << "Error: Invalid value for iterations. Use -h or --help for usage." << std::endl;
                     return false;
                 }
             }
             else
             {
-                std::cerr << "Error. Can't read iterations quantity. For usage call -h or --help flag." << std::endl;
+                std::cerr << "Error: No value for iterations provided. Use -h or --help for usage." << std::endl;
                 return false;
             }
         }
-        else if (strcmp(current_arg, "-m") == 0 || strcmp(current_arg, "--mode") == 0)
+        else if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--mode") == 0)
         {
             if (i + 1 < argc)
             {
                 std::string input_mode = std::string(argv[++i]);
-
-                if (input_mode != "offline" && input_mode != "online")
+                if (input_mode == "offline")
+                    mode = true;
+                else if (input_mode == "online")
+                    mode = false;
+                else
                 {
-                    std::cerr << "Error. Wrong game mode entered. For usage call -h or --help flag." << std::endl;
+                    std::cerr << "Error: Invalid mode. Use 'offline' or 'online'. Use -h or --help for usage." << std::endl;
                     return false;
                 }
-                mode = (input_mode == "offline");
             }
             else
             {
-                std::cerr << "Error. Can't read game mode. For usage call -h or --help flag." << std::endl;
+                std::cerr << "Error: No mode specified. Use -h or --help for usage." << std::endl;
                 return false;
             }
         }
-        else if (strcmp(current_arg, "-h") == 0 || strcmp(current_arg, "--help") == 0)
+        else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
         {
             get_help();
-            exit(0);
+            help_requested_ = true;
+            return false;
         }
-
         else
         {
-            std::cerr << "Error. Unknown option entered. For usage call -h or --help flag." << std::endl;
+            std::cerr << "Error: Unknown option entered. Use -h or --help for usage." << std::endl;
             return false;
         }
     }
 
+    if (!mode && iterations == 0)
+        iterations = 1;
+
     return true;
 }
+
 
 
 void ConsoleParser::get_help()

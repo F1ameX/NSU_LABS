@@ -1,8 +1,10 @@
 #include "game.h"
 #include <sstream>
 
+
 Game::Game(int field_size) : field_size(field_size), current_iteration(0), game_field(field_size, std::vector<Cell>(field_size)) {}
 Game::~Game() = default;
+
 
 void Game::generate_random_universe()
 {
@@ -14,14 +16,20 @@ void Game::generate_random_universe()
 
 bool Game::is_valid_rule(const std::string& rule)
 {
-    if (rule[0] != 'B' || rule.find('/') == std::string::npos || rule[rule.find('/') + 1] != 'S')
+    if (rule[0] != 'B' || rule.find('/') == std::string::npos)
+        return false;
+    size_t slash_pos = rule.find('/');
+
+    if (slash_pos + 1 >= rule.size() || rule[slash_pos + 1] != 'S')
         return false;
 
-    if (!std::ranges::all_of(rule.substr(1, rule.find('/')), [](char c) { return c >= '0' && c <= '8'; }))
-        return false;
+    for (size_t i = 1; i < slash_pos; ++i)
+        if (rule[i] < '0' || rule[i] > '8')
+            return false;
 
-    if (!std::ranges::all_of(rule.substr(rule.find('/') + 2), [](char c) { return c >= '0' && c <= '8'; }))
-        return false;
+    for (size_t i = slash_pos + 2; i < rule.size(); ++i)
+        if (rule[i] < '0' || rule[i] > '8')
+            return false;
 
     return true;
 }
@@ -36,6 +44,7 @@ bool Game::prepare_game(ConsoleParser& parser, FileManager& file_manager)
             std::cout << "Warning: No input file provided. Generating random universe." << std::endl;
             generate_random_universe();
         }
+
         else
         {
             if (!file_manager.load_from_file(parser.get_input_file(), game_field, universe_name, rule))
@@ -109,6 +118,7 @@ int Game::count_alive_neighbors(int x, int y) const
     return alive_neighbors;
 }
 
+
 void Game::run_iteration()
 {
     for (int x = 0; x < field_size; ++x)
@@ -116,31 +126,24 @@ void Game::run_iteration()
         for (int y = 0; y < field_size; ++y)
         {
             int alive_neighbors = count_alive_neighbors(x, y);
-            bool next_state = false;
+            bool next_state;
 
             if (game_field[x][y].is_alive())
-            {
                 next_state = (rule.find('S' + std::to_string(alive_neighbors)) != std::string::npos);
-            }
             else
-            {
                 next_state = (rule.find('B' + std::to_string(alive_neighbors)) != std::string::npos);
-            }
 
             game_field[x][y].set_next_state(next_state);
         }
     }
 
     for (int x = 0; x < field_size; ++x)
-    {
         for (int y = 0; y < field_size; ++y)
-        {
             game_field[x][y].apply_next_state();
-        }
-    }
 
     ++current_iteration;
 }
+
 
 void Game::display() const
 {
@@ -148,18 +151,18 @@ void Game::display() const
     for (int x = 0; x < field_size; ++x)
     {
         for (int y = 0; y < field_size; ++y)
-        {
             std::cout << (game_field[x][y].is_alive() ? 'O' : '.');
-        }
         std::cout << '\n';
     }
 }
+
 
 void Game::save_to_file(const std::string& filename)
 {
     FileManager::save_to_file(filename, game_field, universe_name, rule);
     std::cout << "Universe saved to " << filename << std::endl;
 }
+
 
 void Game::run()
 {
@@ -169,11 +172,10 @@ void Game::run()
         std::cout << "Enter command (tick, dump, exit, help): ";
         std::getline(std::cin, command);
         if (!execute_command(command))
-        {
             break;
-        }
     }
 }
+
 
 bool Game::execute_command(const std::string& command)
 {
@@ -185,51 +187,42 @@ bool Game::execute_command(const std::string& command)
     {
         int iterations = 1;
         if (iss >> iterations)
-        {
             run_iterations(iterations);
-        }
+
         else
-        {
             run_iterations(1);
-        }
         display();
     }
+
     else if (cmd == "dump")
     {
         std::string filename;
         if (iss >> filename)
-        {
             save_to_file(filename);
-        }
+
         else
-        {
             std::cerr << "Error: No filename provided for dump command." << std::endl;
-        }
     }
+
     else if (cmd == "exit")
-    {
         return false;
-    }
+
     else if (cmd == "help")
-    {
         std::cout << "Available commands:\n"
                   << "  tick <n=1> - Perform n iterations (default is 1)\n"
                   << "  dump <filename> - Save the current state to a file\n"
                   << "  exit - End the game\n"
                   << "  help - Show this help message\n";
-    }
+
     else
-    {
         std::cerr << "Error: Unknown command." << std::endl;
-    }
 
     return true;
 }
 
+
 void Game::run_iterations(int n)
 {
     for (int i = 0; i < n; ++i)
-    {
         run_iteration();
-    }
 }
