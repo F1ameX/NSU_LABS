@@ -121,28 +121,29 @@ int Game::count_alive_neighbors(int x, int y) const
 }
 
 
-void Game::run_iteration()
+void Game::run_iteration() 
 {
-    for (int x = 0; x < field_size; ++x)
+
+    for (int x = 0; x < field_size; ++x) 
     {
-        for (int y = 0; y < field_size; ++y)
+        for (int y = 0; y < field_size; ++y) 
         {
             int alive_neighbors = count_alive_neighbors(x, y);
             bool next_state;
 
-            if (game_field[x][y].is_alive())
-                next_state = (rule.find('S' + std::to_string(alive_neighbors)) != std::string::npos);
-            else
-                next_state = (rule.find('B' + std::to_string(alive_neighbors)) != std::string::npos);
+            if (game_field[x][y].is_alive()) 
+                next_state = (alive_neighbors == 2 || alive_neighbors == 3);
+            else 
+                next_state = (alive_neighbors == 3);
 
             game_field[x][y].set_next_state(next_state);
         }
     }
 
-    for (int x = 0; x < field_size; ++x)
-        for (int y = 0; y < field_size; ++y)
+    for (int x = 0; x < field_size; ++x) 
+        for (int y = 0; y < field_size; ++y) 
             game_field[x][y].apply_next_state();
-
+    
     ++current_iteration;
 }
 
