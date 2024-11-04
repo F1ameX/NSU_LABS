@@ -3,9 +3,16 @@ project(lab_2b)
 
 set(CMAKE_CXX_STANDARD 20)
 
+find_package(GTest REQUIRED)
+
 add_executable(lab_2b main.cpp
-               game.cpp game.h
-               file_manager.cpp file_manager.h
-               console_parser.cpp console_parser.h
-               cell.cpp cell.h)
+        game.cpp game.h
+        console_parser.cpp console_parser.h
+        cell.cpp cell.h)
+
+add_executable(game_tests game_test.cpp game.cpp game.h
+        console_parser.cpp console_parser.h
+        cell.cpp cell.h)
+
+target_link_libraries(game_tests GTest::GTest GTest::Main pthread)
 target_link_libraries(lab_2b)

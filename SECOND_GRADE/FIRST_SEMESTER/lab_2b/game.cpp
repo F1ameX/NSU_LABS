@@ -35,7 +35,7 @@ bool Game::is_valid_rule(const std::string& rule)
 }
 
 
-bool Game::prepare_game(ConsoleParser& parser, FileManager& file_manager)
+bool Game::prepare_game(const ConsoleParser& parser)
 {
     if (parser.is_offline_mode())
     {
@@ -44,25 +44,19 @@ bool Game::prepare_game(ConsoleParser& parser, FileManager& file_manager)
             std::cout << "Warning: No input file provided. Generating random universe." << std::endl;
             generate_random_universe();
         }
-
         else
         {
-            if (!file_manager.load_from_file(parser.get_input_file(), game_field, universe_name, rule))
+            std::ifstream in_file(parser.get_input_file());
+            if (!in_file.is_open())
+            {
+                std::cerr << "Error: Failed to open file " << parser.get_input_file() << std::endl;
+                return false;
+            }
+            in_file >> *this;
+            if (!in_file)
             {
                 std::cerr << "Error: Failed to load universe from input file." << std::endl;
                 return false;
-            }
-
-            if (universe_name.empty())
-            {
-                std::cerr << "Warning: No universe name provided in the file. Using default name 'Unnamed'." << std::endl;
-                universe_name = "Unnamed";
-            }
-
-            if (rule.empty() || !is_valid_rule(rule))
-            {
-                std::cerr << "Warning: No valid rule provided in the file. Using default rule 'B3/S23'." << std::endl;
-                rule = "B3/S23";
             }
         }
 
@@ -72,7 +66,6 @@ bool Game::prepare_game(ConsoleParser& parser, FileManager& file_manager)
             return false;
         }
     }
-
     else
     {
         if (parser.get_input_file() == "none")
@@ -80,11 +73,20 @@ bool Game::prepare_game(ConsoleParser& parser, FileManager& file_manager)
             std::cerr << "Warning: No input file provided. Generating random universe in interactive mode." << std::endl;
             generate_random_universe();
         }
-
-        else if (!file_manager.load_from_file(parser.get_input_file(), game_field, universe_name, rule))
+        else
         {
-            std::cerr << "Error: Failed to load the universe from file in interactive mode." << std::endl;
-            return false;
+            std::ifstream in_file(parser.get_input_file());
+            if (!in_file.is_open())
+            {
+                std::cerr << "Error: Failed to open file " << parser.get_input_file() << std::endl;
+                return false;
+            }
+            in_file >> *this;
+            if (!in_file)
+            {
+                std::cerr << "Error: Failed to load the universe from file in interactive mode." << std::endl;
+                return false;
+            }
         }
     }
 
@@ -159,9 +161,16 @@ void Game::display() const
 
 void Game::save_to_file(const std::string& filename)
 {
-    FileManager::save_to_file(filename, game_field, universe_name, rule);
+    std::ofstream output_file(filename);
+    if (!output_file.is_open())
+    {
+        std::cerr << "Cannot open file: " << filename << std::endl;
+        return;
+    }
+    output_file << *this;
     std::cout << "Universe saved to " << filename << std::endl;
 }
+
 
 
 void Game::run()
@@ -198,8 +207,16 @@ bool Game::execute_command(const std::string& command)
     {
         std::string filename;
         if (iss >> filename)
-            save_to_file(filename);
-
+        {
+            std::ofstream out_file(filename);
+            if (out_file.is_open())
+            {
+                out_file << *this;
+                std::cout << "Universe dumped to " << filename << std::endl;
+            }
+            else
+                std::cerr << "Error: Unable to open file " << filename << std::endl;
+        }
         else
             std::cerr << "Error: No filename provided for dump command." << std::endl;
     }
@@ -225,4 +242,84 @@ void Game::run_iterations(int n)
 {
     for (int i = 0; i < n; ++i)
         run_iteration();
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Game& game)
+{
+    os << "#Life 1.06\n";
+    os << "#N " << game.universe_name << "\n";
+    os << "#R " << game.rule << "\n";
+
+    for (size_t y = 0; y < game.game_field.size(); ++y)
+        for (size_t x = 0; x < game.game_field[y].size(); ++x)
+            if (game.game_field[y][x].is_alive())
+                os << x << " " << y << "\n";
+
+    return os;
+}
+
+
+std::istream& operator>>(std::istream& is, Game& game)
+{
+    std::string line;
+    bool first_line_checked = false;
+    game.universe_name.clear();
+    game.rule.clear();
+
+    while (std::getline(is, line))
+    {
+        if (line.empty()) continue;
+
+        if (line[0] == '#')
+        {
+            if (!first_line_checked)
+            {
+                if (line != "#Life 1.06")
+                {
+                    is.setstate(std::ios::failbit);
+                    return is;
+                }
+                first_line_checked = true;
+            }
+
+            if (line.rfind("#N ", 0) == 0)
+                game.universe_name = line.substr(3);
+            else if (line.rfind("#R ", 0) == 0)
+            {
+                game.rule = line.substr(3);
+                if (!game.is_valid_rule(game.rule))
+                {
+                    is.setstate(std::ios::failbit);
+                    return is;
+                }
+            }
+        }
+        else
+        {
+            std::istringstream coord_stream(line);
+            int x, y;
+            if (!(coord_stream >> x >> y))
+            {
+                is.setstate(std::ios::failbit);
+                return is;
+            }
+            if (x >= 0 && y >= 0 && x < game.game_field.size() && y < game.game_field[0].size())
+                game.game_field[y][x].set_current_state(true);
+            else
+            {
+                is.setstate(std::ios::failbit);
+                return is;
+            }
+        }
+    }
+
+    if (game.universe_name.empty())
+        game.universe_name = "Unnamed";
+
+    if (game.rule.empty())
+        game.rule = "B3/S23";
+
+    is.clear();
+    return is;
 }

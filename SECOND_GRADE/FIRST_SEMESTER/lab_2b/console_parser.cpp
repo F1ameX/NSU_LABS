@@ -93,7 +93,6 @@ bool ConsoleParser::parse(int argc, char* argv[])
 }
 
 
-
 void ConsoleParser::get_help()
 {
     std::cout << "Usage: <program executable file> [options]" << std::endl;

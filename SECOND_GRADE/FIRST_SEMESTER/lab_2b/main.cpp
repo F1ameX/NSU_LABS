@@ -1,7 +1,6 @@
-#include "console_parser.h"
-#include "file_manager.h"
 #include "game.h"
 #include <iostream>
+#include <fstream>
 
 int main(int argc, char* argv[])
 {
@@ -17,11 +16,9 @@ int main(int argc, char* argv[])
         }
     }
 
-    int field_size = 20;
-    Game game(field_size);
-    FileManager file_manager;
+    Game game(20);
 
-    if (!game.prepare_game(parser, file_manager))
+    if (!game.prepare_game(parser))
     {
         std::cerr << "Error: Failed to prepare game." << std::endl;
         return 1;
@@ -30,11 +27,23 @@ int main(int argc, char* argv[])
     if (parser.is_offline_mode())
     {
         game.run_iterations(parser.get_iterations());
-        FileManager::save_to_file(parser.get_output_file(), game.get_field(), game.get_universe_name(), game.get_rule());
-        std::cout << "Offline mode completed: output saved to " << parser.get_output_file() << std::endl;
+        std::ofstream out_file(parser.get_output_file());
+
+        if (out_file.is_open())
+        {
+            out_file << game;
+            std::cout << "Offline mode completed: output saved to " << parser.get_output_file() << std::endl;
+        }
+        else
+        {
+            std::cerr << "Error: Could not open file " << parser.get_output_file() << std::endl;
+            return 1;
+        }
     }
     else
         game.run();
 
     return 0;
 }
+
+// test for functions. module tests (cell behaivour)
