@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 
+
 int main(int argc, char* argv[])
 {
     ConsoleParser parser;
@@ -45,5 +46,3 @@ int main(int argc, char* argv[])
 
     return 0;
 }
-
-// test for functions. module tests (cell behaivour)

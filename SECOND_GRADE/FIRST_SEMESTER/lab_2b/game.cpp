@@ -1,9 +1,12 @@
 #include "game.h"
-#include <sstream>
 
 
 Game::Game(int field_size) : field_size(field_size), current_iteration(0), game_field(field_size, std::vector<Cell>(field_size)) {}
 Game::~Game() = default;
+
+std::vector<std::vector<Cell>>& Game::get_field() { return game_field; }
+const std::string& Game::get_universe_name() const {return universe_name;}
+const std::string& Game::get_rule() const {return rule; }
 
 
 void Game::generate_random_universe()
@@ -18,14 +21,21 @@ bool Game::is_valid_rule(const std::string& rule)
 {
     if (rule[0] != 'B' || rule.find('/') == std::string::npos)
         return false;
+
     size_t slash_pos = rule.find('/');
 
     if (slash_pos + 1 >= rule.size() || rule[slash_pos + 1] != 'S')
         return false;
 
+    if (slash_pos == 1)
+        return false;
+
     for (size_t i = 1; i < slash_pos; ++i)
         if (rule[i] < '0' || rule[i] > '8')
             return false;
+
+    if (slash_pos + 2 >= rule.size())
+        return false;
 
     for (size_t i = slash_pos + 2; i < rule.size(); ++i)
         if (rule[i] < '0' || rule[i] > '8')
@@ -121,29 +131,29 @@ int Game::count_alive_neighbors(int x, int y) const
 }
 
 
-void Game::run_iteration() 
+void Game::run_iteration()
 {
 
-    for (int x = 0; x < field_size; ++x) 
+    for (int x = 0; x < field_size; ++x)
     {
-        for (int y = 0; y < field_size; ++y) 
+        for (int y = 0; y < field_size; ++y)
         {
             int alive_neighbors = count_alive_neighbors(x, y);
             bool next_state;
 
-            if (game_field[x][y].is_alive()) 
+            if (game_field[x][y].is_alive())
                 next_state = (alive_neighbors == 2 || alive_neighbors == 3);
-            else 
+            else
                 next_state = (alive_neighbors == 3);
 
             game_field[x][y].set_next_state(next_state);
         }
     }
 
-    for (int x = 0; x < field_size; ++x) 
-        for (int y = 0; y < field_size; ++y) 
+    for (int x = 0; x < field_size; ++x)
+        for (int y = 0; y < field_size; ++y)
             game_field[x][y].apply_next_state();
-    
+
     ++current_iteration;
 }
 
@@ -158,20 +168,6 @@ void Game::display() const
         std::cout << '\n';
     }
 }
-
-
-void Game::save_to_file(const std::string& filename)
-{
-    std::ofstream output_file(filename);
-    if (!output_file.is_open())
-    {
-        std::cerr << "Cannot open file: " << filename << std::endl;
-        return;
-    }
-    output_file << *this;
-    std::cout << "Universe saved to " << filename << std::endl;
-}
-
 
 
 void Game::run()
