@@ -7,4 +7,8 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(lab_3 main.cpp
         tick.h
         input_parser.cpp
-        input_parser.h)
+        input_parser.h
+        WAV_file.cpp
+        WAV_file.h
+        audio_converters.cpp
+        audio_converters.h)
