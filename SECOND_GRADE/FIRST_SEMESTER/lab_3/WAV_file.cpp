@@ -3,6 +3,7 @@
 WAVFile::WAVFile(const std::string& filepath) : filepath_(filepath), sample_rate_(44100), valid_format_(false) {}
 WAVFile::WAVFile(const std::string& filepath, const std::vector<tick>& samples, int sample_rate)
         : filepath_(filepath), samples_(samples), sample_rate_(sample_rate), valid_format_(true) {}
+
 int WAVFile::get_sample_rate() const { return sample_rate_; }
 bool WAVFile::is_valid_format() const { return valid_format_; }
 const std::vector<tick>& WAVFile::get_samples() const { return samples_; }
@@ -69,8 +70,7 @@ bool WAVFile::write()
 }
 
 
-bool WAVFile::read_header(std::ifstream& file)
-{
+bool WAVFile::read_header(std::ifstream& file) {
     char chunk_id[4];
     file.read(chunk_id, 4);
     if (std::string(chunk_id, 4) != "RIFF")
@@ -92,79 +92,71 @@ bool WAVFile::read_header(std::ifstream& file)
         return false;
     }
 
-    char subchunk1_id[4];
-    file.read(subchunk1_id, 4);
-    if (std::string(subchunk1_id, 4) != "fmt ")
+    while (file.read(chunk_id, 4))
     {
-        std::cerr << "Error! Not a valid WAV file (missing fmt header)." << std::endl;
-        valid_format_ = false;
-        return false;
+        uint32_t subchunk_size;
+        file.read(reinterpret_cast<char*>(&subchunk_size), 4);
+
+        if (std::string(chunk_id, 4) == "fmt ")
+        {
+            uint16_t audio_format;
+            file.read(reinterpret_cast<char*>(&audio_format), 2);
+            if (audio_format != 1)
+            {
+                std::cerr << "Error! Unsupported audio format (only PCM is supported)." << std::endl;
+                valid_format_ = false;
+                return false;
+            }
+
+            uint16_t num_channels;
+            file.read(reinterpret_cast<char*>(&num_channels), 2);
+            if (num_channels != 1)
+            {
+                std::cerr << "Error! Only mono WAV files are supported." << std::endl;
+                valid_format_ = false;
+                return false;
+            }
+
+            uint32_t sample_rate;
+            file.read(reinterpret_cast<char*>(&sample_rate), 4);
+            if (sample_rate != 44100)
+            {
+                std::cerr << "Error! Only 44100 Hz sample rate is supported." << std::endl;
+                valid_format_ = false;
+                return false;
+            }
+            sample_rate_ = sample_rate;
+
+            uint32_t byte_rate;
+            file.read(reinterpret_cast<char*>(&byte_rate), 4);
+
+            uint16_t block_align;
+            file.read(reinterpret_cast<char*>(&block_align), 2);
+
+            uint16_t bits_per_sample;
+            file.read(reinterpret_cast<char*>(&bits_per_sample), 2);
+            if (bits_per_sample != 16)
+            {
+                std::cerr << "Error! Only 16-bit WAV files are supported." << std::endl;
+                valid_format_ = false;
+                return false;
+            }
+        }
+
+        else if (std::string(chunk_id, 4) == "data")
+        {
+            uint32_t subchunk2_size;
+            file.read(reinterpret_cast<char*>(&subchunk2_size), 4);
+            valid_format_ = true;
+            return true;
+        }
+        else
+            file.seekg(subchunk_size, std::ios::cur);
     }
 
-    uint32_t subchunk1_size;
-    file.read(reinterpret_cast<char*>(&subchunk1_size), 4);
-    if (subchunk1_size != 16)
-    {
-        std::cerr << "Error! Unsupported WAV format (expected PCM)." << std::endl;
-        valid_format_ = false;
-        return false;
-    }
-
-    uint16_t audio_format;
-    file.read(reinterpret_cast<char*>(&audio_format), 2);
-    if (audio_format != 1)
-    {
-        std::cerr << "Error! Unsupported audio format (only PCM is supported)." << std::endl;
-        valid_format_ = false;
-        return false;
-    }
-
-    uint16_t num_channels;
-    file.read(reinterpret_cast<char*>(&num_channels), 2);
-    if (num_channels != 1)
-    {
-        std::cerr << "Error! Only mono WAV files are supported." << std::endl;
-        valid_format_ = false;
-        return false;
-    }
-
-    uint32_t sample_rate;
-    file.read(reinterpret_cast<char*>(&sample_rate), 4);
-    if (sample_rate != 44100)
-    {
-        std::cerr << "Error! Only 44100 Hz sample rate is supported." << std::endl;
-        valid_format_ = false;
-        return false;
-    }
-    sample_rate_ = sample_rate;
-
-    uint32_t byte_rate;
-    file.read(reinterpret_cast<char*>(&byte_rate), 4);
-
-    uint16_t block_align;
-    file.read(reinterpret_cast<char*>(&block_align), 2);
-
-    uint16_t bits_per_sample;
-    file.read(reinterpret_cast<char*>(&bits_per_sample), 2);
-    if (bits_per_sample != 16)
-    {
-        std::cerr << "Error! Only 16-bit WAV files are supported." << std::endl;
-        return false;
-    }
-
-    char subchunk2_id[4];
-    file.read(subchunk2_id, 4);
-    if (std::string(subchunk2_id, 4) != "data")
-    {
-        std::cerr << "Error! Missing data header in WAV file." << std::endl;
-        return false;
-    }
-
-    uint32_t subchunk2_size;
-    file.read(reinterpret_cast<char*>(&subchunk2_size), 4);
-
-    valid_format_ = true;
-    return true;
+    std::cerr << "Error! Missing data header in WAV file." << std::endl;
+    valid_format_ = false;
+    return false;
 }
 
 

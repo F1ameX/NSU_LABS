@@ -3,28 +3,37 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
-struct Command {
+struct Command
+{
     std::string type;
     std::vector<std::string> args;
 };
 
-struct MuteCommand {
+
+struct MuteCommand
+{
     int start_time;
     int end_time;
 };
 
-struct MixCommand {
+struct MixCommand
+{
     std::string additional_stream;
     int insert_position;
 };
 
-struct EchoCommand {
+struct EchoCommand
+{
     int delay;
     float decay;
 };
 
-class InputParser {
+class InputParser
+{
 public:
     InputParser(int argc, char* argv[]);
 

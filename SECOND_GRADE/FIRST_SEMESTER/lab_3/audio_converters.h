@@ -4,6 +4,9 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <algorithm>
+#include <cstdlib>
+#include <iostream>
 
 class AudioConverter
 {
@@ -20,9 +23,8 @@ private:
     int end_time_;
 
 public:
-    void apply(std::vector<tick>& samples) override;
     MuteConverter(int start, int end);
-
+    void apply(std::vector<tick>& samples) override;
 };
 
 
@@ -33,9 +35,8 @@ private:
     int insert_position_;
 
 public:
-    void apply(std::vector<tick>& samples) override;
     MixConverter(const std::vector<tick>& mix_samples, int insert_position);
-
+    void apply(std::vector<tick>& samples) override;
 };
 
 
@@ -51,8 +52,8 @@ public:
 };
 
 
-class AudioConverterFactory
-{
+class AudioConverterFactory {
 public:
-    static std::unique_ptr<AudioConverter> createConverter(const std::string& type, const std::vector<std::string>& args);
+    static std::unique_ptr<AudioConverter>
+    createConverter(const std::string &type, const std::vector<std::string> &args);
 };

@@ -1,15 +1,15 @@
 #include "input_parser.h"
-#include <fstream>
-#include <iostream>
-#include <sstream>
+
 
 InputParser::InputParser(int argc, char* argv[]) : argc_(argc), argv_(argv), show_help_(false) {}
-
 bool InputParser::show_help() const { return show_help_; }
-
 std::string InputParser::get_config_file_path() const { return config_file_; }
 std::string InputParser::get_output_file_path() const { return output_file_; }
 std::vector<std::string> InputParser::get_input_files() const { return input_files_; }
+std::vector<MuteCommand> InputParser::get_mute_commands() const { return mute_commands_; }
+std::vector<MixCommand> InputParser::get_mix_commands() const { return mix_commands_; }
+std::vector<EchoCommand> InputParser::get_echo_commands() const { return echo_commands_; }
+
 
 bool InputParser::parse()
 {
@@ -27,6 +27,7 @@ bool InputParser::parse()
         show_help_ = true;
         return true;
     }
+
     else if (arg == "-c")
     {
         if (argv_index + 3 >= argc_)
@@ -55,6 +56,7 @@ bool InputParser::parse()
         return false;
     }
 }
+
 
 bool InputParser::parse_config_file()
 {
@@ -91,23 +93,23 @@ void InputParser::process_command(const Command& cmd)
         MuteCommand mute_cmd = {std::stoi(cmd.args[0]), std::stoi(cmd.args[1])};
         mute_commands_.push_back(mute_cmd);
     }
+
     else if (cmd.type == "mix" && cmd.args.size() == 2)
     {
         MixCommand mix_cmd = {cmd.args[0], std::stoi(cmd.args[1])};
         mix_commands_.push_back(mix_cmd);
     }
+
     else if (cmd.type == "echo" && cmd.args.size() == 2)
     {
         EchoCommand echo_cmd = {std::stoi(cmd.args[0]), std::stof(cmd.args[1])};
         echo_commands_.push_back(echo_cmd);
     }
+
     else
         std::cerr << "Warning! Unknown or malformed command in config: " << cmd.type << "\n";
 }
 
-std::vector<MuteCommand> InputParser::get_mute_commands() const { return mute_commands_; }
-std::vector<MixCommand> InputParser::get_mix_commands() const { return mix_commands_; }
-std::vector<EchoCommand> InputParser::get_echo_commands() const { return echo_commands_; }
 
 std::string InputParser::get_help_message()
 {

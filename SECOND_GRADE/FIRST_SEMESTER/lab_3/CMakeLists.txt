@@ -11,4 +11,6 @@ add_executable(lab_3 main.cpp
         WAV_file.cpp
         WAV_file.h
         audio_converters.cpp
-        audio_converters.h)
+        audio_converters.h
+        sound_processor.cpp
+        sound_processor.h)
