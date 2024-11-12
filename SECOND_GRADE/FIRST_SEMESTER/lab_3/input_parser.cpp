@@ -90,22 +90,36 @@ void InputParser::process_command(const Command& cmd)
 {
     if (cmd.type == "mute" && cmd.args.size() == 2)
     {
-        MuteCommand mute_cmd = {std::stoi(cmd.args[0]), std::stoi(cmd.args[1])};
-        mute_commands_.push_back(mute_cmd);
-    }
+        int start_time = std::stoi(cmd.args[0]);
+        int end_time = std::stoi(cmd.args[1]);
 
+        if (start_time >= 0 && end_time > start_time)
+        {
+            MuteCommand mute_cmd = {start_time, end_time};
+            mute_commands_.push_back(mute_cmd);
+        }
+        else
+            std::cerr << "Warning! Invalid parameters for mute command: " << start_time << " " << end_time << std::endl;
+
+    }
     else if (cmd.type == "mix" && cmd.args.size() == 2)
     {
         MixCommand mix_cmd = {cmd.args[0], std::stoi(cmd.args[1])};
         mix_commands_.push_back(mix_cmd);
     }
-
     else if (cmd.type == "echo" && cmd.args.size() == 2)
     {
-        EchoCommand echo_cmd = {std::stoi(cmd.args[0]), std::stof(cmd.args[1])};
-        echo_commands_.push_back(echo_cmd);
-    }
+        int delay = std::stoi(cmd.args[0]);
+        float decay = std::stof(cmd.args[1]);
 
+        if (delay >= 0 && decay >= 0.0f && decay <= 1.0f)
+        {
+            EchoCommand echo_cmd = {delay, decay};
+            echo_commands_.push_back(echo_cmd);
+        }
+        else
+            std::cerr << "Warning! Invalid parameters for echo command: " << delay << " " << decay << std::endl;
+    }
     else
         std::cerr << "Warning! Unknown or malformed command in config: " << cmd.type << "\n";
 }
