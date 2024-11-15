@@ -54,7 +54,7 @@ TEST(InputParserTest, ParseMixCommand)
 
     auto mix_commands = parser.get_mix_commands();
     ASSERT_EQ(mix_commands.size(), 1);
-    EXPECT_EQ(mix_commands[0].additional_stream, "extra.wav");
+    EXPECT_EQ(mix_commands[0].additional_stream, "district_four.wav");
     EXPECT_EQ(mix_commands[0].insert_position, 500);
 }
 
@@ -117,10 +117,7 @@ TEST(InputParserTest, InvalidConfigCommand)
     int argc = 5;
     InputParser parser(argc, argv);
 
-    EXPECT_TRUE(parser.parse());
-    EXPECT_TRUE(parser.get_mute_commands().empty());
-    EXPECT_TRUE(parser.get_mix_commands().empty());
-    EXPECT_TRUE(parser.get_echo_commands().empty());
+    EXPECT_FALSE(parser.parse());
 }
 
 
@@ -130,10 +127,8 @@ TEST(InputParserTest, InvalidMuteCommand)
     int argc = 5;
     InputParser parser(argc, argv);
 
-    EXPECT_TRUE(parser.parse());
-    EXPECT_TRUE(parser.get_mute_commands().empty());
+    EXPECT_FALSE(parser.parse());
 }
-
 
 TEST(InputParserTest, InvalidEchoCommand)
 {
@@ -141,8 +136,7 @@ TEST(InputParserTest, InvalidEchoCommand)
     int argc = 5;
     InputParser parser(argc, argv);
 
-    EXPECT_TRUE(parser.parse());
-    EXPECT_TRUE(parser.get_echo_commands().empty());
+    EXPECT_FALSE(parser.parse());
 }
 
 
@@ -156,4 +150,25 @@ TEST(SoundProcessorTest, RunWithNoCommands)
 
     SoundProcessor processor(parser);
     EXPECT_NO_THROW(processor.run());
+}
+
+
+TEST(InputParserTest, MissingRequiredArguments)
+{
+    int argc = 2;
+    char* argv[] = { "./sound_processor", "-c" };
+
+    InputParser parser(argc, argv);
+
+    EXPECT_FALSE(parser.parse());
+}
+
+
+TEST(InputParserTest, NonexistentConfigFile)
+{
+    char* argv[] = { "./sound_processor", "-c", "nonexistent_config.txt", "output.wav", "input.wav" };
+    int argc = 5;
+    InputParser parser(argc, argv);
+
+    EXPECT_THROW(parser.parse(), FileReadError);
 }

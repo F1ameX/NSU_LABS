@@ -1,5 +1,6 @@
 #pragma once
 
+#include "exceptions.h"
 #include "input_parser.h"
 #include "WAV_file.h"
 #include "audio_converters.h"
@@ -15,4 +16,7 @@ public:
 
 private:
     const InputParser& parser_;
+    void apply_mute_commands(std::vector<tick>& samples);
+    bool apply_mix_commands(std::vector<tick>& samples);
+    void apply_echo_commands(std::vector<tick>& samples);
 };

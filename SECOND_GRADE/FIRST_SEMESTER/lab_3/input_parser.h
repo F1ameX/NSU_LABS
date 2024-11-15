@@ -1,11 +1,13 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <memory>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
+#include <string>
+#include <vector>
+#include "audio_converters.h"
+#include "exceptions.h"
 
 struct Command
 {
@@ -20,11 +22,13 @@ struct MuteCommand
     int end_time;
 };
 
+
 struct MixCommand
 {
     std::string additional_stream;
     int insert_position;
 };
+
 
 struct EchoCommand
 {
@@ -32,21 +36,22 @@ struct EchoCommand
     float decay;
 };
 
+
 class InputParser
 {
 public:
     InputParser(int argc, char* argv[]);
 
     bool show_help() const;
-    std::string get_config_file_path() const;
-    std::string get_output_file_path() const;
-    std::vector<std::string> get_input_files() const;
+    const std::string& get_config_file_path() const;
+    const std::string& get_output_file_path() const;
+    const std::vector<std::string>& get_input_files() const;
 
     bool parse();
 
-    std::vector<MuteCommand> get_mute_commands() const;
-    std::vector<MixCommand> get_mix_commands() const;
-    std::vector<EchoCommand> get_echo_commands() const;
+    const std::vector<MuteCommand>& get_mute_commands() const;
+    const std::vector<MixCommand>& get_mix_commands() const;
+    const std::vector<EchoCommand>& get_echo_commands() const;
 
     static std::string get_help_message();
 
@@ -61,6 +66,7 @@ private:
     std::vector<MuteCommand> mute_commands_;
     std::vector<MixCommand> mix_commands_;
     std::vector<EchoCommand> echo_commands_;
+
     bool parse_config_file();
     void process_command(const Command& cmd);
 };

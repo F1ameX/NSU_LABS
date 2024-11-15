@@ -1,12 +1,13 @@
 #pragma once
 
-#include "tick.h"
-#include <vector>
-#include <memory>
-#include <string>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
+#include "tick.h"
 
 class AudioConverter
 {
@@ -52,8 +53,9 @@ public:
 };
 
 
-class AudioConverterFactory {
+class AudioConverterFactory
+{
 public:
-    static std::unique_ptr<AudioConverter>
-    createConverter(const std::string &type, const std::vector<std::string> &args);
+    static std::unique_ptr<AudioConverter> createConverter(const std::string &type, const std::vector<std::string> &args);
+    static std::string get_supported_converters();
 };

@@ -1,9 +1,11 @@
-#include "tick.h"
-#include <string>
-#include <vector>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <string>
+#include <vector>
+#include "exceptions.h"
+#include "tick.h"
 
 
 class WAVFile
@@ -17,7 +19,6 @@ public:
 
     const std::vector<tick>& get_samples() const;
     int get_sample_rate() const;
-    bool is_valid_format() const;
 
 private:
     std::string filepath_;
