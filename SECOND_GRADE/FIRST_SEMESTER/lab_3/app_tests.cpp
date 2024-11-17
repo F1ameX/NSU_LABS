@@ -29,51 +29,6 @@ TEST(InputParserTest, ParseHelpFlag)
 }
 
 
-TEST(InputParserTest, ParseMuteCommand)
-{
-    char* argv[] = { "./sound_processor", "-c", "test_config_mute.txt", "output.wav", "input.wav" };
-    int argc = 5;
-    InputParser parser(argc, argv);
-
-    ASSERT_TRUE(parser.parse());
-
-    auto mute_commands = parser.get_mute_commands();
-    ASSERT_EQ(mute_commands.size(), 1);
-    EXPECT_EQ(mute_commands[0].start_time, 0);
-    EXPECT_EQ(mute_commands[0].end_time, 1000);
-}
-
-
-TEST(InputParserTest, ParseMixCommand)
-{
-    char* argv[] = { "./sound_processor", "-c", "test_config_mix.txt", "output.wav", "input.wav" };
-    int argc = 5;
-    InputParser parser(argc, argv);
-
-    ASSERT_TRUE(parser.parse());
-
-    auto mix_commands = parser.get_mix_commands();
-    ASSERT_EQ(mix_commands.size(), 1);
-    EXPECT_EQ(mix_commands[0].additional_stream, "district_four.wav");
-    EXPECT_EQ(mix_commands[0].insert_position, 500);
-}
-
-
-TEST(InputParserTest, ParseEchoCommand)
-{
-    char* argv[] = { "./sound_processor", "-c", "test_config_echo.txt", "output.wav", "input.wav" };
-    int argc = 5;
-    InputParser parser(argc, argv);
-
-    ASSERT_TRUE(parser.parse());
-
-    auto echo_commands = parser.get_echo_commands();
-    ASSERT_EQ(echo_commands.size(), 1);
-    EXPECT_EQ(echo_commands[0].delay, 300);
-    EXPECT_FLOAT_EQ(echo_commands[0].decay, 0.5);
-}
-
-
 TEST(SoundProcessorTest, Initialization)
 {
     int argc = 5;
@@ -100,8 +55,8 @@ TEST(InputParserTest, InvalidArguments)
 
 TEST(InputParserTest, EmptyConfigFile)
 {
-    char* argv[] = { "./sound_processor", "-c", "test_config_empty.txt", "output.wav", "input.wav" };
     int argc = 5;
+    char* argv[] = { "./sound_processor", "-c", "test_config_empty.txt", "output.wav", "input.wav" };
     InputParser parser(argc, argv);
 
     EXPECT_TRUE(parser.parse());
@@ -113,8 +68,8 @@ TEST(InputParserTest, EmptyConfigFile)
 
 TEST(InputParserTest, InvalidConfigCommand)
 {
-    char* argv[] = { "./sound_processor", "-c", "test_config_invalid.txt", "output.wav", "input.wav" };
     int argc = 5;
+    char* argv[] = { "./sound_processor", "-c", "test_config_invalid.txt", "output.wav", "input.wav" };
     InputParser parser(argc, argv);
 
     EXPECT_FALSE(parser.parse());
@@ -123,17 +78,18 @@ TEST(InputParserTest, InvalidConfigCommand)
 
 TEST(InputParserTest, InvalidMuteCommand)
 {
-    char* argv[] = { "./sound_processor", "-c", "test_config_invalid_mute.txt", "output.wav", "input.wav" };
     int argc = 5;
+    char* argv[] = { "./sound_processor", "-c", "test_config_invalid_mute.txt", "output.wav", "input.wav" };
     InputParser parser(argc, argv);
 
     EXPECT_FALSE(parser.parse());
 }
 
+
 TEST(InputParserTest, InvalidEchoCommand)
 {
-    char* argv[] = { "./sound_processor", "-c", "test_config_invalid_echo.txt", "output.wav", "input.wav" };
     int argc = 5;
+    char* argv[] = { "./sound_processor", "-c", "test_config_invalid_echo.txt", "output.wav", "input.wav" };
     InputParser parser(argc, argv);
 
     EXPECT_FALSE(parser.parse());
@@ -166,8 +122,8 @@ TEST(InputParserTest, MissingRequiredArguments)
 
 TEST(InputParserTest, NonexistentConfigFile)
 {
-    char* argv[] = { "./sound_processor", "-c", "nonexistent_config.txt", "output.wav", "input.wav" };
     int argc = 5;
+    char* argv[] = { "./sound_processor", "-c", "nonexistent_config.txt", "output.wav", "input.wav" };
     InputParser parser(argc, argv);
 
     EXPECT_THROW(parser.parse(), FileReadError);

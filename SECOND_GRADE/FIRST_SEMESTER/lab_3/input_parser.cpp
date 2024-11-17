@@ -6,9 +6,10 @@ bool InputParser::show_help() const { return show_help_; }
 const std::string& InputParser::get_config_file_path() const { return config_file_; }
 const std::string& InputParser::get_output_file_path() const { return output_file_; }
 const std::vector<std::string>& InputParser::get_input_files() const { return input_files_; }
-const std::vector<MuteCommand>& InputParser::get_mute_commands() const { return mute_commands_; }
-const std::vector<MixCommand>& InputParser::get_mix_commands() const { return mix_commands_; }
-const std::vector<EchoCommand>& InputParser::get_echo_commands() const { return echo_commands_; }
+const std::vector<std::unique_ptr<AudioConverter>>& InputParser::get_mute_commands() const { return mute_commands_; }
+const std::vector<std::unique_ptr<AudioConverter>>& InputParser::get_mix_commands() const { return mix_commands_; }
+const std::vector<std::unique_ptr<AudioConverter>>& InputParser::get_echo_commands() const { return echo_commands_; }
+
 
 bool InputParser::parse()
 {
@@ -26,6 +27,7 @@ bool InputParser::parse()
         show_help_ = true;
         return true;
     }
+
     else if (arg == "-c")
     {
         if (argv_index + 3 >= argc_)
@@ -79,67 +81,81 @@ bool InputParser::parse_config_file()
         Command cmd;
         iss >> cmd.type;
         std::string arg;
+
         while (iss >> arg)
             cmd.args.push_back(arg);
 
         process_command(cmd);
     }
-
     config.close();
     return true;
 }
+
 
 void InputParser::process_command(const Command& cmd)
 {
     if (cmd.type == "mute" && cmd.args.size() == 2)
     {
-        int start_time = std::stoi(cmd.args[0]);
-        int end_time = std::stoi(cmd.args[1]);
-
-        if (start_time >= 0 && end_time > start_time)
+        try
         {
-            MuteCommand mute_cmd = {start_time, end_time};
-            mute_commands_.push_back(mute_cmd);
+            auto converter = AudioConverterFactory::createConverter("mute", {cmd.args[0], cmd.args[1]});
+            if (converter)
+            {
+                mute_commands_.push_back(std::move(converter));
+                std::cout << "Mute command added." << std::endl;
+            }
+            else
+                throw InvalidCommandError("Failed to create mute converter.");
         }
-        else
-            throw InvalidCommandError("Invalid parameters for mute command: " + std::to_string(start_time) + " " + std::to_string(end_time));
+        catch (const std::exception& e)
+        {
+            throw InvalidCommandError("Error: Invalid parameters for mute command: " + std::string(e.what()));
+        }
     }
     else if (cmd.type == "mix" && cmd.args.size() == 2)
     {
         try
         {
+            std::string additional_stream = cmd.args[0];
             int insert_position = std::stoi(cmd.args[1]);
-            MixCommand mix_cmd = {cmd.args[0], insert_position};
-            mix_commands_.push_back(mix_cmd);
+
+            auto converter = AudioConverterFactory::createConverter("mix", {additional_stream, std::to_string(insert_position)});
+
+            if (converter)
+            {
+                mix_commands_.push_back(std::move(converter));
+                std::cout << "Mix command added." << std::endl;
+            }
+            else
+                throw InvalidCommandError("Failed to create mix converter.");
         }
         catch (const std::exception& e)
         {
-            throw InvalidCommandError("Invalid parameters for mix command: " + cmd.args[0] + " " + cmd.args[1]);
+            throw InvalidCommandError("Error: Invalid parameters for mix command: " + std::string(e.what()));
         }
     }
     else if (cmd.type == "echo" && cmd.args.size() == 2)
     {
         try
         {
-            int delay = std::stoi(cmd.args[0]);
-            float decay = std::stof(cmd.args[1]);
-
-            if (delay >= 0 && decay >= 0.0f && decay <= 1.0f)
+            auto converter = AudioConverterFactory::createConverter("echo", cmd.args);
+            if (converter)
             {
-                EchoCommand echo_cmd = {delay, decay};
-                echo_commands_.push_back(echo_cmd);
+                echo_commands_.push_back(std::move(converter));
+                std::cout << "Echo command added." << std::endl;
             }
             else
-                throw InvalidCommandError("Invalid parameters for echo command: " + std::to_string(delay) + " " + std::to_string(decay));
+                throw InvalidCommandError("Failed to create echo converter.");
         }
         catch (const std::exception& e)
         {
-            throw InvalidCommandError("Invalid parameters for echo command: " + cmd.args[0] + " " + cmd.args[1]);
+            throw InvalidCommandError("Error: Invalid parameters for echo command: " + std::string(e.what()));
         }
     }
     else
         throw UnknownCommandError("Unknown or malformed command in config: " + cmd.type);
 }
+
 
 std::string InputParser::get_help_message()
 {

@@ -15,28 +15,6 @@ struct Command
     std::vector<std::string> args;
 };
 
-
-struct MuteCommand
-{
-    int start_time;
-    int end_time;
-};
-
-
-struct MixCommand
-{
-    std::string additional_stream;
-    int insert_position;
-};
-
-
-struct EchoCommand
-{
-    int delay;
-    float decay;
-};
-
-
 class InputParser
 {
 public:
@@ -49,9 +27,9 @@ public:
 
     bool parse();
 
-    const std::vector<MuteCommand>& get_mute_commands() const;
-    const std::vector<MixCommand>& get_mix_commands() const;
-    const std::vector<EchoCommand>& get_echo_commands() const;
+    const std::vector<std::unique_ptr<AudioConverter>>& get_mute_commands() const;
+    const std::vector<std::unique_ptr<AudioConverter>>& get_mix_commands() const;
+    const std::vector<std::unique_ptr<AudioConverter>>& get_echo_commands() const;
 
     static std::string get_help_message();
 
@@ -63,9 +41,9 @@ private:
     std::string output_file_;
     std::vector<std::string> input_files_;
 
-    std::vector<MuteCommand> mute_commands_;
-    std::vector<MixCommand> mix_commands_;
-    std::vector<EchoCommand> echo_commands_;
+    std::vector<std::unique_ptr<AudioConverter>> mute_commands_;
+    std::vector<std::unique_ptr<AudioConverter>> mix_commands_;
+    std::vector<std::unique_ptr<AudioConverter>> echo_commands_;
 
     bool parse_config_file();
     void process_command(const Command& cmd);

@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "tick.h"
+#include "WAV_file.h"
 
 class AudioConverter
 {

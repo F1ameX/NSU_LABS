@@ -1,5 +1,5 @@
 #include "WAV_file.h"
-#include <algorithm> // для std::clamp
+
 
 WAVFile::WAVFile(const std::string& filepath) : filepath_(filepath), sample_rate_(44100), valid_format_(false) {}
 WAVFile::WAVFile(const std::string& filepath, const std::vector<tick>& samples, int sample_rate)
