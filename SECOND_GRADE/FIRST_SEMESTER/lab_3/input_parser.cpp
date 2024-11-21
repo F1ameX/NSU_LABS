@@ -94,66 +94,43 @@ bool InputParser::parse_config_file()
 
 void InputParser::process_command(const Command& cmd)
 {
-    if (cmd.type == "mute" && cmd.args.size() == 2)
+    try
     {
-        try
+        if (cmd.type == "mute")
         {
-            auto converter = AudioConverterFactory::createConverter("mute", {cmd.args[0], cmd.args[1]});
-            if (converter)
-            {
-                mute_commands_.push_back(std::move(converter));
-                std::cout << "Mute command added." << std::endl;
-            }
-            else
-                throw InvalidCommandError("Failed to create mute converter.");
+            auto converter = AudioConverterFactory::create_converter<MuteConverter>(cmd.args);
+            if (!converter)
+                throw std::runtime_error("Factory failed to create MuteConverter.");
+            mute_commands_.push_back(std::move(converter));
+            std::cout << "Mute command added." << std::endl;
         }
-        catch (const std::exception& e)
-        {
-            throw InvalidCommandError("Error: Invalid parameters for mute command: " + std::string(e.what()));
-        }
-    }
-    else if (cmd.type == "mix" && cmd.args.size() == 2)
-    {
-        try
-        {
-            std::string additional_stream = cmd.args[0];
-            int insert_position = std::stoi(cmd.args[1]);
 
-            auto converter = AudioConverterFactory::createConverter("mix", {additional_stream, std::to_string(insert_position)});
+        else if (cmd.type == "mix")
+        {
+            auto converter = AudioConverterFactory::create_converter<MixConverter>(cmd.args);
+            if (!converter)
+                throw std::runtime_error("Factory failed to create MixConverter.");
+            mix_commands_.push_back(std::move(converter));
+            std::cout << "Mix command added." << std::endl;
+        }
 
-            if (converter)
-            {
-                mix_commands_.push_back(std::move(converter));
-                std::cout << "Mix command added." << std::endl;
-            }
-            else
-                throw InvalidCommandError("Failed to create mix converter.");
-        }
-        catch (const std::exception& e)
+        else if (cmd.type == "echo")
         {
-            throw InvalidCommandError("Error: Invalid parameters for mix command: " + std::string(e.what()));
+            auto converter = AudioConverterFactory::create_converter<EchoConverter>(cmd.args);
+            if (!converter)
+                throw std::runtime_error("Factory failed to create EchoConverter.");
+            echo_commands_.push_back(std::move(converter));
+            std::cout << "Echo command added." << std::endl;
         }
+
+        else
+            throw std::invalid_argument("Unknown command type: " + cmd.type);
     }
-    else if (cmd.type == "echo" && cmd.args.size() == 2)
+    catch (const std::exception& e)
     {
-        try
-        {
-            auto converter = AudioConverterFactory::createConverter("echo", cmd.args);
-            if (converter)
-            {
-                echo_commands_.push_back(std::move(converter));
-                std::cout << "Echo command added." << std::endl;
-            }
-            else
-                throw InvalidCommandError("Failed to create echo converter.");
-        }
-        catch (const std::exception& e)
-        {
-            throw InvalidCommandError("Error: Invalid parameters for echo command: " + std::string(e.what()));
-        }
+        std::cerr << "Error processing command: " << cmd.type << ": " << e.what() << std::endl;
+        std::exit(EXIT_FAILURE);
     }
-    else
-        throw UnknownCommandError("Unknown or malformed command in config: " + cmd.type);
 }
 
 
@@ -164,6 +141,22 @@ std::string InputParser::get_help_message()
     oss << "Options (flags):\n";
     oss << "  -h                  Show this help message and exit\n";
     oss << "  -c config.txt       Specify the configuration file, output file, and input WAV files\n\n";
-    oss << AudioConverterFactory::get_supported_converters();
+
+    oss << "Supported converters:\n";
+    oss << "  mute <start> <end> - Mutes audio from start to end time (in ms).\n";
+    oss << "      Parameters:\n";
+    oss << "        start - Start time in milliseconds.\n";
+    oss << "        end   - End time in milliseconds.\n";
+
+    oss << "  mix <insert_position> <samples...> - Mixes additional samples at the specified position.\n";
+    oss << "      Parameters:\n";
+    oss << "        insert_position - Position in milliseconds where mixing starts.\n";
+    oss << "        samples         - Additional samples to mix at insert_position.\n";
+
+    oss << "  echo <delay> <decay> - Adds echo effect with specified delay and decay.\n";
+    oss << "      Parameters:\n";
+    oss << "        delay - Delay in milliseconds between echoes.\n";
+    oss << "        decay - Decay factor (0.0 to 1.0), representing the decrease in volume for each echo.\n";
+
     return oss.str();
 }

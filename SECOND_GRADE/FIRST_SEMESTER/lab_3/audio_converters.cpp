@@ -1,41 +1,55 @@
 #include "audio_converters.h"
 
 
-std::string AudioConverterFactory::get_supported_converters()
+MuteConverter::MuteConverter(int start_time, int end_time) : start_time_(start_time), end_time_(end_time)
 {
-    std::ostringstream oss;
-    oss << "Supported converters:\n";
-    oss << "  mute <start> <end> - Mutes audio from start to end time (in ms).\n";
-    oss << "      Parameters:\n";
-    oss << "        start - Start time in milliseconds.\n";
-    oss << "        end   - End time in milliseconds.\n\n";
-
-    oss << "  mix <insert_position> <samples...> - Mixes additional samples at the specified position.\n";
-    oss << "      Parameters:\n";
-    oss << "        insert_position - Position in milliseconds where mixing starts.\n";
-    oss << "        samples         - Additional samples to mix at insert_position.\n\n";
-
-    oss << "  echo <delay> <decay> - Adds echo effect with specified delay and decay.\n";
-    oss << "      Parameters:\n";
-    oss << "        delay - Delay in milliseconds between echoes.\n";
-    oss << "        decay - Decay factor (0.0 to 1.0), representing the decrease in volume for each echo.\n";
-
-    return oss.str();
+    if (start_time < 0 || end_time < 0)
+        throw std::invalid_argument("Start time and end time must be non-negative.");
+    if (start_time >= end_time)
+        throw std::invalid_argument("Start time must be less than end time.");
 }
 
 
-MuteConverter::MuteConverter(int start, int end) : start_time_(start * 44100 / 1000), end_time_(end * 44100 / 1000) {}
-EchoConverter::EchoConverter(int delay, float decay): delay_(delay * 44100 / 1000), decay_(decay) {}
-MixConverter::MixConverter(const std::vector<tick>& mix_samples, int insert_position)
-        : mix_samples_(mix_samples), insert_position_(insert_position * 44100 / 1000) {}
+MixConverter::MixConverter(const std::string& additional_stream, int insert_position)
+: additional_stream_(additional_stream), insert_position_(insert_position)
+{
+    if (insert_position < 0)
+        throw std::invalid_argument("Insert position must be non-negative.");
+
+    WAVFile wav_file(additional_stream);
+    if (!wav_file.read())
+        throw std::runtime_error("Error: Could not read WAV file: " + additional_stream);
+
+    mix_samples_ = wav_file.get_samples();
+
+    if (mix_samples_.empty())
+        throw std::runtime_error("Error: WAV file contains no samples: " + additional_stream);
+}
+
+
+EchoConverter::EchoConverter(size_t delay, float decay)
+        : delay_(delay), decay_(decay)
+{
+    if (delay <= 0)
+        throw std::invalid_argument("Delay must be positive.");
+
+    if (decay <= 0.0f || decay >= 1.0f)
+        throw std::invalid_argument("Decay factor must be in the range (0.0, 1.0).");
+}
 
 
 void MuteConverter::apply(std::vector<tick>& samples)
 {
-    std::cout << "Applying mute from sample " << start_time_ << " to sample " << end_time_ << std::endl;
+    std::cout << "Applying mute from " << start_time_ << "ms to " << end_time_ << "ms" << std::endl;
 
-    for (size_t i = start_time_; i < end_time_ && i < samples.size(); ++i)
-        samples[i] = 0;
+    int start_sample = start_time_ * sample_rate / 1000;
+    int end_sample = end_time_ * sample_rate / 1000;
+
+    for (size_t i = start_sample; i < end_sample && i < samples.size(); ++i)
+        samples[i] = static_cast<tick>(std::clamp(0,
+                                                  static_cast<int>(std::numeric_limits<tick>::min()),
+                                                  static_cast<int>(std::numeric_limits<tick>::max())
+                                                  ));
 
     std::cout << "Mute applied successfully" << std::endl;
 }
@@ -43,20 +57,21 @@ void MuteConverter::apply(std::vector<tick>& samples)
 
 void MixConverter::apply(std::vector<tick>& samples)
 {
-    std::cout << "Applying mix at sample position " << insert_position_ << std::endl;
+    std::cout << "Applying mix at sample position " << insert_position_ << " ms" << std::endl;
+
+    int sample_position = insert_position_ * sample_rate / 1000;
 
     if (mix_samples_.empty())
         throw std::runtime_error("Error: The mix samples are empty.");
 
-    if (insert_position_ < 0 || insert_position_ >= samples.size())
+    if (sample_position < 0 || sample_position >= samples.size())
         throw std::runtime_error("Error: Invalid insert position for mix command.");
 
-
-    for (size_t i = 0; i < mix_samples_.size() && (i + insert_position_) < samples.size(); ++i)
-        samples[i + insert_position_] = static_cast<tick>(std::clamp(
-                static_cast<int>(samples[i + insert_position_] + mix_samples_[i]),
-                static_cast<int>(MIN_TICK),
-                static_cast<int>(MAX_TICK)
+    for (size_t i = 0; i < mix_samples_.size() && (i + sample_position) < samples.size(); ++i)
+        samples[i + sample_position] = static_cast<tick>(std::clamp(
+                static_cast<int>(samples[i + sample_position] + mix_samples_[i]),
+                static_cast<int>(std::numeric_limits<tick>::min()),
+                static_cast<int>(std::numeric_limits<tick>::max())
         ));
 
     std::cout << "Mix applied successfully" << std::endl;
@@ -65,73 +80,68 @@ void MixConverter::apply(std::vector<tick>& samples)
 
 void EchoConverter::apply(std::vector<tick>& samples)
 {
-    std::cout << "Applying echo with delay " << delay_ << " samples and decay " << decay_ << std::endl;
+    std::cout << "Applying echo with delay " << delay_ << "ms and decay " << decay_ << std::endl;
 
-    for (size_t i = delay_; i < samples.size(); ++i)
+    int sample_delay = delay_ * sample_rate / 1000;
+
+    for (size_t i = sample_delay; i < samples.size(); ++i)
     {
-        int repeated_sample = samples[i - delay_];
+        int repeated_sample = samples[i - sample_delay];
         float decay_factor = decay_;
 
         for (int repeat = 1; repeat <= 5; ++repeat)
         {
-            size_t echo_position = i + repeat * delay_;
+            size_t echo_position = i + repeat * sample_delay;
             if (echo_position >= samples.size()) break;
+
             samples[echo_position] = static_cast<tick>(std::clamp(
                     static_cast<int>(samples[echo_position] + repeated_sample * decay_factor),
-                    static_cast<int>(MIN_TICK),
-                    static_cast<int>(MAX_TICK)
+                    static_cast<int>(std::numeric_limits<tick>::min()),
+                    static_cast<int>(std::numeric_limits<tick>::max())
             ));
+
             decay_factor *= decay_;
         }
     }
-
     std::cout << "Echo applied successfully" << std::endl;
 }
 
 
-std::unique_ptr<AudioConverter> AudioConverterFactory::createConverter(const std::string& type, const std::vector<std::string>& args)
+template <>
+std::unique_ptr<AudioConverter> AudioConverterFactory::create_converter<MuteConverter>(const std::vector<std::string>& args)
 {
+    int start = std::stoi(args[0]);
+    int end = std::stoi(args[1]);
+    return std::make_unique<MuteConverter>(start, end);
+}
+
+
+template <>
+std::unique_ptr<AudioConverter> AudioConverterFactory::create_converter<MixConverter>(const std::vector<std::string>& args)
+{
+    if (args.size() < 2)
+        throw std::invalid_argument("MixConverter requires at least 2 arguments: file_name and insert_position.");
+
+
+    std::string additional_stream = args[0];
+    int insert_position;
     try
     {
-        if (type == "mute" && args.size() == 2)
-        {
-            int start = std::stoi(args[0]);
-            int end = std::stoi(args[1]);
-            if (start < 0 || end <= start)
-                throw std::invalid_argument("Invalid range for mute command");
-
-            return std::make_unique<MuteConverter>(start, end);
-        }
-
-        else if (type == "mix" && args.size() == 2)
-        {
-            std::string additional_stream = args[0];
-            int insert_position = std::stoi(args[1]);
-
-            WAVFile additionalFile(additional_stream);
-            if (!additionalFile.read())
-                throw std::invalid_argument("Invalid sample file: " + additional_stream);
-
-            std::vector<tick> mix_samples = additionalFile.get_samples();
-
-            return std::make_unique<MixConverter>(mix_samples, insert_position);
-        }
-
-        else if (type == "echo" && args.size() == 2)
-        {
-            int delay = std::stoi(args[0]);
-            float decay = std::stof(args[1]);
-            if (delay < 0 || decay < 0.0f || decay > 1.0f)
-                throw std::invalid_argument("Invalid parameters for echo command");
-
-            return std::make_unique<EchoConverter>(delay, decay);
-        }
-
-        throw std::invalid_argument("Unknown converter type: " + type);
+        insert_position = std::stoi(args[1]);
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Error creating converter: " << e.what() << std::endl;
-        return nullptr;
+        throw std::invalid_argument("Invalid insert position for mix command: " + std::string(e.what()));
     }
+
+    return std::make_unique<MixConverter>(additional_stream, insert_position);
+}
+
+
+template <>
+std::unique_ptr<AudioConverter> AudioConverterFactory::create_converter<EchoConverter>(const std::vector<std::string>& args)
+{
+    int delay = std::stoi(args[0]);
+    float decay = std::stof(args[1]);
+    return std::make_unique<EchoConverter>(delay, decay);
 }

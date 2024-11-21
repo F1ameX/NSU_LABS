@@ -1,62 +1,74 @@
 #pragma once
 
 #include <algorithm>
-#include <cstdlib>
-#include <iostream>
-#include <memory>
-#include <sstream>
-#include <string>
 #include <vector>
+#include <string>
+#include <memory>
+#include <iostream>
 #include "tick.h"
 #include "WAV_file.h"
+
+static constexpr int sample_rate = 44100;
+
 
 class AudioConverter
 {
 public:
-    virtual ~AudioConverter() = default;
     virtual void apply(std::vector<tick>& samples) = 0;
+    virtual ~AudioConverter() = default;
 };
 
 
 class MuteConverter : public AudioConverter
 {
-private:
-    int start_time_;
-    int end_time_;
-
 public:
-    MuteConverter(int start, int end);
+    MuteConverter(int start_time, int end_time);
     void apply(std::vector<tick>& samples) override;
+private:
+    size_t start_time_;
+    size_t end_time_;
 };
 
 
 class MixConverter : public AudioConverter
 {
-private:
-    std::vector<tick> mix_samples_;
-    int insert_position_;
-
 public:
-    MixConverter(const std::vector<tick>& mix_samples, int insert_position);
+    MixConverter(const std::string& additional_stream, int insert_position);
     void apply(std::vector<tick>& samples) override;
+private:
+    int insert_position_;
+    std::string additional_stream_;
+    std::vector<tick> mix_samples_;
 };
 
 
 class EchoConverter : public AudioConverter
 {
-private:
-    int delay_;
-    float decay_;
-
 public:
-    EchoConverter(int delay, float decay);
+    EchoConverter(size_t delay, float decay);
     void apply(std::vector<tick>& samples) override;
+private:
+    size_t delay_;
+    float decay_;
 };
 
 
 class AudioConverterFactory
 {
 public:
-    static std::unique_ptr<AudioConverter> createConverter(const std::string &type, const std::vector<std::string> &args);
-    static std::string get_supported_converters();
+    template <typename ConverterType>
+    static std::unique_ptr<AudioConverter> create_converter(const std::vector<std::string>& args);
+    static std::vector<std::string> get_supported_converters() { return { "mute", "mix", "echo" }; }
 };
+
+
+template <>
+std::unique_ptr<AudioConverter> AudioConverterFactory::create_converter<MuteConverter>(const std::vector<std::string>& args);
+
+
+template <>
+std::unique_ptr<AudioConverter> AudioConverterFactory::create_converter<MixConverter>(const std::vector<std::string>& args);
+
+
+template <>
+std::unique_ptr<AudioConverter> AudioConverterFactory::create_converter<EchoConverter>(const std::vector<std::string>& args);
