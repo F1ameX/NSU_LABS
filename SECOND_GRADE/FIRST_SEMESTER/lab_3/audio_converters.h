@@ -10,7 +10,6 @@
 
 static constexpr int sample_rate = 44100;
 
-
 class AudioConverter
 {
 public:
@@ -58,17 +57,14 @@ class AudioConverterFactory
 public:
     template <typename ConverterType>
     static std::unique_ptr<AudioConverter> create_converter(const std::vector<std::string>& args);
-    static std::vector<std::string> get_supported_converters() { return { "mute", "mix", "echo" }; }
 };
 
 
 template <>
 std::unique_ptr<AudioConverter> AudioConverterFactory::create_converter<MuteConverter>(const std::vector<std::string>& args);
 
-
 template <>
 std::unique_ptr<AudioConverter> AudioConverterFactory::create_converter<MixConverter>(const std::vector<std::string>& args);
-
 
 template <>
 std::unique_ptr<AudioConverter> AudioConverterFactory::create_converter<EchoConverter>(const std::vector<std::string>& args);

@@ -1,44 +1,7 @@
 #include "sound_processor.h"
-#include <iostream>
-#include <exception>
+
 
 SoundProcessor::SoundProcessor(const InputParser& parser) : parser_(parser) {}
-
-void SoundProcessor::apply_mute_commands(std::vector<tick>& samples)
-{
-    std::vector<tick> samples_int;
-    for (const auto& sample : samples)
-        samples_int.push_back(static_cast<int>(sample));
-
-    for (const auto& cmd : parser_.get_mute_commands())
-        cmd->apply(samples_int);
-
-}
-
-
-void SoundProcessor::apply_mix_commands(std::vector<tick>& samples)
-{
-    std::vector<tick> samples_int;
-
-    for (const auto& sample : samples)
-        samples_int.push_back(static_cast<int>(sample));
-
-    for (const auto& cmd : parser_.get_mix_commands())
-        cmd->apply(samples_int);
-
-}
-
-
-void SoundProcessor::apply_echo_commands(std::vector<tick>& samples)
-{
-    std::vector<tick> samples_int;
-
-    for (const auto& sample : samples)
-        samples_int.push_back(static_cast<int>(sample));
-
-    for (const auto& cmd : parser_.get_echo_commands())
-        cmd->apply(samples_int);
-}
 
 
 bool SoundProcessor::run()
@@ -74,6 +37,7 @@ bool SoundProcessor::run()
 
         WAVFile outputFile(parser_.get_output_file_path(), samples, inputFile.get_sample_rate());
         std::cout << "Writing to output file: " << parser_.get_output_file_path() << std::endl;
+
         if (!outputFile.write())
             throw FileReadError("Could not write to the output WAV file");
 

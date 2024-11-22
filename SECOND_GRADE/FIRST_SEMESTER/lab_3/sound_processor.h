@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 #include <memory>
 #include "input_parser.h"
@@ -13,9 +14,5 @@ public:
     bool run();
 
 private:
-    void apply_mute_commands(std::vector<tick>& samples);
-    void apply_mix_commands(std::vector<tick>& samples);
-    void apply_echo_commands(std::vector<tick>& samples);
-
     const InputParser& parser_;
 };
