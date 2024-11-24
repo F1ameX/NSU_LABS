@@ -27,10 +27,7 @@ public:
 
     bool parse();
 
-    const std::vector<std::unique_ptr<AudioConverter>>& get_mute_commands() const;
-    const std::vector<std::unique_ptr<AudioConverter>>& get_mix_commands() const;
-    const std::vector<std::unique_ptr<AudioConverter>>& get_echo_commands() const;
-
+    const std::vector<std::unique_ptr<AudioConverter>>& get_audio_commands() const;
     static std::string get_help_message();
 
 private:
@@ -41,9 +38,7 @@ private:
     std::string output_file_;
     std::vector<std::string> input_files_;
 
-    std::vector<std::unique_ptr<AudioConverter>> mute_commands_;
-    std::vector<std::unique_ptr<AudioConverter>> mix_commands_;
-    std::vector<std::unique_ptr<AudioConverter>> echo_commands_;
+    std::vector<std::unique_ptr<AudioConverter>> audio_commands_;
 
     bool parse_config_file();
     void process_command(const Command& cmd);

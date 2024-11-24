@@ -11,6 +11,8 @@ const std::vector<std::unique_ptr<AudioConverter>>& InputParser::get_mix_command
 const std::vector<std::unique_ptr<AudioConverter>>& InputParser::get_echo_commands() const { return echo_commands_; }
 
 
+const std::vector<std::unique_ptr<AudioConverter>>& InputParser::get_audio_commands() const { return audio_commands_; }
+
 bool InputParser::parse()
 {
     if (argc_ < 2)
@@ -96,40 +98,32 @@ void InputParser::process_command(const Command& cmd)
 {
     try
     {
-        if (cmd.type == "mute")
+        if (cmd.type == "mute" && cmd.args.size() == 2)
         {
             auto converter = AudioConverterFactory::create_converter<MuteConverter>(cmd.args);
-            if (!converter)
-                throw std::runtime_error("Factory failed to create MuteConverter.");
-            mute_commands_.push_back(std::move(converter));
+            audio_commands_.push_back(std::move(converter));
             std::cout << "Mute command added." << std::endl;
         }
-
-        else if (cmd.type == "mix")
+        else if (cmd.type == "mix" && cmd.args.size() >= 2)
         {
             auto converter = AudioConverterFactory::create_converter<MixConverter>(cmd.args);
-            if (!converter)
-                throw std::runtime_error("Factory failed to create MixConverter.");
-            mix_commands_.push_back(std::move(converter));
+            audio_commands_.push_back(std::move(converter));
             std::cout << "Mix command added." << std::endl;
         }
-
-        else if (cmd.type == "echo")
+        else if (cmd.type == "echo" && cmd.args.size() == 2)
         {
             auto converter = AudioConverterFactory::create_converter<EchoConverter>(cmd.args);
-            if (!converter)
-                throw std::runtime_error("Factory failed to create EchoConverter.");
-            echo_commands_.push_back(std::move(converter));
+            audio_commands_.push_back(std::move(converter));
             std::cout << "Echo command added." << std::endl;
         }
-
         else
-            throw std::invalid_argument("Unknown command type: " + cmd.type);
+        {
+            throw std::invalid_argument("Unknown or malformed command.");
+        }
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Error processing command: " << cmd.type << ": " << e.what() << std::endl;
-        std::exit(EXIT_FAILURE);
+        std::cerr << "Error processing command: " << e.what() << std::endl;
     }
 }
 

@@ -3,7 +3,6 @@
 
 SoundProcessor::SoundProcessor(const InputParser& parser) : parser_(parser) {}
 
-
 bool SoundProcessor::run()
 {
     try
@@ -17,21 +16,9 @@ bool SoundProcessor::run()
 
         std::vector<tick> samples = inputFile.get_samples();
 
-        for (const auto& converter : parser_.get_mute_commands())
+        for (const auto& converter : parser_.get_audio_commands())
         {
-            std::cout << "Applying mute command..." << std::endl;
-            converter->apply(samples);
-        }
-
-        for (const auto& converter : parser_.get_mix_commands())
-        {
-            std::cout << "Applying mix command..." << std::endl;
-            converter->apply(samples);
-        }
-
-        for (const auto& converter : parser_.get_echo_commands())
-        {
-            std::cout << "Applying echo command..." << std::endl;
+            std::cout << "Applying command..." << std::endl;
             converter->apply(samples);
         }
 

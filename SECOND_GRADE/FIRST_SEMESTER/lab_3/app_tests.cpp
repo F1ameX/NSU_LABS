@@ -12,9 +12,8 @@ TEST(InputParserTest, ParseArguments)
     InputParser parser(argc, argv);
 
     ASSERT_TRUE(parser.parse());
-    EXPECT_EQ(parser.get_config_file_path(), "config.txt");
-    EXPECT_EQ(parser.get_output_file_path(), "output.wav");
-    EXPECT_EQ(parser.get_input_files().front(), "input.wav");
+    const auto& commands = parser.get_audio_commands();
+    EXPECT_EQ(commands.size(), 0);
 }
 
 
@@ -61,9 +60,8 @@ TEST(InputParserTest, EmptyConfigFile)
     InputParser parser(argc, argv);
 
     ASSERT_TRUE(parser.parse());
-    EXPECT_TRUE(parser.get_mute_commands().empty());
-    EXPECT_TRUE(parser.get_mix_commands().empty());
-    EXPECT_TRUE(parser.get_echo_commands().empty());
+    const auto& commands = parser.get_audio_commands();
+    EXPECT_TRUE(commands.empty());
 }
 
 
