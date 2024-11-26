@@ -6,9 +6,7 @@ bool InputParser::show_help() const { return show_help_; }
 const std::string& InputParser::get_config_file_path() const { return config_file_; }
 const std::string& InputParser::get_output_file_path() const { return output_file_; }
 const std::vector<std::string>& InputParser::get_input_files() const { return input_files_; }
-const std::vector<std::unique_ptr<AudioConverter>>& InputParser::get_mute_commands() const { return mute_commands_; }
-const std::vector<std::unique_ptr<AudioConverter>>& InputParser::get_mix_commands() const { return mix_commands_; }
-const std::vector<std::unique_ptr<AudioConverter>>& InputParser::get_echo_commands() const { return echo_commands_; }
+
 
 
 const std::vector<std::unique_ptr<AudioConverter>>& InputParser::get_audio_commands() const { return audio_commands_; }
