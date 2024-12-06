@@ -3,7 +3,6 @@
 #include <tuple>
 #include <iostream>
 
-
 template<typename Tuple, std::size_t Index>
 struct TuplePrinter
 {
@@ -23,11 +22,11 @@ struct TuplePrinter<Tuple, 0>
 
 
 template<typename... Args>
-std::ostream& operator<<(std::ostream& os, const std::tuple<Args...>& tuple) {
+std::ostream& operator<<(std::ostream& os, const std::tuple<Args...>& tuple)
+{
     os << "(";
     if constexpr (sizeof...(Args) > 0)
         TuplePrinter<std::tuple<Args...>, sizeof...(Args) - 1>::print(os, tuple);
-
     os << ")";
     return os;
 }
