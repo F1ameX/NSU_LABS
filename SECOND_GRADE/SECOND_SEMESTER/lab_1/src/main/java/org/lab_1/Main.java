@@ -3,7 +3,7 @@ package org.lab_1;
 public class Main {
     public static void main(String[] args) {
         if (args.length != 2) {
-            System.err.println("Usage: java Main input.txt output.csv");
+            System.err.println("Использование: java Main input.txt output.csv");
             return;
         }
 
@@ -13,6 +13,6 @@ public class Main {
         WordData wordData = new WordData();
         wordData.processFileData(inputFileName);
 
-        CSVWriter.writeToFile(outputFileName, wordData.getWordsMap());
+        CSVWriter.writeToFile(outputFileName, wordData.getWordsSet());
     }
 }
