@@ -3,7 +3,7 @@ package org.lab_1;
 public class Main {
     public static void main(String[] args) {
         if (args.length != 2) {
-            System.err.println("Использование: mvn exec:java -Dexec.args=\"input.txt output.csv\"  ");
+            System.err.println("Usage: mvn exec:java -Dexec.args=\"input.txt output.csv\"  ");
             return;
         }
 

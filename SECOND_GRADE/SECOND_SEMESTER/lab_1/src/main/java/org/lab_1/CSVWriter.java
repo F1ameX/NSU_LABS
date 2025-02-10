@@ -10,12 +10,12 @@ public class CSVWriter {
                 .toList();
 
         try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outputFileName))) {
-            fileWriter.write("Слово,Частота,Частота(%)\n");
+            fileWriter.write("Word,Frequency,FPP(%)\n");
             for (WordFrequency wf : sortedWords) {
-                fileWriter.write(wf.word() + "," + wf.count() + "," + String.format("%.2f", wf.frequencyPercent()) + "\n");
+                fileWriter.write(wf.word() + "," + wf.count() + "," + String.format("%.3f", wf.frequencyPercent()) + "\n");
             }
         } catch (IOException e) {
-            System.err.println("Ошибка при записи файла: " + e.getLocalizedMessage());
+            System.err.println("Unable to write into file: " + e.getLocalizedMessage());
         }
     }
 }

@@ -40,7 +40,7 @@ public class WordData {
             }
 
         } catch (IOException e) {
-            System.err.println("Ошибка при чтении файла: " + e.getLocalizedMessage());
+            System.err.println("Unable to write into file: " + e.getLocalizedMessage());
         }
     }
 }
