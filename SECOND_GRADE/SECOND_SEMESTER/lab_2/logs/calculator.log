@@ -1,0 +1,73 @@
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Starting calculator...
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Reading commands from file: input.txt
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: DEFINE
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - DEFINE executed: y = 5.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: DEFINE
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable x with value 10.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable y with value 5.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: ADD
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PRINT executed: Top value is 15.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PRINT
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable x with value 10.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable y with value 5.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: SUBTRACT
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PRINT executed: Top value is 5.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PRINT
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable x with value 10.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable y with value 5.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: MULTIPLY
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PRINT executed: Top value is 50.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PRINT
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable x with value 10.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable y with value 5.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 5.0 = 2.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: DIVIDE
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PRINT executed: Top value is 2.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PRINT
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed 49.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: SQRT
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PRINT executed: Top value is 7.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PRINT
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed 100.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PRINT executed: Top value is 100.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PRINT
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - POP executed: Removed 100.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: POP
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PRINT executed: Top value is 7.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PRINT
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed 0.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed 0.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] ERROR CalculatorLogger - Error: Division by zero is not allowed.
+2025-02-14 13:33:26 [main] ERROR CalculatorLogger - Error executing command: DIVIDE | Division by zero is not allowed.
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed -9.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] ERROR CalculatorLogger - Error executing command: SQRT | Error: Cannot calculate the square root of a negative number.
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - POP executed: Removed 0.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: POP
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PRINT executed: Top value is 7.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PRINT
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed 3.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed 4.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - ADD executed: 3.0 + 4.0 = 7.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: ADD
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PUSH executed: Pushed 2.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PUSH
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: MULTIPLY
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - PRINT executed: Top value is 14.0
+2025-02-14 13:33:26 [main] INFO  CalculatorLogger - Executed command: PRINT

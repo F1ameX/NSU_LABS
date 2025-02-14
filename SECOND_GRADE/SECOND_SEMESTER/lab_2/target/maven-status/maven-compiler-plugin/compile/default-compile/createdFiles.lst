@@ -11,6 +11,7 @@ lab_2/calculator/commands/CommentCommand.class
 lab_2/calculator/commands/Command.class
 lab_2/calculator/commands/PrintCommand.class
 lab_2/calculator/context/ExecutionContext.class
+lab_2/calculator/logger/CalculatorLogger.class
 lab_2/calculator/factory/CommandFactory.class
 lab_2/calculator/commands/DefineCommand.class
 lab_2/calculator/commands/PopCommand.class
