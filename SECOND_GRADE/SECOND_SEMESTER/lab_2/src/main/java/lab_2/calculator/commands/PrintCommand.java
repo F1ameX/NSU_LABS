@@ -4,21 +4,20 @@ import lab_2.calculator.context.ExecutionContext;
 import lab_2.calculator.exceptions.StackUnderflowException;
 import lab_2.calculator.logger.CalculatorLogger;
 import org.apache.logging.log4j.Logger;
-
 import java.util.List;
 
 public class PrintCommand implements Command {
     private static final Logger logger = CalculatorLogger.getLogger();
 
     @Override
-    public void execute(ExecutionContext context, List<String> args) throws StackUnderflowException {
-        if (context.getStackSize() == 0) {
-            logger.error("Error: Cannot execute PRINT - stack is empty.");
-            throw new StackUnderflowException("Cannot execute PRINT - stack is empty.");
+    public void execute(ExecutionContext context, List<String> args) {
+        if (context.getStackSize() < 1) {
+            logger.error("PRINT operation failed: Stack is empty.");
+            throw new StackUnderflowException("Error: Stack is empty, cannot perform PRINT.");
         }
 
-        double topValue = context.getTop();
-        System.out.println(topValue);
-        logger.info("PRINT executed: Top value is {}", topValue);
+        double value = context.getTop();
+        System.out.println(value);
+        logger.info("PRINT executed: Top value is {}", value);
     }
 }

@@ -5,7 +5,6 @@ import lab_2.calculator.factory.CommandFactory;
 import lab_2.calculator.commands.Command;
 import lab_2.calculator.logger.CalculatorLogger;
 import org.apache.logging.log4j.Logger;
-
 import java.io.*;
 import java.util.List;
 

@@ -4,7 +4,6 @@ import lab_2.calculator.context.ExecutionContext;
 import lab_2.calculator.exceptions.StackUnderflowException;
 import lab_2.calculator.logger.CalculatorLogger;
 import org.apache.logging.log4j.Logger;
-
 import java.util.List;
 
 public class AddCommand implements Command {

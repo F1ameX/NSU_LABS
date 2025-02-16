@@ -13,7 +13,6 @@ public class ExecutionContext {
         variables = new HashMap<>();
     }
 
-
     public void push(double value) { stack.push(value);}
     public boolean hasVariable(String name) { return variables.containsKey(name); }
     public int getStackSize() { return stack.size(); }

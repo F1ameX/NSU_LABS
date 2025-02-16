@@ -13,7 +13,6 @@ public class CommandFactory {
 
     public CommandFactory() { loadConfig();}
 
-
     private void loadConfig() {
         try (InputStream input = getClass().getResourceAsStream("/commands.config")) {
             if (input == null) {
@@ -29,7 +28,6 @@ public class CommandFactory {
             throw new RuntimeException("Error of uploading commands configuration: " + e.getMessage());
         }
     }
-
 
     public Command createCommand(String commandName) throws Exception {
         String className = commandMap.get(commandName.toUpperCase());
