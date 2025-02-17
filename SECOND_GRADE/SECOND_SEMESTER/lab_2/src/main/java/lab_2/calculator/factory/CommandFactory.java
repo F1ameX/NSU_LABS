@@ -1,17 +1,17 @@
 package lab_2.calculator.factory;
 
 import lab_2.calculator.commands.Command;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-
 public class CommandFactory {
-    private final Map<String, String> commandMap = new HashMap<>();
+    private final Map<String, Class<? extends Command>> commandMap = new HashMap<>();
 
-    public CommandFactory() { loadConfig();}
+    public CommandFactory() { loadConfig(); }
 
     private void loadConfig() {
         try (InputStream input = getClass().getResourceAsStream("/commands.config")) {
@@ -22,21 +22,22 @@ public class CommandFactory {
             properties.load(input);
 
             for (String key : properties.stringPropertyNames()) {
-                commandMap.put(key.toUpperCase(), properties.getProperty(key));
+                String className = properties.getProperty(key);
+                Class<? extends Command> commandClass = (Class<? extends Command>) Class.forName(className);
+                commandMap.put(key.toUpperCase(), commandClass);
             }
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Error of uploading commands configuration: " + e.getMessage());
         }
     }
 
     public Command createCommand(String commandName) throws Exception {
-        String className = commandMap.get(commandName.toUpperCase());
+        Class<? extends Command> commandClass = commandMap.get(commandName.toUpperCase());
 
-        if (className == null) {
-            throw new IllegalArgumentException("Error: Command '" + commandName + "'is not found!");
+        if (commandClass == null) {
+            throw new IllegalArgumentException("Error: Command '" + commandName + "' is not found!");
         }
 
-        Class<?> commandClass = Class.forName(className);
-        return (Command) commandClass.getDeclaredConstructor().newInstance();
+        return commandClass.getDeclaredConstructor().newInstance();
     }
 }
