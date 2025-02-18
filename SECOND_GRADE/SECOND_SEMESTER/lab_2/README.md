@@ -38,12 +38,12 @@ ADD=lab_2.calculator.commands.AddCommand
 SUBTRACT=lab_2.calculator.commands.SubtractCommand
 ```
 
-##### Features
+### 5. Features
 • Arithmetic operations: Supports basic operations like addition, subtraction, multiplication, and division.
 • Error handling: Includes custom exceptions like division by zero and stack underflow errors.
 • Logging: Command execution and errors are logged for better traceability.
 
-##### Tests
+### 6. Tests
 
 The project includes unit tests using JUnit for command execution and error handling. The tests are located in the src/test/java folder.
 
@@ -52,7 +52,7 @@ Run tests using:
 mvn test
 ```
 
-##### Requirements
+### 7. Requirements
 • Java 17+
 • Maven 3.8+
 • JUnit for unit testing
