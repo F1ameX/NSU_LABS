@@ -36,27 +36,23 @@ Example of `commands.config`:
 ```properties
 ADD=lab_2.calculator.commands.AddCommand
 SUBTRACT=lab_2.calculator.commands.SubtractCommand
+```
 
-Features
+##### Features
 • Arithmetic operations: Supports basic operations like addition, subtraction, multiplication, and division.
-• Variable storage: Store and use variables within commands using the DEFINE and PUSH commands.
 • Error handling: Includes custom exceptions like division by zero and stack underflow errors.
 • Logging: Command execution and errors are logged for better traceability.
 
-Tests
+##### Tests
 
 The project includes unit tests using JUnit for command execution and error handling. The tests are located in the src/test/java folder.
 
 Run tests using:
-
+```bash
 mvn test
+```
 
-Requirements
+##### Requirements
 • Java 17+
 • Maven 3.8+
 • JUnit for unit testing
-
-Future Enhancements
-• GUI Interface: A graphical user interface for easier interaction.
-• Advanced operations: More mathematical operations like exponentiation, square roots, etc.
-• Input validation: More robust validation of user input and commands.
