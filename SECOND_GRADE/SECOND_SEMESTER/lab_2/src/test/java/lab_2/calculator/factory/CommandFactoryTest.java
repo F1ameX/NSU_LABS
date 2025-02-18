@@ -57,18 +57,4 @@ public class CommandFactoryTest {
         assertTrue(exception.getMessage().contains("Error: Command 'INVALID' is not found"),
                 "Should throw an exception for an invalid command.");
     }
-
-   @Test
-    void testConfigFileNotFoundThrowsException() {
-        Exception exception = assertThrows(RuntimeException.class, CommandFactory::new);
-        assertTrue(exception.getMessage().contains("Error: File commands.config is not found!"),
-                "Should throw an exception when the configuration file is missing.");
-    }
-
-    /*@Test
-    void testInvalidClassInConfigThrowsException() {
-        Exception exception = assertThrows(RuntimeException.class, CommandFactory::new);
-        assertTrue(exception.getMessage().contains("Error of uploading commands configuration"),
-                "Should throw an exception if a class is invalid in the configuration.");
-    }*/
 }

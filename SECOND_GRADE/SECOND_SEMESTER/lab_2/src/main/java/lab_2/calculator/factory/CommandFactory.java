@@ -1,9 +1,7 @@
 package lab_2.calculator.factory;
 
 import lab_2.calculator.commands.Command;
-
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -13,7 +11,7 @@ public class CommandFactory {
 
     public CommandFactory() { loadConfig(); }
 
-    private void loadConfig() {
+    void loadConfig() {
         try (InputStream input = getClass().getResourceAsStream("/commands.config")) {
             if (input == null) {
                 throw new RuntimeException("Error: File commands.config is not found!");
@@ -37,7 +35,6 @@ public class CommandFactory {
         if (commandClass == null) {
             throw new IllegalArgumentException("Error: Command '" + commandName + "' is not found!");
         }
-
         return commandClass.getDeclaredConstructor().newInstance();
     }
 }

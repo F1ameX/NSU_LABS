@@ -631,3 +631,843 @@
 2025-02-16 19:03:14 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
 2025-02-16 19:03:14 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
 2025-02-16 19:03:14 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-17 13:29:41 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-17 13:29:41 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-17 13:40:32 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-17 13:40:32 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-17 14:05:02 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-17 14:05:02 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-17 14:06:25 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-17 14:06:25 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-17 14:08:18 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-17 14:08:18 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-17 14:10:54 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-17 14:10:54 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-17 14:10:54 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-17 14:10:54 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-17 14:10:54 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-17 14:10:54 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:10:54 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:10:54 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-17 14:10:54 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-17 14:10:54 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-17 14:10:55 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-17 14:10:55 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-17 14:10:55 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:10:55 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-17 14:10:55 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-17 14:10:55 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-17 14:10:55 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-17 14:10:55 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-17 14:10:55 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-17 14:10:55 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-17 14:11:11 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-17 14:11:11 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-17 14:11:34 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-17 14:11:34 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-17 14:32:48 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-17 14:32:48 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-17 14:39:16 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-17 14:39:16 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:14:33 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:14:33 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:18:05 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:18:05 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:18:17 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:18:17 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:18:56 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:18:56 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:19:28 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:19:28 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:21:18 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:21:18 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:21:55 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:21:55 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:22:43 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:22:43 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:28:39 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:28:39 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:30:06 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:30:06 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:30:20 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:30:20 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:30:30 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:30:30 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:30:30 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:30:30 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:30:30 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:30:30 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:30:30 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:30:30 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:30:30 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:30:30 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:30:31 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:30:31 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:30:31 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:30:31 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:30:31 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:30:31 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:30:31 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:30:31 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:30:31 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:30:31 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:30:37 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:30:37 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:34:12 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:34:12 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:35:23 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:35:23 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:36:38 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:36:38 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:36:51 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:36:51 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - Pop operation failed: Stack is empty.
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - POP executed: Removed 99.0
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - Push operation failed: No argument provided.
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - PUSH executed: Pushed value 42.5
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - PUSH executed: Pushed variable 'a' with value 10.0
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - Push operation failed: 'abc' is not a number or a defined variable.
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - MULTIPLY executed: 6.0 * 4.0 = 24.0
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - MULTIPLY operation failed: Not enough elements in the stack.
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - SQRT operation failed: Stack is empty.
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - SQRT executed: sqrt(9.0) = 3.0
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - SQRT executed: sqrt(0.0) = 0.0
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - SQRT operation failed: Cannot calculate the square root of a negative number.
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - Attempted division by zero. Operation aborted.
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - Divide operation failed: Stack underflow. Not enough elements.
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - DIVIDE executed: 10.0 / 2.0 = 5.0
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - DEFINE executed: pi = 3.1415
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - DEFINE executed: x = 10.0
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '123x'.
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - DEFINE executed: a = 15.0
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - DEFINE executed: a = 20.0
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - DEFINE operation failed: Incorrect number of arguments.
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - DEFINE executed: y = -5.5
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - DEFINE operation failed: Invalid variable name '@var'.
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - DEFINE operation failed: 'hello' is not a valid number.
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - PRINT executed: Top value is 10.0
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - PRINT operation failed: Stack is empty.
+2025-02-18 10:40:29 [main] ERROR CalculatorLogger - Error: ADD requires at least two elements on the stack.
+2025-02-18 10:40:29 [main] INFO  CalculatorLogger - ADD executed: 10.0 + 5.0 = 15.0

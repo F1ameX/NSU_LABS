@@ -5,7 +5,6 @@ import lab_2.calculator.exceptions.StackUnderflowException;
 import lab_2.calculator.exceptions.InvalidArgumentException;
 import lab_2.calculator.logger.CalculatorLogger;
 import org.apache.logging.log4j.Logger;
-
 import java.util.List;
 
 public class SqrtCommand implements Command {
