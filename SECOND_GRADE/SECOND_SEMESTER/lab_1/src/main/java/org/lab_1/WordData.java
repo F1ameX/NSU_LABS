@@ -16,9 +16,7 @@ public class WordData {
     }
 
     public void processFileData(String inputFileName) {
-        try (Reader reader = new InputStreamReader(new FileInputStream(inputFileName), StandardCharsets.UTF_8);
-             BufferedReader fileReader = new BufferedReader(reader)) {
-
+        try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFileName), StandardCharsets.UTF_8))) {
             String line;
             StringBuilder wordBuilder = new StringBuilder();
 
@@ -28,7 +26,7 @@ public class WordData {
                         wordBuilder.append(ch);
                     } else if (!wordBuilder.isEmpty()) {
                         String word = wordBuilder.toString().toLowerCase();
-                        wordsMap.put(word, wordsMap.getOrDefault(word, 0) + 1);
+                        wordsMap.merge(word, 1, Integer::sum);
                         wordBuilder.setLength(0);
                     }
                 }
@@ -36,11 +34,10 @@ public class WordData {
 
             if (!wordBuilder.isEmpty()) {
                 String word = wordBuilder.toString().toLowerCase();
-                wordsMap.put(word, wordsMap.getOrDefault(word, 0) + 1);
+                wordsMap.merge(word, 1, Integer::sum);
             }
-
         } catch (IOException e) {
-            System.err.println("Unable to write into file: " + e.getLocalizedMessage());
+            System.err.println("Unable to read from file: " + e.getLocalizedMessage());
         }
     }
 }
