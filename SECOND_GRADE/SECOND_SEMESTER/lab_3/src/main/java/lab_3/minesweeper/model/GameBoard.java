@@ -21,7 +21,6 @@ public class GameBoard {
                 board[i][j] = new Cell();
             }
         }
-
         placeMines();
         calculateSurroundingMines();
     }
@@ -51,9 +50,7 @@ public class GameBoard {
                         int newRow = i + rowOffset;
                         int newCol = j + colOffset;
                         if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
-                            if (board[newRow][newCol].isMine()) {
-                                mineCount++;
-                            }
+                            if (board[newRow][newCol].isMine()) mineCount++;
                         }
                     }
                 }
@@ -62,7 +59,13 @@ public class GameBoard {
         }
     }
 
-    public Cell getCell(int row, int col) { return board[row][col]; }
+    public Cell getCell(int row, int col) {
+        if (row < 0 || row >= rows || col < 0 || col >= cols) {
+            throw new IllegalArgumentException("Coordinates (" + row + ", " + col + ") are out of bounds!");
+        }
+        return board[row][col];
+    }
+
     public int getRows() { return rows; }
     public int getCols() { return cols; }
 }

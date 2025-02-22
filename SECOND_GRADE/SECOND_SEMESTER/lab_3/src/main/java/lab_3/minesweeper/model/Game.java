@@ -13,18 +13,15 @@ public class Game {
 
     public void openCell(int row, int col) {
         if (gameOver) return;
-
         Cell cell = gameBoard.getCell(row, col);
         if (cell.isOpen() || cell.isFlagged()) return;
         cell.open();
-
         if (cell.isMine()) gameOver = true;
         else  checkWinCondition();
     }
 
     public void toggleFlag(int row, int col) {
         if (gameOver) return;
-
         Cell cell = gameBoard.getCell(row, col);
         if (!cell.isOpen()) {
             if (cell.isFlagged()) cell.unflag();
