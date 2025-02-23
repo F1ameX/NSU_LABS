@@ -15,9 +15,26 @@ public class Game {
         if (gameOver) return;
         Cell cell = gameBoard.getCell(row, col);
         if (cell.isOpen() || cell.isFlagged()) return;
+        if (cell.isMine()) {
+            gameOver = true;
+            return;
+        }
+        floodFill(row, col);
+        checkWinCondition();
+    }
+
+    private void floodFill(int row, int col) {
+        if (row < 0 || row >= gameBoard.getRows() || col < 0 || col >= gameBoard.getCols()) return;
+        Cell cell = gameBoard.getCell(row, col);
+        if (cell.isOpen() || cell.isMine() || cell.isFlagged()) return;
         cell.open();
-        if (cell.isMine()) gameOver = true;
-        else  checkWinCondition();
+        if (cell.getSurroundingMines() == 0) { // Continue opening adjacent cells if no mines around
+            for (int dr = -1; dr <= 1; dr++) {
+                for (int dc = -1; dc <= 1; dc++) {
+                    if (dr != 0 || dc != 0)  floodFill(row + dr, col + dc);
+                }
+            }
+        }
     }
 
     public void toggleFlag(int row, int col) {
