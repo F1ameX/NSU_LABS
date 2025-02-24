@@ -31,32 +31,48 @@ public class GraphicalView extends JFrame {
 
         setTitle("Minesweeper");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(rows, cols));
+        setLayout(new GridBagLayout());
         setResizable(false);
 
-        initializeBoard();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        JPanel boardPanel = createBoardPanel();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        add(boardPanel, gbc);
+
+        JButton newGameButton = new JButton("New Game");
+        newGameButton.addActionListener(e -> restartGame());
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        add(newGameButton, gbc);
+
+        JButton exitButton = new JButton("Exit");
+        exitButton.addActionListener(e -> System.exit(0));
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        add(exitButton, gbc);
+
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    private ImageIcon loadIcon(String fileName) {
-        return new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("images/" + fileName)));
-    }
+    private JPanel createBoardPanel() {
+        JPanel panel = new JPanel(new GridLayout(rows, cols));
+        GameBoard board = controller.getGameBoard();
 
-    private void loadNumberIcons() {
-        for (int i = 1; i <= 8; i++)
-            numberIcons[i] = loadIcon("number_" + i + ".png");
-    }
-
-    private void initializeBoard() {
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 JButton button = new JButton();
                 button.setIcon(closedIcon);
                 button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-
                 final int r = row, c = col;
+
                 button.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mousePressed(MouseEvent e) {
@@ -67,19 +83,18 @@ public class GraphicalView extends JFrame {
                 });
 
                 buttons[row][col] = button;
-                add(button);
+                panel.add(button);
             }
         }
+        return panel;
     }
 
     private void updateBoard() {
         GameBoard board = controller.getGameBoard();
-
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 Cell cell = board.getCell(row, col);
                 JButton button = buttons[row][col];
-
                 if (cell.isOpen()) {
                     if (cell.isMine()) button.setIcon(mineIcon);
                     else if (cell.getSurroundingMines() > 0) button.setIcon(numberIcons[cell.getSurroundingMines()]);
@@ -87,11 +102,29 @@ public class GraphicalView extends JFrame {
                 }
                 else if (cell.isFlagged()) button.setIcon(flagIcon);
                 else button.setIcon(closedIcon);
-
             }
         }
+        if (controller.isGameOver()) revealAllMines();
+    }
 
-        if (controller.isGameOver()) showGameOver();
+    private void revealAllMines() {
+        GameBoard board = controller.getGameBoard();
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                Cell cell = board.getCell(row, col);
+                if (cell.isMine()) buttons[row][col].setIcon(mineIcon);
+            }
+        }
+        this.revalidate();
+        this.repaint();
+        Toolkit.getDefaultToolkit().sync();
+        SwingUtilities.invokeLater(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {}
+
+            showGameOver();
+        });
     }
 
     private void showGameOver() {
@@ -107,5 +140,13 @@ public class GraphicalView extends JFrame {
     private void restartGame() {
         dispose();
         new GraphicalView(new GameController(rows, cols, 10));
+    }
+
+    private ImageIcon loadIcon(String fileName) {
+        return new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("images/" + fileName)));
+    }
+
+    private void loadNumberIcons() {
+        for (int i = 1; i <= 8; i++) numberIcons[i] = loadIcon("number_" + i + ".png");
     }
 }
