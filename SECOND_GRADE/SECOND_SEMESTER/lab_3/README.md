@@ -64,4 +64,5 @@ mvn exec:java -Dexec.mainClass="lab_3.minesweeper.app.Main" -Dexec.args="--text 
 
 ### Requirements
 • Java 17+
+
 • Maven 3.8+
