@@ -11,13 +11,12 @@ This project is an implementation of the classic Minesweeper game in Java using 
 - `TextView.java` – Console-based interface.
 - `HighScoresManager.java` – Handles high score storage.
 - `resources/images/` – Stores game assets (32x32 pixel icons).
-- `highscores.txt` – Stores the top 5 best scores.
 
 ## Build & Run
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/F1ameX/NSU_LABS/new/main/SECOND_GRADE/SECOND_SEMESTER/lab_3
+git clone https://github.com/F1ameX/NSU_LABS/SECOND_GRADE/SECOND_SEMESTER/lab_3
 cd minesweeper
 ```
 
