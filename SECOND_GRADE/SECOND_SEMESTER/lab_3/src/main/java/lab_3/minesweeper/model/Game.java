@@ -28,7 +28,7 @@ public class Game {
         Cell cell = gameBoard.getCell(row, col);
         if (cell.isOpen() || cell.isMine() || cell.isFlagged()) return;
         cell.open();
-        if (cell.getSurroundingMines() == 0) { // Continue opening adjacent cells if no mines around
+        if (cell.getSurroundingMines() == 0) {
             for (int dr = -1; dr <= 1; dr++) {
                 for (int dc = -1; dc <= 1; dc++) {
                     if (dr != 0 || dc != 0)  floodFill(row + dr, col + dc);

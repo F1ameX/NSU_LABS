@@ -55,7 +55,7 @@ public class TextView {
 
 
             if (command.equals("o")) controller.openCell(row, col);
-            else if (command.equals("f")) controller.toggleFlag(row, col);
+            else controller.toggleFlag(row, col);
         }
 
         printBoard();
