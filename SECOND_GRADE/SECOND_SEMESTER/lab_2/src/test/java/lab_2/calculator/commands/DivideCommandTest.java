@@ -1,8 +1,8 @@
 package lab_2.calculator.commands;
 
 import lab_2.calculator.context.ExecutionContext;
-import lab_2.calculator.exceptions.StackUnderflowException;
 import lab_2.calculator.exceptions.DivisionByZeroException;
+import lab_2.calculator.exceptions.StackUnderflowException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -19,7 +19,7 @@ class DivideCommandTest {
     }
 
     @Test
-    void testDivideTwoNumbers() {
+    void testDivideTwoNumbers() throws StackUnderflowException, DivisionByZeroException {
         context.push(10.0);
         context.push(2.0);
         divideCommand.execute(context, List.of());

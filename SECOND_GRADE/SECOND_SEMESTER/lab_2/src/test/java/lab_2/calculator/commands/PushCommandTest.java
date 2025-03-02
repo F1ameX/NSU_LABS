@@ -1,5 +1,4 @@
 package lab_2.calculator.commands;
-
 import lab_2.calculator.context.ExecutionContext;
 import lab_2.calculator.exceptions.InvalidArgumentException;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,13 +17,13 @@ class PushCommandTest {
     }
 
     @Test
-    void testPushNumber() {
+    void testPushNumber() throws InvalidArgumentException {
         pushCommand.execute(context, List.of("42.5"));
         assertEquals(42.5, context.getTop(), "Stack should contain pushed number.");
     }
 
     @Test
-    void testPushVariable() {
+    void testPushVariable() throws InvalidArgumentException {
         context.defineVariable("a", 10.0);
         pushCommand.execute(context, List.of("a"));
         assertEquals(10.0, context.getTop(), "Stack should contain value of variable 'a'.");

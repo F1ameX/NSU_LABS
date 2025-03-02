@@ -1,6 +1,7 @@
 package lab_2.calculator.commands;
 
 import lab_2.calculator.context.ExecutionContext;
+import lab_2.calculator.exceptions.ConfigFormatException;
 import lab_2.calculator.exceptions.InvalidArgumentException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,21 +19,21 @@ public class DefineCommandTest {
     }
 
     @Test
-    void testDefineValidVariable() {
+    void testDefineValidVariable() throws InvalidArgumentException, ConfigFormatException {
         defineCommand.execute(context, List.of("x", "10"));
         assertEquals(10.0, context.getVariable("x"),
                 "Variable x should be defined as 10.");
     }
 
     @Test
-    void testDefineNegativeValue() {
+    void testDefineNegativeValue() throws InvalidArgumentException, ConfigFormatException {
         defineCommand.execute(context, List.of("y", "-5.5"));
         assertEquals(-5.5, context.getVariable("y"),
                 "Variable y should be defined as -5.5.");
     }
 
     @Test
-    void testDefineRedefineVariable() {
+    void testDefineRedefineVariable() throws InvalidArgumentException, ConfigFormatException {
         defineCommand.execute(context, List.of("a", "15"));
         defineCommand.execute(context, List.of("a", "20"));
         assertEquals(20.0, context.getVariable("a"),
@@ -56,7 +57,7 @@ public class DefineCommandTest {
     }
 
     @Test
-    void testDefineFloatingPointVariable() {
+    void testDefineFloatingPointVariable() throws InvalidArgumentException, ConfigFormatException {
         defineCommand.execute(context, List.of("pi", "3.1415"));
         assertEquals(3.1415, context.getVariable("pi"), 0.0001,
                 "Variable pi should be defined as 3.1415.");

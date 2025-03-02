@@ -1,5 +1,4 @@
 package lab_2.calculator.commands;
-
 import lab_2.calculator.context.ExecutionContext;
 import java.util.List;
 

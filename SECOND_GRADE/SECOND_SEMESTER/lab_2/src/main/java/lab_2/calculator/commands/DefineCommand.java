@@ -2,8 +2,8 @@ package lab_2.calculator.commands;
 
 import lab_2.calculator.context.ExecutionContext;
 import lab_2.calculator.exceptions.InvalidArgumentException;
-import lab_2.calculator.logger.CalculatorLogger;
 import org.apache.logging.log4j.Logger;
+import lab_2.calculator.logger.CalculatorLogger;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -12,7 +12,7 @@ public class DefineCommand implements Command {
     private static final Pattern VALID_VARIABLE_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
 
     @Override
-    public void execute(ExecutionContext context, List<String> args) {
+    public void execute(ExecutionContext context, List<String> args) throws InvalidArgumentException {
         if (args.size() != 2) {
             logger.error("DEFINE operation failed: Incorrect number of arguments.");
             throw new InvalidArgumentException("DEFINE command requires exactly two arguments: a variable name and a numeric value.");

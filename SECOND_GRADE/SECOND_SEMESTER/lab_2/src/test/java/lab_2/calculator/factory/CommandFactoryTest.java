@@ -1,6 +1,7 @@
 package lab_2.calculator.factory;
 
 import lab_2.calculator.commands.*;
+import lab_2.calculator.exceptions.ConfigLoadException;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,7 +36,7 @@ public class CommandFactoryTest {
     }
 
     @Test
-    void testCreateCommandWithEmptyNameThrowsException() {
+    void testCreateCommandWithEmptyNameThrowsException() throws ConfigLoadException {
         CommandFactory factory = new CommandFactory();
         Exception exception = assertThrows(IllegalArgumentException.class, () -> factory.createCommand(""));
         assertTrue(exception.getMessage().contains("Error: Command '' is not found!"),
@@ -43,7 +44,7 @@ public class CommandFactoryTest {
     }
 
     @Test
-    void testCreateCommandWithWhitespaceNameThrowsException() {
+    void testCreateCommandWithWhitespaceNameThrowsException() throws ConfigLoadException {
         CommandFactory factory = new CommandFactory();
         Exception exception = assertThrows(IllegalArgumentException.class, () -> factory.createCommand("   "));
         assertTrue(exception.getMessage().contains("Error: Command '   ' is not found!"),
@@ -51,7 +52,7 @@ public class CommandFactoryTest {
     }
 
     @Test
-    void testInvalidCommandThrowsException() {
+    void testInvalidCommandThrowsException() throws ConfigLoadException {
         CommandFactory factory = new CommandFactory();
         Exception exception = assertThrows(IllegalArgumentException.class, () -> factory.createCommand("INVALID"));
         assertTrue(exception.getMessage().contains("Error: Command 'INVALID' is not found"),

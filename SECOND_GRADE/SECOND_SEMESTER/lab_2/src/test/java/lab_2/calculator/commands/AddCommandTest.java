@@ -1,5 +1,4 @@
 package lab_2.calculator.commands;
-
 import lab_2.calculator.context.ExecutionContext;
 import lab_2.calculator.exceptions.StackUnderflowException;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +17,7 @@ class AddCommandTest {
     }
 
     @Test
-    void testAddTwoNumbers() {
+    void testAddTwoNumbers() throws StackUnderflowException {
         context.push(10.0);
         context.push(5.0);
         addCommand.execute(context, List.of());

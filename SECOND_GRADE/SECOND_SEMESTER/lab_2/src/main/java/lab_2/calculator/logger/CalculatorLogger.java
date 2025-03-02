@@ -1,5 +1,4 @@
 package lab_2.calculator.logger;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -18,7 +18,7 @@ class PopCommandTest {
     }
 
     @Test
-    void testPopValue() {
+    void testPopValue() throws StackUnderflowException {
         context.push(99.0);
         popCommand.execute(context, List.of());
         assertEquals(0, context.getStackSize(), "Stack should be empty after popping.");

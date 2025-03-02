@@ -1,5 +1,4 @@
 package lab_2.calculator.commands;
-
 import lab_2.calculator.context.ExecutionContext;
 import lab_2.calculator.exceptions.InvalidArgumentException;
 import lab_2.calculator.exceptions.StackUnderflowException;
@@ -19,14 +18,14 @@ class SqrtCommandTest {
     }
 
     @Test
-    void testSqrtValidNumber() {
+    void testSqrtValidNumber() throws StackUnderflowException, InvalidArgumentException {
         context.push(9.0);
         sqrtCommand.execute(context, List.of());
         assertEquals(3.0, context.pop(), 0.0001, "SQRT of 9 should be 3");
     }
 
     @Test
-    void testSqrtZero() {
+    void testSqrtZero() throws StackUnderflowException, InvalidArgumentException {
         context.push(0.0);
         sqrtCommand.execute(context, List.of());
         assertEquals(0.0, context.pop(), 0.0001, "SQRT of 0 should be 0");

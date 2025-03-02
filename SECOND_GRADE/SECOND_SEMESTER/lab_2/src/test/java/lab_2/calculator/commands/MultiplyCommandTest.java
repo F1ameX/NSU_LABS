@@ -18,7 +18,7 @@ class MultiplyCommandTest {
     }
 
     @Test
-    void testMultiplyTwoNumbers() {
+    void testMultiplyTwoNumbers() throws StackUnderflowException {
         context.push(6.0);
         context.push(4.0);
         multiplyCommand.execute(context, List.of());
