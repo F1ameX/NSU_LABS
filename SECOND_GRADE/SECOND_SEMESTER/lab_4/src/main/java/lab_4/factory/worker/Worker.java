@@ -29,6 +29,8 @@ public class Worker implements Runnable {
                 Motor motor = motorStorage.take();
                 Accessory accessory = accessoryStorage.take();
 
+                System.out.println("Worker took: Body " + body.getId() + ", Motor " + motor.getId() + ", Accessory " + accessory.getId());
+
                 Car car = new Car(body, motor, accessory);
                 carStorage.put(car);
 

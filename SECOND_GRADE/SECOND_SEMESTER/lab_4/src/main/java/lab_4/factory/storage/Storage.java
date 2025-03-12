@@ -14,14 +14,12 @@ public abstract class Storage<T> {
 
     public synchronized void put(T item) throws InterruptedException {
         while (storage.size() >= capacity) wait();
-
         storage.add(item);
         notifyAll();
     }
 
     public synchronized T take() throws InterruptedException {
         while (storage.isEmpty()) wait();
-
         T item = storage.poll();
         notifyAll();
         return item;

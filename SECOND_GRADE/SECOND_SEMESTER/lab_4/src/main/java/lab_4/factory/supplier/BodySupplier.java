@@ -6,5 +6,9 @@ public class BodySupplier extends Supplier<Body> {
     public BodySupplier(BodyStorage storage, int delay) { super(storage, delay); }
 
     @Override
-    public Body createItem() { return new Body(); }
+    public Body createItem() {
+        Body body = new Body();
+        System.out.println("BodySupplier: Added Body " + body.getId());
+        return body;
+    }
 }
