@@ -4,15 +4,24 @@ public class Game {
     private final GameBoard gameBoard;
     private boolean gameOver;
     private boolean gameWon;
+    private boolean isFieldGenerated;
 
     public Game(int rows, int cols, int mines) {
         this.gameBoard = new GameBoard(rows, cols, mines);
         this.gameOver = false;
         this.gameWon = false;
+        this.isFieldGenerated = false;
+    }
+
+    private void generateField(int firstRow, int firstCol) {
+        gameBoard.placeMines(firstRow, firstCol);
+        gameBoard.calculateSurroundingMines();
+        isFieldGenerated = true;
     }
 
     public void openCell(int row, int col) {
         if (gameOver) return;
+        if (!isFieldGenerated) generateField(row, col);
         Cell cell = gameBoard.getCell(row, col);
         if (cell.isOpen() || cell.isFlagged()) return;
         if (cell.isMine()) {
@@ -30,9 +39,8 @@ public class Game {
         cell.open();
         if (cell.getSurroundingMines() == 0) {
             for (int dr = -1; dr <= 1; dr++) {
-                for (int dc = -1; dc <= 1; dc++) {
+                for (int dc = -1; dc <= 1; dc++)
                     if (dr != 0 || dc != 0)  floodFill(row + dr, col + dc);
-                }
             }
         }
     }

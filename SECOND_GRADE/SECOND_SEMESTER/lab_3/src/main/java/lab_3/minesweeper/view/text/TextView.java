@@ -1,84 +1,94 @@
 package lab_3.minesweeper.view.text;
-
 import lab_3.minesweeper.controller.GameController;
-import lab_3.minesweeper.model.Cell;
-import lab_3.minesweeper.model.GameBoard;
-
+import lab_3.minesweeper.controller.CellState;
 import java.util.Scanner;
 
 public class TextView {
     private final GameController controller;
-    private final Scanner scanner;
 
-    public TextView(GameController controller) {
-        this.controller = controller;
-        this.scanner = new Scanner(System.in);
-    }
+    public TextView(GameController controller) {this.controller = controller; }
 
     public void start() {
+        Scanner scanner = new Scanner(System.in);
+
         while (!controller.isGameOver()) {
             printBoard();
-            System.out.print("Enter command (o x y - open, f x y - flag, q - quit): ");
 
-            String command = scanner.next();
+            System.out.print("Choose action (o x y - open, f x y - flag): ");
+            String input = scanner.nextLine();
+            String[] parts = input.split(" ");
 
-            if (command.equals("q")) {
-                System.out.println("Game exited.");
-                return;
+            if (parts.length == 3) {
+                try {
+                    int row = Integer.parseInt(parts[1]);
+                    int col = Integer.parseInt(parts[2]);
+
+                    if (parts[0].equals("o")) {
+                        controller.openCell(row, col);
+                    } else if (parts[0].equals("f")) {
+                        controller.toggleFlag(row, col);
+                    }
+
+                    if (controller.isGameOver()) showGameOver();
+
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input. Please try again.");
+                }
             }
-
-            if (!command.equals("o") && !command.equals("f")) {
-                System.out.println("Error: Unknown command! Use 'o' (open), 'f' (flag), or 'q' (quit).");
-                scanner.nextLine();
-                continue;
-            }
-
-            if (!scanner.hasNextInt()) {
-                System.out.println("Error: Invalid input! Expected two numbers for coordinates.");
-                scanner.nextLine();
-                continue;
-            }
-            int row = scanner.nextInt();
-
-            if (!scanner.hasNextInt()) {
-                System.out.println("Error: Invalid input! Expected two numbers for coordinates.");
-                scanner.nextLine();
-                continue;
-            }
-            int col = scanner.nextInt();
-
-            if (row < 0 || row >= controller.getGameBoard().getRows() ||
-                    col < 0 || col >= controller.getGameBoard().getCols()) {
-                System.out.println("Error: Coordinates are out of bounds! Try again.");
-                continue;
-            }
-
-
-            if (command.equals("o")) controller.openCell(row, col);
-            else controller.toggleFlag(row, col);
         }
-
-        printBoard();
-        System.out.println(controller.isGameWon() ? "Congratulations, you won!" : "Game over, you lost!");
     }
 
     private void printBoard() {
-        GameBoard board = controller.getGameBoard();
-        System.out.println("  Y: 0 1 2 3 4 5 6 7 8");
-        System.out.println("X:");
-        for (int i = 0; i < board.getRows(); i++) {
-            System.out.print(i + "  ");
-            for (int j = 0; j < board.getCols(); j++) {
-                Cell cell = board.getCell(i, j);
+        System.out.print("  ");
+        for (int col = 0; col < controller.getGameBoard().getCols(); col++) System.out.print(col + " ");
+        System.out.println();
 
-                if (cell.isOpen()) {
-                    if (cell.isMine()) System.out.print("* ");
-                    else System.out.print(cell.getSurroundingMines() + " ");
+        for (int row = 0; row < controller.getGameBoard().getRows(); row++) {
+            System.out.print(row + " ");
+            for (int col = 0; col < controller.getGameBoard().getCols(); col++) {
+                CellState state = controller.getCellState(row, col);
+
+                switch (state) {
+                    case OPEN:
+                        int surroundingMines = controller.getGameBoard().getCell(row, col).getSurroundingMines();
+                        if (surroundingMines > 0) {
+                            System.out.print(surroundingMines + " ");
+                        } else {
+                            System.out.print("  ");
+                        }
+                        break;
+                    case FLAGGED:
+                        System.out.print("F ");
+                        break;
+                    case CLOSED:
+                        System.out.print("# ");
+                        break;
                 }
-                else if (cell.isFlagged()) System.out.print("F ");
-                else System.out.print(". ");
             }
             System.out.println();
         }
+    }
+
+    private void showGameOver() {
+        if (controller.isGameWon()) {
+            System.out.println("Congratulations! You won the game!");
+        } else {
+            System.out.println("Game Over! You hit a mine!");
+        }
+
+        System.out.println("Would you like to play again? (y/n): ");
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine();
+        if (input.equalsIgnoreCase("y")) {
+            restartGame();
+        }
+    }
+
+    private void restartGame() {
+        int rows = controller.getGameBoard().getRows();
+        int cols = controller.getGameBoard().getCols();
+        int mines = controller.getMineCount();
+        controller.resetGame(rows, cols, mines);
+        start();
     }
 }

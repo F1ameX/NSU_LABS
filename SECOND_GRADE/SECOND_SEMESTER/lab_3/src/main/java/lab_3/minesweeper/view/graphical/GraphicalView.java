@@ -1,9 +1,8 @@
 package lab_3.minesweeper.view.graphical;
-
 import lab_3.minesweeper.controller.GameController;
-import lab_3.minesweeper.model.Cell;
 import lab_3.minesweeper.model.GameBoard;
 import lab_3.minesweeper.util.HighScoresManager;
+import lab_3.minesweeper.controller.CellState;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -58,7 +57,6 @@ public class GraphicalView extends JFrame {
         add(boardPanel, gbc);
 
         JPanel buttonPanel = getJPanel();
-
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 4;
@@ -66,7 +64,6 @@ public class GraphicalView extends JFrame {
         add(buttonPanel, gbc);
 
         startTimer();
-
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
@@ -142,25 +139,33 @@ public class GraphicalView extends JFrame {
         gameTimer.start();
     }
 
-    private void stopTimer() {
-        if (gameTimer != null) gameTimer.stop();
-    }
+    private void stopTimer() { if (gameTimer != null) gameTimer.stop(); }
 
     private void updateBoard() {
         GameBoard board = controller.getGameBoard();
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                Cell cell = board.getCell(row, col);
+                CellState state = controller.getCellState(row, col);
                 JButton button = buttons[row][col];
 
-                if (cell.isOpen()) {
-                    if (cell.isMine()) button.setIcon(mineIcon);
-                    else if (cell.getSurroundingMines() > 0) button.setIcon(numberIcons[cell.getSurroundingMines()]);
-                    else button.setIcon(openIcon);
+                switch (state) {
+                    case OPEN:
+                        if (board.getCell(row, col).isMine()) {
+                            button.setIcon(mineIcon);
+                        } else if (board.getCell(row, col).getSurroundingMines() > 0) {
+                            button.setIcon(numberIcons[board.getCell(row, col).getSurroundingMines()]);
+                        } else {
+                            button.setIcon(openIcon);
+                        }
+                        break;
+                    case FLAGGED:
+                        button.setIcon(flagIcon);
+                        break;
+                    case CLOSED:
+                        button.setIcon(closedIcon);
+                        break;
                 }
-                else if (cell.isFlagged()) button.setIcon(flagIcon);
-                else button.setIcon(closedIcon);
             }
         }
 
@@ -172,14 +177,11 @@ public class GraphicalView extends JFrame {
 
     private void revealAllMines() {
         GameBoard board = controller.getGameBoard();
-
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                Cell cell = board.getCell(row, col);
-                if (cell.isMine()) buttons[row][col].setIcon(mineIcon);
+                if (board.getCell(row, col).isMine()) buttons[row][col].setIcon(mineIcon);
             }
         }
-
         this.revalidate();
         this.repaint();
         Toolkit.getDefaultToolkit().sync();
@@ -195,7 +197,6 @@ public class GraphicalView extends JFrame {
 
     private void showGameOver() {
         stopTimer();
-
         if (controller.isGameWon()) {
             String playerName = JOptionPane.showInputDialog(this,
                     "Congratulations! You won in " + elapsedTime + " seconds!\nEnter your name for the leaderboard:");
@@ -212,7 +213,7 @@ public class GraphicalView extends JFrame {
 
     private void restartGame() {
         dispose();
-        new GraphicalView(new GameController(rows, cols, 10));
+        new GraphicalView(new GameController(rows, cols, controller.getMineCount()));
     }
 
     private void showHighScores() {
@@ -262,7 +263,6 @@ public class GraphicalView extends JFrame {
     }
 
     private void loadNumberIcons() {
-        for (int i = 1; i <= 8; i++)
-            numberIcons[i] = loadIcon("number_" + i + ".png");
+        for (int i = 1; i <= 8; i++) numberIcons[i] = loadIcon("number_" + i + ".png");
     }
 }

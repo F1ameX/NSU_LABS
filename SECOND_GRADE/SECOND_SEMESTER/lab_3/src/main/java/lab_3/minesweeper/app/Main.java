@@ -22,7 +22,7 @@ public class Main {
                                 width = Math.max(5, Integer.parseInt(dimensions[0]));
                                 height = Math.max(5, Integer.parseInt(dimensions[1]));
                             } catch (NumberFormatException e) {
-                                System.out.println("⚠ Invalid size format! Using default 9x9.");
+                                System.out.println("Invalid size format! Using default 9x9.");
                             }
                         }
                         i++;
@@ -33,7 +33,7 @@ public class Main {
                         try {
                             mines = Math.max(1, Integer.parseInt(args[i + 1]));
                         } catch (NumberFormatException e) {
-                            System.out.println("⚠ Invalid mines count! Using default 10.");
+                            System.out.println("Invalid mines count! Using default 10.");
                         }
                         i++;
                     }

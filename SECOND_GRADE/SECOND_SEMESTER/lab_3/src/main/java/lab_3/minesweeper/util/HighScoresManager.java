@@ -1,5 +1,4 @@
 package lab_3.minesweeper.util;
-
 import java.io.*;
 import java.util.*;
 
@@ -13,7 +12,6 @@ public class HighScoresManager {
         scores.sort(Comparator.comparingInt(s -> s.time));
 
         if (scores.size() > MAX_SCORES) scores = scores.subList(0, MAX_SCORES);
-
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
             for (ScoreEntry entry : scores) {
                 writer.write(entry.playerName + "," + entry.time);
@@ -29,7 +27,6 @@ public class HighScoresManager {
         File file = new File(FILE_NAME);
 
         if (!file.exists()) return scores;
-
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -41,6 +38,5 @@ public class HighScoresManager {
         }
         return scores;
     }
-    public record ScoreEntry(String playerName, int time) {
-    }
+    public record ScoreEntry(String playerName, int time) {}
 }
