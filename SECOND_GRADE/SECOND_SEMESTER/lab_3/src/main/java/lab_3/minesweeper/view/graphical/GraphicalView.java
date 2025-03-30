@@ -1,14 +1,13 @@
 package lab_3.minesweeper.view.graphical;
 import lab_3.minesweeper.controller.GameController;
-import lab_3.minesweeper.model.GameBoard;
-import lab_3.minesweeper.util.HighScoresManager;
 import lab_3.minesweeper.controller.CellState;
+import lab_3.minesweeper.util.HighScoresManager;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Objects;
 import java.util.List;
+import java.util.Objects;
 
 public class GraphicalView extends JFrame {
     private final GameController controller;
@@ -142,8 +141,6 @@ public class GraphicalView extends JFrame {
     private void stopTimer() { if (gameTimer != null) gameTimer.stop(); }
 
     private void updateBoard() {
-        GameBoard board = controller.getGameBoard();
-
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 CellState state = controller.getCellState(row, col);
@@ -151,10 +148,9 @@ public class GraphicalView extends JFrame {
 
                 switch (state) {
                     case OPEN:
-                        if (board.getCell(row, col).isMine()) {
-                            button.setIcon(mineIcon);
-                        } else if (board.getCell(row, col).getSurroundingMines() > 0) {
-                            button.setIcon(numberIcons[board.getCell(row, col).getSurroundingMines()]);
+                        int surroundingMines = controller.getSurroundingMines(row, col);
+                        if (surroundingMines > 0) {
+                            button.setIcon(numberIcons[surroundingMines]);
                         } else {
                             button.setIcon(openIcon);
                         }
@@ -176,12 +172,14 @@ public class GraphicalView extends JFrame {
     }
 
     private void revealAllMines() {
-        GameBoard board = controller.getGameBoard();
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                if (board.getCell(row, col).isMine()) buttons[row][col].setIcon(mineIcon);
+                if (controller.getCellState(row, col) == CellState.MINE) {
+                    buttons[row][col].setIcon(mineIcon);
+                }
             }
         }
+
         this.revalidate();
         this.repaint();
         Toolkit.getDefaultToolkit().sync();

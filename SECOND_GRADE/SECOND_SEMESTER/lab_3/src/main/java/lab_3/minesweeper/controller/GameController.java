@@ -13,9 +13,16 @@ public class GameController {
     }
 
     public CellState getCellState(int row, int col) {
+        if (gameOver) {
+            return game.getGameBoard().getCellState(row, col, true);
+        }
         Cell cell = game.getGameBoard().getCell(row, col);
-        if (cell.isOpen()) return cell.isMine() ? CellState.CLOSED : CellState.OPEN;
-        if (cell.isFlagged()) return CellState.FLAGGED;
+        if (cell.isOpen()) {
+            return cell.isMine() ? CellState.MINE : CellState.OPEN;
+        }
+        if (cell.isFlagged()) {
+            return CellState.FLAGGED;
+        }
         return CellState.CLOSED;
     }
 
@@ -30,10 +37,14 @@ public class GameController {
         game.toggleFlag(row, col);
     }
 
-    public void resetGame(int rows, int cols, int mines) {this.game = new Game(rows, cols, mines); }
+    public void resetGame(int rows, int cols, int mines) {
+        this.game = new Game(rows, cols, mines);
+        this.gameOver = false;
+    }
 
     public GameBoard getGameBoard() {return game.getGameBoard(); }
     public boolean isGameOver() {return gameOver; }
     public boolean isGameWon() {return game.isGameWon(); }
     public int getMineCount() {return game.getGameBoard().getTotalMines(); }
+    public int getSurroundingMines(int row, int col) {return game.getGameBoard().getCell(row, col).getSurroundingMines(); }
 }

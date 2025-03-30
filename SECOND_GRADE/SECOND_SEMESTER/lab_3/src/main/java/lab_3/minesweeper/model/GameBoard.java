@@ -1,23 +1,16 @@
 package lab_3.minesweeper.model;
+import lab_3.minesweeper.controller.CellState;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
 public class GameBoard {
-    private int rows;
-    private int cols;
-    private int totalMines;
-    private Cell[][] board;
+    private final int rows;
+    private final int cols;
+    private final int totalMines;
+    private final Cell[][] board;
 
     public GameBoard(int rows, int cols, int totalMines) {
-        this.rows = rows;
-        this.cols = cols;
-        this.totalMines = totalMines;
-        this.board = new Cell[rows][cols];
-        initializeBoard();
-    }
-
-    public void resetBoard(int rows, int cols, int totalMines) {
         this.rows = rows;
         this.cols = cols;
         this.totalMines = totalMines;
@@ -64,6 +57,18 @@ public class GameBoard {
                 board[i][j].setSurroundingMines(mineCount);
             }
         }
+    }
+
+    public CellState getCellState(int row, int col, boolean isOver) {
+        Cell cell = getCell(row, col);
+        if (cell.isOpen()) {
+            return cell.isMine() ? CellState.MINE : CellState.OPEN;
+        }
+        if (cell.isFlagged()) {
+            return CellState.FLAGGED;
+        }
+        if (!cell.isOpen() && cell.isMine()) return CellState.MINE;
+        return CellState.CLOSED;
     }
 
     public Cell getCell(int row, int col) {

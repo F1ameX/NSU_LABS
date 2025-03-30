@@ -1,5 +1,4 @@
 package lab_3.minesweeper.app;
-
 import lab_3.minesweeper.controller.GameController;
 import lab_3.minesweeper.view.graphical.GraphicalView;
 import lab_3.minesweeper.view.text.TextView;

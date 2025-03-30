@@ -6,7 +6,9 @@ import java.util.Scanner;
 public class TextView {
     private final GameController controller;
 
-    public TextView(GameController controller) {this.controller = controller; }
+    public TextView(GameController controller) {
+        this.controller = controller;
+    }
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
@@ -50,7 +52,7 @@ public class TextView {
 
                 switch (state) {
                     case OPEN:
-                        int surroundingMines = controller.getGameBoard().getCell(row, col).getSurroundingMines();
+                        int surroundingMines = controller.getSurroundingMines(row, col);
                         if (surroundingMines > 0) {
                             System.out.print(surroundingMines + " ");
                         } else {
@@ -62,6 +64,9 @@ public class TextView {
                         break;
                     case CLOSED:
                         System.out.print("# ");
+                        break;
+                    case MINE:
+                        System.out.print("M ");
                         break;
                 }
             }
