@@ -1,161 +1,209 @@
 package lab_4.factory.gui;
 
-import lab_4.factory.controller.FactoryController;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
+import java.util.Hashtable;
+import javax.swing.*;
 
-public class FactoryView {
-    private final FactoryController controller;
-    private final JLabel producedCarsLabel;
-    private final JLabel storageStatusLabel;
-    private final JSlider supplierBodySpeedSlider;
-    private final JSlider supplierMotorSpeedSlider;
-    private final JSlider supplierAccessorySpeedSlider;
+import lab_4.factory.controller.FactoryController;
+import lab_4.factory.dealers.Dealer;
+import lab_4.factory.model.*;
+import lab_4.factory.storage.Storage;
+import lab_4.factory.suppliers.Supplier;
+import lab_4.factory.workers.ThreadPool;
+
+public class FactoryView extends JFrame {
+    private final Storage<Body> bodyStorage;
+    private final Storage<Motor> motorStorage;
+    private final Storage<Accessory> accessoryStorage;
+    private final Storage<Car> carStorage;
+    private final Supplier<Body> bodySupplier;
+    private final Supplier<Motor> motorSupplier;
+    private final Supplier<Accessory> accessorySupplier;
+    private final List<Dealer> dealers;
+    private final ThreadPool threadPool;
+
+    private final JLabel bodyCountLabel;
+    private final JLabel motorCountLabel;
+    private final JLabel accessoryCountLabel;
+    private final JLabel carCountLabel;
+    private final JLabel soldCarsLabel;
+    private final JLabel queueSizeLabel;
+    private final JLabel bodySuppliedLabel;
+    private final JLabel motorSuppliedLabel;
+    private final JLabel accessorySuppliedLabel;
+
+    private final JSlider bodySpeedSlider;
+    private final JSlider motorSpeedSlider;
+    private final JSlider accessorySpeedSlider;
     private final JSlider dealerSpeedSlider;
-    private SwingWorker<Void, Void> updateProducedCarsWorker;
-    private SwingWorker<Void, Void> updateStorageStatusWorker;
-    private boolean running = false;
+    private final JTextField workerCountField;
 
-    public FactoryView(String configPath) {
-        controller = new FactoryController(configPath);
+    public FactoryView(Storage<Body> bodyStorage, Storage<Motor> motorStorage, Storage<Accessory> accessoryStorage,
+                       Storage<Car> carStorage, Supplier<Body> bodySupplier, Supplier<Motor> motorSupplier,
+                       Supplier<Accessory> accessorySupplier, List<Dealer> dealers, ThreadPool threadPool,
+                       FactoryController factoryController) {
+        this.bodyStorage = bodyStorage;
+        this.motorStorage = motorStorage;
+        this.accessoryStorage = accessoryStorage;
+        this.carStorage = carStorage;
+        this.bodySupplier = bodySupplier;
+        this.motorSupplier = motorSupplier;
+        this.accessorySupplier = accessorySupplier;
+        this.dealers = dealers;
+        this.threadPool = threadPool;
 
-        JFrame frame = new JFrame("Factory Simulator");
-        frame.setSize(500, 400);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(6, 1));
+        setTitle("Factory Simulator");
+        setSize(700, 450);
+        setResizable(false);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        supplierBodySpeedSlider = createSlider(100, 2000, controller.getSupplierBodyDelay());
-        supplierMotorSpeedSlider = createSlider(100, 2000, controller.getSupplierMotorDelay());
-        supplierAccessorySpeedSlider = createSlider(100, 2000, controller.getSupplierAccessoryDelay());
-        dealerSpeedSlider = createSlider(100, 2000, controller.getDealerDelay());
+        JPanel suppliersPanel = new JPanel(new GridLayout(3, 3));
+        suppliersPanel.setBorder(BorderFactory.createTitledBorder("Suppliers"));
 
-        JPanel supplierBodyPanel = new JPanel();
-        supplierBodyPanel.add(new JLabel("Body Supplier Speed:"));
-        supplierBodyPanel.add(supplierBodySpeedSlider);
+        bodySpeedSlider = createSlider(bodySupplier.getDelay());
+        motorSpeedSlider = createSlider(motorSupplier.getDelay());
+        accessorySpeedSlider = createSlider(accessorySupplier.getDelay());
 
-        JPanel supplierMotorPanel = new JPanel();
-        supplierMotorPanel.add(new JLabel("Motor Supplier Speed:"));
-        supplierMotorPanel.add(supplierMotorSpeedSlider);
+        bodySpeedSlider.addChangeListener(e -> bodySupplier.setDelay(bodySpeedSlider.getValue()));
+        motorSpeedSlider.addChangeListener(e -> motorSupplier.setDelay(motorSpeedSlider.getValue()));
+        accessorySpeedSlider.addChangeListener(e -> accessorySupplier.setDelay(accessorySpeedSlider.getValue()));
 
-        JPanel supplierAccessoryPanel = new JPanel();
-        supplierAccessoryPanel.add(new JLabel("Accessory Supplier Speed:"));
-        supplierAccessoryPanel.add(supplierAccessorySpeedSlider);
+        bodySuppliedLabel = new JLabel("Supplied: 0");
+        motorSuppliedLabel = new JLabel("Supplied: 0");
+        accessorySuppliedLabel = new JLabel("Supplied: 0");
 
-        JPanel dealerPanel = new JPanel();
-        dealerPanel.add(new JLabel("Dealer Speed:"));
-        dealerPanel.add(dealerSpeedSlider);
+        suppliersPanel.add(new JLabel("Body Supplier Speed (ms):"));
+        suppliersPanel.add(bodySpeedSlider);
+        suppliersPanel.add(bodySuppliedLabel);
 
-        producedCarsLabel = new JLabel("Produced Cars: 0");
-        storageStatusLabel = new JLabel("Storage Status: Loading...");
+        suppliersPanel.add(new JLabel("Motor Supplier Speed (ms):"));
+        suppliersPanel.add(motorSpeedSlider);
+        suppliersPanel.add(motorSuppliedLabel);
 
-        JButton startButton = new JButton("Start");
-        JButton stopButton = new JButton("Stop");
+        suppliersPanel.add(new JLabel("Accessory Supplier Speed (ms):"));
+        suppliersPanel.add(accessorySpeedSlider);
+        suppliersPanel.add(accessorySuppliedLabel);
 
-        startButton.addActionListener(e -> startFactory());
-        stopButton.addActionListener(e -> stopFactory());
+        JPanel storagesPanel = new JPanel(new GridLayout(3, 5));
+        storagesPanel.setBorder(BorderFactory.createTitledBorder("Storages"));
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(startButton);
-        buttonPanel.add(stopButton);
+        storagesPanel.add(new JLabel(""));
+        storagesPanel.add(new JLabel("Bodies"));
+        storagesPanel.add(new JLabel("Motors"));
+        storagesPanel.add(new JLabel("Accessories"));
+        storagesPanel.add(new JLabel("Cars"));
 
-        frame.add(supplierBodyPanel);
-        frame.add(supplierMotorPanel);
-        frame.add(supplierAccessoryPanel);
-        frame.add(dealerPanel);
-        frame.add(producedCarsLabel);
-        frame.add(storageStatusLabel);
-        frame.add(buttonPanel);
+        storagesPanel.add(new JLabel("Capacity:"));
+        JTextField bodyCapacityField = createCapacityField(bodyStorage);
+        JTextField motorCapacityField = createCapacityField(motorStorage);
+        JTextField accessoryCapacityField = createCapacityField(accessoryStorage);
+        JTextField carCapacityField = createCapacityField(carStorage);
 
-        supplierBodySpeedSlider.addChangeListener(e -> {
-            int newDelay = supplierBodySpeedSlider.getValue();
-            controller.setSupplierBodyDelay(newDelay);
-        });
+        storagesPanel.add(bodyCapacityField);
+        storagesPanel.add(motorCapacityField);
+        storagesPanel.add(accessoryCapacityField);
+        storagesPanel.add(carCapacityField);
 
-        supplierMotorSpeedSlider.addChangeListener(e -> {
-            int newDelay = supplierMotorSpeedSlider.getValue();
-            controller.setSupplierMotorDelay(newDelay);
-        });
+        storagesPanel.add(new JLabel("Stored:"));
+        bodyCountLabel = new JLabel();
+        motorCountLabel = new JLabel();
+        accessoryCountLabel = new JLabel();
+        carCountLabel = new JLabel();
 
-        supplierAccessorySpeedSlider.addChangeListener(e -> {
-            int newDelay = supplierAccessorySpeedSlider.getValue();
-            controller.setSupplierAccessoryDelay(newDelay);
-        });
+        storagesPanel.add(bodyCountLabel);
+        storagesPanel.add(motorCountLabel);
+        storagesPanel.add(accessoryCountLabel);
+        storagesPanel.add(carCountLabel);
 
+        JPanel workersPanel = new JPanel();
+        workersPanel.setBorder(BorderFactory.createTitledBorder("Workers"));
+
+        workerCountField = new JTextField(String.valueOf(threadPool.getWorkerCount()), 5);
+        workerCountField.addActionListener(e -> threadPool.setWorkerCount(Integer.parseInt(workerCountField.getText())));
+
+        workersPanel.add(new JLabel("Number of Workers:"));
+        workersPanel.add(workerCountField);
+
+        JPanel dealersPanel = new JPanel();
+        dealersPanel.setLayout(new BoxLayout(dealersPanel, BoxLayout.X_AXIS));
+        dealersPanel.setBorder(BorderFactory.createTitledBorder("Dealers"));
+
+        soldCarsLabel = new JLabel();
+        queueSizeLabel = new JLabel();
+
+        dealerSpeedSlider = createSlider(dealers.get(0).getDelay());
         dealerSpeedSlider.addChangeListener(e -> {
-            int newDelay = dealerSpeedSlider.getValue();
-            controller.setDealerDelay(newDelay);
-        });
-
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                stopFactory();
+            for (Dealer dealer : dealers) {
+                dealer.setDelay(dealerSpeedSlider.getValue());
             }
         });
 
-        frame.setVisible(true);
+        JPanel queuePanel = new JPanel(new GridLayout(1, 2));
+        queuePanel.add(new JLabel("Sold Cars:"));
+        queuePanel.add(soldCarsLabel);
+        queuePanel.add(new JLabel("Queue Size:"));
+        queuePanel.add(queueSizeLabel);
+
+        dealersPanel.add(queuePanel);
+
+        dealersPanel.add(new JLabel("Dealer Speed (ms):"));
+        dealersPanel.add(dealerSpeedSlider);
+
+        add(suppliersPanel, BorderLayout.NORTH);
+        add(storagesPanel, BorderLayout.EAST);
+        add(workersPanel, BorderLayout.WEST);
+        add(dealersPanel, BorderLayout.SOUTH);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                factoryController.stop();
+                System.out.println("Exiting...");
+                System.exit(0);
+            }
+        });
+
+        new Timer(500, e -> updateLabels()).start();
     }
 
-    private JSlider createSlider(int min, int max, int initial) {
-        JSlider slider = new JSlider(min, max, initial);
-        slider.setMajorTickSpacing((max - min) / 5);
-        slider.setMinorTickSpacing((max - min) / 10);
+    private JSlider createSlider(int initialValue) {
+        JSlider slider = new JSlider(0, 5000, initialValue);
+        slider.setMajorTickSpacing(1000);
+        slider.setMinorTickSpacing(500);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
+
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+        for (int i = 0; i <= 5000; i += 1000)
+            labelTable.put(i, new JLabel(String.valueOf(i)));
+
+        slider.setLabelTable(labelTable);
+
         return slider;
     }
 
-    private void startFactory() {
-        if (!running) {
-            running = true;
-            controller.start();
-
-            updateProducedCarsWorker = new SwingWorker<>() {
-                @Override
-                protected Void doInBackground() {
-                    while (running) {
-                        SwingUtilities.invokeLater(() ->
-                                producedCarsLabel.setText("Produced Cars: " + controller.getProducedCars()));
-                        try {
-                            Thread.sleep(1000); // 1 секунда
-                        } catch (InterruptedException e) {
-                            break;
-                        }
-                    }
-                    return null;
-                }
-            };
-
-            updateStorageStatusWorker = new SwingWorker<>() {
-                @Override
-                protected Void doInBackground() {
-                    while (running) {
-                        SwingUtilities.invokeLater(() ->
-                                storageStatusLabel.setText("Storage Status: " + controller.getStorageStatus()));
-                        try {
-                            Thread.sleep(100); // 100 мс
-                        } catch (InterruptedException e) {
-                            break;
-                        }
-                    }
-                    return null;
-                }
-            };
-
-            updateProducedCarsWorker.execute();
-            updateStorageStatusWorker.execute();
-        }
+    private JTextField createCapacityField(Storage<?> storage) {
+        JTextField field = new JTextField(String.valueOf(storage.getCapacity()), 5);
+        field.addActionListener(e -> storage.setCapacity(Integer.parseInt(field.getText())));
+        return field;
     }
 
-    private void stopFactory() {
-        if (running) {
-            running = false;
-            controller.stop();
-            if (updateProducedCarsWorker != null) updateProducedCarsWorker.cancel(true);
-            if (updateStorageStatusWorker != null) updateStorageStatusWorker.cancel(true);
-        }
+    private void updateLabels() {
+        bodyCountLabel.setText(String.valueOf(bodyStorage.getSize()));
+        motorCountLabel.setText(String.valueOf(motorStorage.getSize()));
+        accessoryCountLabel.setText(String.valueOf(accessoryStorage.getSize()));
+        carCountLabel.setText(String.valueOf(carStorage.getSize()));
+
+        int totalSoldCars = dealers.stream().mapToInt(Dealer::getSoldCarsCount).sum();
+        soldCarsLabel.setText(String.valueOf(totalSoldCars));
+        queueSizeLabel.setText(String.valueOf(threadPool.getQueueSize()));
+
+        bodySuppliedLabel.setText("Supplied: " + bodySupplier.getSuppliedCount());
+        motorSuppliedLabel.setText("Supplied: " + motorSupplier.getSuppliedCount());
+        accessorySuppliedLabel.setText("Supplied: " + accessorySupplier.getSuppliedCount());
     }
 }

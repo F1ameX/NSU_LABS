@@ -5,33 +5,29 @@ import lab_4.factory.model.Part;
 
 public class Supplier<T extends Part> implements Runnable {
     private final Storage<T> storage;
-    private final Class<T> partClass;
-    private volatile int delay;
-    private boolean running = true;
+    private final Class<T> partType;
+    private int delay;
+    private int suppliedCount;
 
-    public Supplier(Storage<T> storage, Class<T> partClass, int delay) {
+    public void setDelay(int delay) {this.delay = delay; }
+    public int getDelay() {return delay; }
+    public int getSuppliedCount() {return suppliedCount; }
+
+    public Supplier(Storage<T> storage, Class<T> partType, int delay) {
         this.storage = storage;
-        this.partClass = partClass;
+        this.partType = partType;
         this.delay = delay;
-    }
-
-    public synchronized void setDelay(int delay) {
-        this.delay = delay;
-    }
-
-    public void stop() {
-        running = false;
+        this.suppliedCount = 0;
     }
 
     @Override
     public void run() {
         try {
-            while (running) {
-                T part = partClass.getDeclaredConstructor().newInstance();
+            while (!Thread.currentThread().isInterrupted()) {
+                T part = partType.getDeclaredConstructor().newInstance();
                 storage.put(part);
-                System.out.println("Supplier added: " + part.getClass().getSimpleName() +
-                        " | Storage size: " + storage.getSize());
-                Thread.sleep(delay); // Используем динамическую задержку
+                suppliedCount++;
+                Thread.sleep(delay);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

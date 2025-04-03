@@ -1,24 +1,41 @@
 package lab_4.factory.config;
+
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.*;
+
+import lab_4.factory.exceptions.FactoryException;
+import lab_4.factory.exceptions.InvalidConfigException;
 
 public class ConfigReader {
-    private final Properties properties = new Properties();
+    private static final String CONFIG_FILE_PATH = "src/main/resources/config.txt";
+    private static final Set<String> REQUIRED_KEYS = Set.of(
+            "StorageBodySize",
+            "StorageMotorSize",
+            "StorageAccessorySize",
+            "StorageAutoSize",
+            "SupplierBodyDelay",
+            "SupplierMotorDelay",
+            "SupplierAccessoryDelay",
+            "DealerDelay",
+            "Workers",
+            "Dealers"
+    );
 
-    public ConfigReader(String configFilePath) {
-        try (FileInputStream fis = new FileInputStream(configFilePath)) {
+    public static Properties loadConfig() {
+        Properties properties = new Properties();
+        try (FileInputStream fis = new FileInputStream(CONFIG_FILE_PATH)) {
             properties.load(fis);
+            Set<String> missingKeys = new HashSet<>(REQUIRED_KEYS);
+            missingKeys.removeAll(properties.stringPropertyNames());
+
+            if (!missingKeys.isEmpty()) {
+                throw new InvalidConfigException(missingKeys);
+            }
+            return properties;
+
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FactoryException("Error loading configuration: " + e.getMessage());
         }
-    }
-
-    public int getInt(String key, int defaultValue) {
-        return properties.getProperty(key) != null ? Integer.parseInt(properties.getProperty(key)) : defaultValue;
-    }
-
-    public boolean getBoolean(String key, boolean defaultValue) {
-        return properties.getProperty(key) != null ? Boolean.parseBoolean(properties.getProperty(key)) : defaultValue;
     }
 }

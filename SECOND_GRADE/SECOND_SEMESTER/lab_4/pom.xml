@@ -17,7 +17,6 @@
     <build>
         <finalName>lab4</finalName>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -44,6 +43,18 @@
                 <configuration>
                     <source>20</source>
                     <target>20</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>lab_4.factory.Main</mainClass>
+                    <arguments>
+                        <argument>config.txt</argument>
+                    </arguments>
                 </configuration>
             </plugin>
 

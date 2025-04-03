@@ -1,0 +1,10 @@
+StorageBodySize=100
+StorageMotorSize=100
+StorageAccessorySize=100
+StorageAutoSize=100
+SupplierBodyDelay=500
+SupplierMotorDelay=500
+SupplierAccessoryDelay=500
+DealerDelay=1000
+Workers=10
+Dealers=5
