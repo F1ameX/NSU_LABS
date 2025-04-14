@@ -43,5 +43,6 @@ public class FactoryController implements Runnable {
         threadPool.shutdown();
         System.out.println("Factory stopped.");
     }
+
     public synchronized void notifySale() {notify(); }
 }

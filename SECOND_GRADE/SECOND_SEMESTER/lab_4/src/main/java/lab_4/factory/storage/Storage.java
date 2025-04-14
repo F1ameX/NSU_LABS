@@ -6,37 +6,30 @@ import java.util.Queue;
 public class Storage<T> {
     private int capacity;
     private final Queue<T> items = new LinkedList<>();
-    private final Object monitor = new Object();
 
     public Storage(int capacity) {this.capacity = capacity; }
     public int getCapacity() {return capacity; }
-    public int getSize() {synchronized (monitor) {return items.size(); }}
+    public synchronized int getSize() {return items.size(); }
 
-    public void put(T item) throws InterruptedException {
-        synchronized (monitor) {
+    public synchronized void put(T item) throws InterruptedException {
             while (items.size() >= capacity)
-                monitor.wait();
+                wait();
 
             items.add(item);
-            monitor.notifyAll();
-        }
+            notifyAll();
     }
 
-    public T take() throws InterruptedException {
-        synchronized (monitor) {
+    public synchronized T take() throws InterruptedException {
             while (items.isEmpty())
-                monitor.wait();
+                wait();
 
             T item = items.poll();
-            monitor.notifyAll();
+            notifyAll();
             return item;
-        }
     }
 
-    public void setCapacity(int newCapacity) {
-        synchronized (monitor) {
+    public synchronized void setCapacity(int newCapacity) {
             this.capacity = newCapacity;
-            monitor.notifyAll();
-        }
+            notifyAll();
     }
 }
