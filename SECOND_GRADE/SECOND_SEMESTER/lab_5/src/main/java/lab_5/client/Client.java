@@ -3,6 +3,7 @@ package lab_5.client;
 import com.google.gson.*;
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class Client {
     private static final String SERVER_ADDRESS = "localhost";
@@ -20,11 +21,25 @@ public class Client {
         }
     }
 
+    public void login(String name) {
+        JsonObject login = new JsonObject();
+        login.addProperty("command", "login");
+        login.addProperty("name", name);
+        login.addProperty("type", "JSON_CLIENT");  // <-- добавлен тип клиента
+        out.println(login.toString());
+    }
+
     public void sendMessage(String message) {
         JsonObject jsonMessage = new JsonObject();
         jsonMessage.addProperty("command", "message");
         jsonMessage.addProperty("message", message);
-        out.println(jsonMessage);
+        out.println(jsonMessage.toString());
+    }
+
+    public void logout() {
+        JsonObject logout = new JsonObject();
+        logout.addProperty("command", "logout");
+        out.println(logout.toString());
     }
 
     public void listenForMessages() {
@@ -35,14 +50,32 @@ public class Client {
                     System.out.println("Received: " + response);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Disconnected from server.");
             }
         }).start();
     }
 
     public static void main(String[] args) {
         Client client = new Client();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter your nickname: ");
+        String nickname = scanner.nextLine();
+
         client.listenForMessages();
-        client.sendMessage("Hello, Server!");
+        client.login(nickname);
+
+        while (true) {
+            String input = scanner.nextLine();
+            if (input.equalsIgnoreCase("/exit")) {
+                client.logout();
+                break;
+            } else {
+                client.sendMessage(input);
+            }
+        }
+
+        System.out.println("You left the chat. Bye!");
+        System.exit(0);
     }
 }
