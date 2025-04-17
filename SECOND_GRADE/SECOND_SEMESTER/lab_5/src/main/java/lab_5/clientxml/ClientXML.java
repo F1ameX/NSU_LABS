@@ -15,11 +15,9 @@ public class ClientXML {
 
     private DataOutputStream out;
     private DataInputStream in;
+    private String sessionName;
 
     public static void main(String[] args) {new ClientXML().start(); }
-    private Document newDocument() throws Exception {
-        return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-    }
 
     public void start() {
         try (Socket socket = new Socket(SERVER_HOST, SERVER_PORT)) {
@@ -28,7 +26,7 @@ public class ClientXML {
 
             Scanner scanner = new Scanner(System.in);
             System.out.print("Enter your nickname: ");
-            String sessionName = scanner.nextLine();
+            sessionName = scanner.nextLine();
 
             sendXML(buildLoginCommand(sessionName));
 
@@ -41,8 +39,13 @@ public class ClientXML {
                 if (line.equalsIgnoreCase("/exit")) {
                     sendXML(buildLogoutCommand(sessionName));
                     break;
+                } else if (line.equalsIgnoreCase("/list")) {
+                    requestUserList();
                 } else {
                     sendXML(buildMessageCommand(sessionName, line));
+                    System.out.print("\033[A");
+                    System.out.print("\033[2K");
+                    System.out.println("You: " + line);
                 }
             }
 
@@ -72,9 +75,16 @@ public class ClientXML {
 
     private void printXML(Document doc) {
         try {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.transform(new DOMSource(doc), new StreamResult(System.out));
-            System.out.println();
+            Element root = doc.getDocumentElement();
+            String rootName = root.getTagName();
+
+            if (rootName.equals("event") && "message".equals(root.getAttribute("name"))) {
+                String from = getText(root, "name");
+                String text = getText(root, "message");
+                if (!from.equals(sessionName)) {
+                    System.out.println(from + ": " + text);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -139,5 +149,32 @@ public class ClientXML {
         command.appendChild(session);
         doc.appendChild(command);
         return doc;
+    }
+
+    public void requestUserList() {
+        try {
+            Document doc = newDocument();
+            Element command = doc.createElement("command");
+            command.setAttribute("name", "list");
+
+            Element session = doc.createElement("session");
+            session.setTextContent(sessionName);
+            command.appendChild(session);
+
+            doc.appendChild(command);
+            sendXML(doc);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Document newDocument() throws Exception {
+        return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    }
+
+    private String getText(Element parent, String tag) {
+        NodeList list = parent.getElementsByTagName(tag);
+        if (list.getLength() == 0) return null;
+        return list.item(0).getTextContent();
     }
 }

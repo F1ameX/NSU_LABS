@@ -10,6 +10,7 @@ public class Client {
     private static final int SERVER_PORT = 12345;
     private PrintWriter out;
     private BufferedReader in;
+    private String nickname;
 
     public Client() {
         try {
@@ -22,24 +23,36 @@ public class Client {
     }
 
     public void login(String name) {
+        this.nickname = name;
         JsonObject login = new JsonObject();
         login.addProperty("command", "login");
         login.addProperty("name", name);
-        login.addProperty("type", "JSON_CLIENT");  // <-- добавлен тип клиента
-        out.println(login.toString());
+        login.addProperty("type", "JSON_CLIENT");
+        out.println(login);
     }
 
     public void sendMessage(String message) {
         JsonObject jsonMessage = new JsonObject();
         jsonMessage.addProperty("command", "message");
         jsonMessage.addProperty("message", message);
-        out.println(jsonMessage.toString());
+        out.println(jsonMessage);
+
+        System.out.print("\033[A");
+        System.out.print("\033[2K");
+
+        System.out.println("You: " + message);
     }
 
     public void logout() {
         JsonObject logout = new JsonObject();
         logout.addProperty("command", "logout");
-        out.println(logout.toString());
+        out.println(logout);
+    }
+
+    public void requestUserList() {
+        JsonObject list = new JsonObject();
+        list.addProperty("command", "list");
+        out.println(list);
     }
 
     public void listenForMessages() {
@@ -47,7 +60,30 @@ public class Client {
             try {
                 String response;
                 while ((response = in.readLine()) != null) {
-                    System.out.println("Received: " + response);
+                    JsonObject json = JsonParser.parseString(response).getAsJsonObject();
+                    String type = json.get("type").getAsString();
+
+                    switch (type) {
+                        case "message":
+                            String from = json.get("from").getAsString();
+                            String text = json.get("text").getAsString();
+                            if (!from.equals(nickname)) {
+                                System.out.println(from + ": " + text);
+                            }
+                            break;
+                        case "system":
+                            System.out.println("[SYSTEM] " + json.get("text").getAsString());
+                            break;
+                        case "list":
+                            System.out.println("=== Active users ===");
+                            JsonArray users = json.getAsJsonArray("users");
+                            for (JsonElement elem : users) {
+                                JsonObject user = elem.getAsJsonObject();
+                                System.out.println(user.get("name").getAsString() + " (" + user.get("type").getAsString() + ")");
+                            }
+                            System.out.println("====================");
+                            break;
+                    }
                 }
             } catch (IOException e) {
                 System.out.println("Disconnected from server.");
@@ -70,6 +106,8 @@ public class Client {
             if (input.equalsIgnoreCase("/exit")) {
                 client.logout();
                 break;
+            } else if (input.equalsIgnoreCase("/list")) {
+                client.requestUserList();
             } else {
                 client.sendMessage(input);
             }
