@@ -71,22 +71,25 @@ public class Client {
                                 System.out.println(from + ": " + text);
                             }
                             break;
+
                         case "system":
                             System.out.println("[SYSTEM] " + json.get("text").getAsString());
                             break;
-                        case "list":
-                            System.out.println("=== Active users ===");
-                            JsonArray users = json.getAsJsonArray("users");
-                            for (JsonElement elem : users) {
-                                JsonObject user = elem.getAsJsonObject();
-                                System.out.println(user.get("name").getAsString() + " (" + user.get("type").getAsString() + ")");
-                            }
-                            System.out.println("====================");
+
+                        case "success":
+                            System.out.println("[SUCCESS] " + json.get("message").getAsString());
                             break;
+
+                        case "error":
+                            System.out.println("[ERROR] " + json.get("message").getAsString());
+                            break;
+
+                        default:
+                            System.out.println("[UNKNOWN TYPE] " + response);
                     }
                 }
             } catch (IOException e) {
-                System.out.println("Disconnected from server.");
+                e.printStackTrace();
             }
         }).start();
     }

@@ -78,12 +78,28 @@ public class ClientXML {
             Element root = doc.getDocumentElement();
             String rootName = root.getTagName();
 
-            if (rootName.equals("event") && "message".equals(root.getAttribute("name"))) {
-                String from = getText(root, "name");
-                String text = getText(root, "message");
-                if (!from.equals(sessionName)) {
-                    System.out.println(from + ": " + text);
-                }
+            if (!rootName.equals("event")) return;
+
+            String eventType = root.getAttribute("name");
+
+            switch (eventType) {
+                case "message":
+                    String from = getText(root, "name");
+                    String text = getText(root, "message");
+                    if (!from.equals(sessionName)) {
+                        System.out.println(from + ": " + text);
+                    }
+                    break;
+
+                case "system":
+                    String sysText = getText(root, "name");
+                    System.out.println("[SYSTEM] " + sysText);
+                    break;
+
+                case "userlogout":
+                    String logoutName = getText(root, "name");
+                    System.out.println("[SYSTEM] " + logoutName + " left the chat");
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
