@@ -1,106 +1,224 @@
 package lab_5.server;
 
-import com.google.gson.*;
 import java.io.*;
+import java.util.List;
 import java.net.Socket;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class ClientHandlerJSON extends ClientHandler {
-    private final BufferedReader in;
-    private final PrintWriter out;
+    private static final Pattern COMMAND_PATTERN = Pattern.compile("\"command\"\\s*:\\s*\"(\\w+)\"");
+    private static final Pattern NAME_PATTERN   = Pattern.compile("\"name\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern TYPE_PATTERN   = Pattern.compile("\"type\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern MESSAGE_PATTERN = Pattern.compile("\"message\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern SESSION_PATTERN = Pattern.compile("\"session\"\\s*:\\s*\"([^\"]*)\"");
 
-    public ClientHandlerJSON(Socket socket, InputStream inStream) throws IOException {
-        super(socket);
-        this.in = new BufferedReader(new InputStreamReader(inStream));
-        this.out = new PrintWriter(socket.getOutputStream(), true);
+    public ClientHandlerJSON(Socket socket, DataInputStream dis, DataOutputStream dos, Server server) {
+        super(socket, dis, dos, server);
+    }
+
+    private String escapeJson(String text) {
+        if (text == null) return "";
+        return text.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     @Override
     public void run() {
+        boolean normalLogout = false;
         try {
-            String msg;
-            while ((msg = in.readLine()) != null) {
-                JsonObject json;
-                try {
-                    json = JsonParser.parseString(msg).getAsJsonObject();
-                } catch (Exception e) {
-                    out.println(buildErrorJson("Invalid JSON format"));
-                    System.err.println("[ERROR] Invalid JSON: " + msg);
-                    continue;
-                }
+            label:
+            while (true) {
+                String request = dis.readUTF();
+                Matcher cmdMatcher = COMMAND_PATTERN.matcher(request);
+                if (!cmdMatcher.find()) continue;
 
-                if (!json.has("command")) {
-                    out.println(buildErrorJson("Missing 'command' field"));
-                    continue;
-                }
-
-                String command = json.get("command").getAsString();
-
+                String command = cmdMatcher.group(1);
                 switch (command) {
-                    case "login":
-                        if (!json.has("name")) {
-                            out.println(buildErrorJson("Missing 'name' field for login"));
+                    case "login" -> {
+                        Matcher nameMatch = NAME_PATTERN.matcher(request);
+                        Matcher typeMatch = TYPE_PATTERN.matcher(request);
+                        String loginName = null;
+                        String loginType = null;
+                        if (nameMatch.find()) {
+                            loginName = nameMatch.group(1);
+                        }
+                        if (typeMatch.find()) {
+                            loginType = typeMatch.group(1);
+                        }
+                        if (loginName == null || loginName.isEmpty()) {
+                            sendErrorResponse("Invalid name");
                             continue;
                         }
-
-                        String name = json.get("name").getAsString();
-                        if (Server.isNameTaken(name)) {
-                            out.println(buildErrorJson("Name already taken"));
+                        synchronized (server) {
+                            if (server.isNameTaken(loginName)) {
+                                sendErrorResponse("Name already taken");
+                                continue;
+                            }
+                            this.userName = loginName;
+                            this.clientType = (loginType != null && !loginType.isEmpty() ? loginType : "JSONClient");
+                            this.sessionId = Server.generateSessionId();
+                            this.loggedIn = true;
+                            sendSuccessResponse("\"session\":\"" + sessionId + "\"");
+                            server.broadcastUserLogin(this.userName, this.sessionId);
+                            server.log("User logged in: " + this.userName + " (" + this.clientType + ")");
+                        }
+                    }
+                    case "list" -> {
+                        if (!loggedIn) {
+                            sendErrorResponse("Not logged in");
                             continue;
                         }
-
-                        clientName = name;
-                        clientType = json.has("type") ? json.get("type").getAsString() : "UNKNOWN";
-                        System.out.println("[LOGIN] " + clientName + " (" + clientType + ")");
-
-                        JsonObject success = new JsonObject();
-                        success.addProperty("type", "success");
-                        success.addProperty("message", "login OK");
-                        out.println(success.toString());
-
-                        Server.broadcastSystemMessage(clientName + " joined the chat");
-                        break;
-
-                    case "message":
-                        if (!json.has("message")) {
-                            out.println(buildErrorJson("Missing 'message' field"));
+                        Matcher sessionMatch = SESSION_PATTERN.matcher(request);
+                        String sess = null;
+                        if (sessionMatch.find()) {
+                            sess = sessionMatch.group(1);
+                        }
+                        if (sess == null || !sess.equals(this.sessionId)) {
+                            sendErrorResponse("Invalid session");
                             continue;
                         }
-                        String text = json.get("message").getAsString();
-                        Server.broadcastUserMessage(clientName, text);
-                        break;
-
-                    case "list":
-                        JsonObject list = Server.buildUserListJson();
-                        out.println(list.toString());
-                        break;
-
-                    case "logout":
-                        return;
-
-                    default:
-                        out.println(buildErrorJson("Unknown command: " + command));
+                        sendUserList(server.getLoggedInClients());
+                    }
+                    case "message" -> {
+                        if (!loggedIn) {
+                            sendErrorResponse("Not logged in");
+                            continue;
+                        }
+                        Matcher sessionMatch = SESSION_PATTERN.matcher(request);
+                        String sess = null;
+                        if (sessionMatch.find()) {
+                            sess = sessionMatch.group(1);
+                        }
+                        if (sess == null || !sess.equals(this.sessionId)) {
+                            sendErrorResponse("Invalid session");
+                            continue;
+                        }
+                        Matcher msgMatch = MESSAGE_PATTERN.matcher(request);
+                        String msg = "";
+                        if (msgMatch.find()) {
+                            msg = msgMatch.group(1);
+                        }
+                        server.broadcastMessage(this.userName, msg, this.sessionId);
+                        sendSuccessResponse("");
+                    }
+                    case "logout" -> {
+                        if (!loggedIn) {
+                            break label;
+                        }
+                        Matcher sessionMatch = SESSION_PATTERN.matcher(request);
+                        String sess = null;
+                        if (sessionMatch.find()) {
+                            sess = sessionMatch.group(1);
+                        }
+                        if (sess == null || !sess.equals(this.sessionId)) {
+                            sendErrorResponse("Invalid session");
+                            continue;
+                        }
+                        sendSuccessResponse("");
+                        normalLogout = true;
+                        server.broadcastUserLogout(this.userName, this.sessionId);
+                        server.log("User logged out: " + this.userName);
+                        break label;
+                    }
                 }
             }
-        } catch (Exception e) {
-            System.err.println("[ERROR] JSON client crashed: " + e.getMessage());
+        } catch (IOException e) {
+            if (loggedIn) {
+                server.log("Connection lost with user: " + this.userName);
+            }
         } finally {
-            Server.getClients().remove(this);
-            Server.broadcastSystemMessage(clientName + " left the chat");
+            try {
+                if (loggedIn && !normalLogout) {
+                    server.broadcastUserLogout(this.userName, this.sessionId);
+                    server.log("User disconnected: " + this.userName);
+                }
+                server.removeClient(this);
+                if (socket != null && !socket.isClosed()) {
+                    socket.close();
+                }
+            } catch (IOException _) {
+            }
         }
     }
 
-    private JsonObject buildErrorJson(String errorText) {
-        JsonObject o = new JsonObject();
-        o.addProperty("type", "error");
-        o.addProperty("message", errorText);
-        return o;
+    @Override
+    public void sendUserLoginEvent(String name) {
+        String json = "{\"event\":\"userlogin\",\"name\":\"" + escapeJson(name) + "\"}";
+        try {
+            dos.writeUTF(json);
+            dos.flush();
+        } catch (IOException e) {
+            server.log("Failed to send userlogin event to " + this.userName);
+        }
     }
 
-    public void sendJson(JsonObject msg) {
-        out.println(msg.toString());
+    @Override
+    public void sendUserLogoutEvent(String name) {
+        String json = "{\"event\":\"userlogout\",\"name\":\"" + escapeJson(name) + "\"}";
+        try {
+            dos.writeUTF(json);
+            dos.flush();
+        } catch (IOException e) {
+            server.log("Failed to send userlogout event to " + this.userName);
+        }
     }
 
-    public boolean isXml() {
-        return false;
+    @Override
+    public void sendMessageEvent(String fromUser, String message) {
+        String json = "{\"event\":\"message\",\"name\":\"" + escapeJson(fromUser) + "\",\"message\":\"" + escapeJson(message) + "\"}";
+        try {
+            dos.writeUTF(json);
+            dos.flush();
+        } catch (IOException e) {
+            server.log("Failed to send message event to " + this.userName);
+        }
+    }
+
+    @Override
+    public void sendSuccessResponse(String content) {
+        String json;
+        if (content != null && !content.isEmpty()) {
+            json = "{\"success\":{" + content + "}}";
+        } else {
+            json = "{\"success\":{}}";
+        }
+        try {
+            dos.writeUTF(json);
+            dos.flush();
+        } catch (IOException e) {
+            server.log("Failed to send success response to " + this.userName);
+        }
+    }
+
+    @Override
+    public void sendErrorResponse(String reason) {
+        String json = "{\"error\":{\"message\":\"" + escapeJson(reason) + "\"}}";
+        try {
+            dos.writeUTF(json);
+            dos.flush();
+        } catch (IOException e) {
+            server.log("Failed to send error response to client " + this.userName);
+        }
+    }
+
+    @Override
+    public void sendUserList(List<ClientHandler> clients) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"success\":{\"listusers\":[");
+        boolean first = true;
+        for (ClientHandler c : clients) {
+            if (!c.isLoggedIn()) continue;
+            if (!first) sb.append(",");
+            sb.append("{\"name\":\"").append(escapeJson(c.getUserName())).append("\",");
+            sb.append("\"type\":\"").append(escapeJson(c.clientType)).append("\"}");
+            first = false;
+        }
+        sb.append("]}}");
+        try {
+            dos.writeUTF(sb.toString());
+            dos.flush();
+        } catch (IOException e) {
+            server.log("Failed to send user list to " + this.userName);
+        }
     }
 }

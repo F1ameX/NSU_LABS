@@ -1,170 +1,147 @@
 package lab_5.server;
 
-import java.io.InputStream;
-import java.io.PushbackInputStream;
-import java.net.ServerSocket;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.gson.*;
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
-    private static final int PORT = 12345;
-    private static final List<ClientHandler> clients = new ArrayList<>();
+    private ServerSocket serverSocket;
+    private final List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
+    private static final AtomicInteger sessionCounter = new AtomicInteger(1);
 
-    public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Server started on port " + PORT);
-            while (true) {
-                Socket socket = serverSocket.accept();
-                InputStream baseStream = socket.getInputStream();
-                PushbackInputStream peekStream = new PushbackInputStream(baseStream, 5);
-
-                int first = peekStream.read();
-                peekStream.unread(first);
-
-                ClientHandler handler;
-                if (first == '{') {
-                    handler = new ClientHandlerJSON(socket, peekStream);
-                } else {
-                    handler = new ClientHandlerXML(socket, peekStream);
-                }
-
-                clients.add(handler);
-                new Thread(handler).start();
-            }
-        } catch (Exception e) {
-            System.err.println("[ERROR] Server crashed: " + e.getMessage());
+    public Server(int port) {
+        try {
+            serverSocket = new ServerSocket(port);
+            log("Server started on port " + port);
+        } catch (IOException e) {
+            System.err.println("Could not start server on port " + port);
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
-    public static List<ClientHandler> getClients() {
-        return clients;
+    public void start() {
+        try {
+            while (true) {
+                Socket socket = serverSocket.accept();
+                DataInputStream dis = new DataInputStream(socket.getInputStream());
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                String protocol = "";
+                try {
+                    protocol = dis.readUTF();
+                } catch (IOException ex) {
+                    log("Failed to read protocol from new client: " + ex.getMessage());
+                    socket.close();
+                    continue;
+                }
+                ClientHandler handler;
+                if (protocol.equalsIgnoreCase("JSON")) {
+                    handler = new ClientHandlerJSON(socket, dis, dos, this);
+                } else if (protocol.equalsIgnoreCase("XML")) {
+                    handler = new ClientHandlerXML(socket, dis, dos, this);
+                } else {
+                    log("Unknown protocol identifier \"" + protocol + "\" from client. Closing connection.");
+                    socket.close();
+                    continue;
+                }
+                addClient(handler);
+                handler.start();
+            }
+        } catch (IOException e) {
+            log("Error accepting client connection: " + e.getMessage());
+        } finally {
+            try {
+                if (serverSocket != null) serverSocket.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
-    public static boolean isNameTaken(String name) {
-        for (ClientHandler client : clients) {
-            if (name.equalsIgnoreCase(client.clientName)) {
+    public synchronized void addClient(ClientHandler client) {
+        clients.add(client);
+        log("Client connected: " + client.socket.getInetAddress());
+    }
+
+    public synchronized void removeClient(ClientHandler client) {
+        clients.remove(client);
+        log("Client removed: " + client.getUserName());
+    }
+
+    public void broadcastUserLogin(String userName, String excludeSession) {
+        synchronized (clients) {
+            for (ClientHandler c : clients) {
+                if (c.isLoggedIn() && !c.getSessionId().equals(excludeSession)) {
+                    c.sendUserLoginEvent(userName);
+                }
+            }
+        }
+        log("Broadcast userlogin: " + userName);
+    }
+
+    public void broadcastUserLogout(String userName, String excludeSession) {
+        synchronized (clients) {
+            for (ClientHandler c : clients) {
+                if (c.isLoggedIn() && !c.getSessionId().equals(excludeSession)) {
+                    c.sendUserLogoutEvent(userName);
+                }
+            }
+        }
+        log("Broadcast userlogout: " + userName);
+    }
+
+    public void broadcastMessage(String fromUser, String message, String excludeSession) {
+        synchronized (clients) {
+            for (ClientHandler c : clients) {
+                if (c.isLoggedIn() && !c.getSessionId().equals(excludeSession)) {
+                    c.sendMessageEvent(fromUser, message);
+                }
+            }
+        }
+        log("Broadcast message from " + fromUser + ": " + message);
+    }
+
+    public synchronized boolean isNameTaken(String name) {
+        for (ClientHandler c : clients) {
+            if (c.isLoggedIn() && c.getUserName().equals(name)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static void broadcastUserMessage(String from, String text) {
-        for (ClientHandler client : clients) {
-            if (!client.clientName.equals(from)) {
-                if (client instanceof ClientHandlerJSON jsonClient) {
-                    jsonClient.sendJson(buildUserMessage(from, text));
-                } else if (client instanceof ClientHandlerXML xmlClient) {
-                    try {
-                        xmlClient.sendXml(buildXmlMessage(from, text));
-                    } catch (Exception e) {
-                        System.err.println("[ERROR] Failed to send XML message: " + e.getMessage());
-                    }
+    public List<ClientHandler> getLoggedInClients() {
+        List<ClientHandler> loggedClients = new ArrayList<>();
+        synchronized (clients) {
+            for (ClientHandler c : clients) {
+                if (c.isLoggedIn()) {
+                    loggedClients.add(c);
                 }
             }
         }
+        return loggedClients;
     }
 
-    public static void broadcastSystemMessage(String message) {
-        for (ClientHandler client : clients) {
-            if (client instanceof ClientHandlerJSON jsonClient) {
-                jsonClient.sendJson(buildSystemJson(message));
-            } else if (client instanceof ClientHandlerXML xmlClient) {
-                try {
-                    xmlClient.sendXml(buildXmlSystemEvent(message));
-                } catch (Exception e) {
-                    System.err.println("[ERROR] Failed to send XML system event: " + e.getMessage());
-                }
+    public static String generateSessionId() {
+        return "session-" + sessionCounter.getAndIncrement();
+    }
+
+    public void log(String message) {
+        System.out.println(message);
+    }
+
+    public static void main(String[] args) {
+        int port = 12345;
+        if (args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid port number, using default " + port);
             }
         }
-    }
-
-    public static JsonObject buildUserMessage(String name, String text) {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", "message");
-        json.addProperty("from", name);
-        json.addProperty("text", text);
-        return json;
-    }
-
-    public static JsonObject buildSystemJson(String message) {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", "system");
-        json.addProperty("text", message);
-        return json;
-    }
-
-    public static Document buildXmlMessage(String from, String text) throws Exception {
-        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        Element event = doc.createElement("event");
-        event.setAttribute("name", "message");
-
-        Element name = doc.createElement("name");
-        name.setTextContent(from);
-        Element message = doc.createElement("message");
-        message.setTextContent(text);
-
-        event.appendChild(message);
-        event.appendChild(name);
-        doc.appendChild(event);
-        return doc;
-    }
-
-    public static Document buildXmlSystemEvent(String message) throws Exception {
-        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        Element event = doc.createElement("event");
-        event.setAttribute("name", "system");
-
-        Element name = doc.createElement("name");
-        name.setTextContent(message);
-        event.appendChild(name);
-
-        doc.appendChild(event);
-        return doc;
-    }
-
-    public static Document buildUserListXml() throws Exception {
-        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        Element success = doc.createElement("success");
-        Element listusers = doc.createElement("listusers");
-
-        for (ClientHandler client : clients) {
-            Element user = doc.createElement("user");
-
-            Element name = doc.createElement("name");
-            name.setTextContent(client.clientName);
-            Element type = doc.createElement("type");
-            type.setTextContent(client.clientType);
-
-            user.appendChild(name);
-            user.appendChild(type);
-            listusers.appendChild(user);
-        }
-
-        success.appendChild(listusers);
-        doc.appendChild(success);
-        return doc;
-    }
-
-    public static JsonObject buildUserListJson() {
-        JsonObject result = new JsonObject();
-        result.addProperty("type", "list");
-
-        JsonArray users = new JsonArray();
-        for (ClientHandler client : clients) {
-            JsonObject user = new JsonObject();
-            user.addProperty("name", client.clientName);
-            user.addProperty("type", client.clientType);
-            users.add(user);
-        }
-
-        result.add("users", users);
-        return result;
+        Server server = new Server(port);
+        server.start();
     }
 }

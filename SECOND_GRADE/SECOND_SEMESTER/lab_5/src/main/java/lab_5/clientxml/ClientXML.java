@@ -1,13 +1,11 @@
 package lab_5.clientxml;
 
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+import javax.xml.parsers.*;
+import org.w3c.dom.*;
 
 public class ClientXML {
     private static final String SERVER_HOST = "localhost";
@@ -15,177 +13,120 @@ public class ClientXML {
 
     private DataOutputStream out;
     private DataInputStream in;
-    private String sessionName;
+    private String sessionId;
+    private String nickname;
+    private DocumentBuilder builder;
 
     public static void main(String[] args) {new ClientXML().start(); }
+    private String buildXml(String content) {return content; }
+    private String escape(String s) {
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    }
 
     public void start() {
         try (Socket socket = new Socket(SERVER_HOST, SERVER_PORT)) {
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
 
-            Scanner scanner = new Scanner(System.in);
-            System.out.print("Enter your nickname: ");
-            sessionName = scanner.nextLine();
+            out.writeUTF("XML");
 
-            sendXML(buildLoginCommand(sessionName));
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Scanner scanner = new Scanner(System.in);
+
+            while (sessionId == null || sessionId.isEmpty()) {
+                System.out.print("Enter your nickname: ");
+                nickname = scanner.nextLine().trim();
+                if (nickname.isEmpty()) continue;
+
+                sendXml(buildXml("<command name=\"login\"><name>" + escape(nickname) + "</name><type>XMLClient</type></command>"));
+
+                Document response = receiveXml();
+                if (response.getDocumentElement().getTagName().equals("error")) {
+                    System.out.println("[ERROR] " + getText(response.getDocumentElement(), "message"));
+                } else {
+                    sessionId = getText(response.getDocumentElement(), "session");
+                    System.out.println("[SUCCESS] login OK");
+                }
+            }
 
             Thread listener = new Thread(this::listen);
             listener.setDaemon(true);
             listener.start();
 
+            System.out.println("Type your messages below. Use /list to see users, /logout to exit:");
             while (true) {
-                String line = scanner.nextLine();
-                if (line.equalsIgnoreCase("/exit")) {
-                    sendXML(buildLogoutCommand(sessionName));
+                String input = scanner.nextLine();
+                if (input.equalsIgnoreCase("/logout")) {
+                    sendXml(buildXml("<command name=\"logout\"><session>" + sessionId + "</session></command>"));
                     break;
-                } else if (line.equalsIgnoreCase("/list")) {
-                    requestUserList();
-                } else {
-                    sendXML(buildMessageCommand(sessionName, line));
-                    System.out.print("\033[A");
-                    System.out.print("\033[2K");
-                    System.out.println("You: " + line);
+                } else if (input.equalsIgnoreCase("/list")) {
+                    sendXml(buildXml("<command name=\"list\"><session>" + sessionId + "</session></command>"));
+                } else if (!input.isBlank()) {
+                    sendXml(buildXml("<command name=\"message\"><message>" + escape(input) + "</message><session>" + sessionId + "</session></command>"));
+                    System.out.println("You: " + input);
                 }
             }
 
+            System.out.println("[SYSTEM] You left the chat. Bye!");
+
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] " + e.getMessage());
         }
     }
 
     private void listen() {
         try {
             while (true) {
-                int length = in.readInt();
-                byte[] data = new byte[length];
-                in.readFully(data);
+                Document doc = receiveXml();
+                if (doc == null) break;
 
-                Document doc = DocumentBuilderFactory.newInstance()
-                        .newDocumentBuilder()
-                        .parse(new ByteArrayInputStream(data));
-                doc.getDocumentElement().normalize();
-
-                printXML(doc);
-            }
-        } catch (Exception e) {
-            System.out.println("Disconnected from server.");
-        }
-    }
-
-    private void printXML(Document doc) {
-        try {
-            Element root = doc.getDocumentElement();
-            String rootName = root.getTagName();
-
-            if (!rootName.equals("event")) return;
-
-            String eventType = root.getAttribute("name");
-
-            switch (eventType) {
-                case "message":
-                    String from = getText(root, "name");
-                    String text = getText(root, "message");
-                    if (!from.equals(sessionName)) {
-                        System.out.println(from + ": " + text);
+                Element root = doc.getDocumentElement();
+                switch (root.getTagName()) {
+                    case "event" -> {
+                        String type = root.getAttribute("name");
+                        switch (type) {
+                            case "message" -> {
+                                String from = getText(root, "name");
+                                String msg = getText(root, "message");
+                                assert from != null;
+                                if (!from.equals(nickname)) System.out.println(from + ": " + msg);
+                            }
+                            case "userlogin" -> System.out.println("[SYSTEM] " + getText(root, "name") + " joined the chat");
+                            case "userlogout" -> System.out.println("[SYSTEM] " + getText(root, "name") + " left the chat");
+                        }
                     }
-                    break;
-
-                case "system":
-                    String sysText = getText(root, "name");
-                    System.out.println("[SYSTEM] " + sysText);
-                    break;
-
-                case "userlogout":
-                    String logoutName = getText(root, "name");
-                    System.out.println("[SYSTEM] " + logoutName + " left the chat");
-                    break;
+                    case "success" -> {
+                        if (root.getElementsByTagName("listusers").getLength() > 0) {
+                            System.out.println("Users online:");
+                            NodeList users = root.getElementsByTagName("user");
+                            for (int i = 0; i < users.getLength(); i++) {
+                                Element user = (Element) users.item(i);
+                                String name = getText(user, "name");
+                                String type = getText(user, "type");
+                                System.out.println(" - " + name + " (" + type + ")");
+                            }
+                        }
+                    }
+                    case "error" -> System.out.println("[ERROR] " + getText(root, "message"));
+                }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("[SYSTEM] Disconnected from server.");
         }
     }
 
-    private void sendXML(Document doc) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.transform(new DOMSource(doc), new StreamResult(baos));
-
-            byte[] xmlBytes = baos.toByteArray();
-            out.writeInt(xmlBytes.length);
-            out.write(xmlBytes);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void sendXml(String xml) throws IOException {
+        byte[] data = xml.getBytes(StandardCharsets.UTF_8);
+        out.writeInt(data.length);
+        out.write(data);
+        out.flush();
     }
 
-    private Document buildLoginCommand(String name) throws Exception {
-        Document doc = newDocument();
-        Element command = doc.createElement("command");
-        command.setAttribute("name", "login");
-
-        Element nameElement = doc.createElement("name");
-        nameElement.setTextContent(name);
-
-        Element type = doc.createElement("type");
-        type.setTextContent("XML_CLIENT");
-
-        command.appendChild(nameElement);
-        command.appendChild(type);
-        doc.appendChild(command);
-        return doc;
-    }
-
-    private Document buildMessageCommand(String name, String message) throws Exception {
-        Document doc = newDocument();
-        Element command = doc.createElement("command");
-        command.setAttribute("name", "message");
-
-        Element msg = doc.createElement("message");
-        msg.setTextContent(message);
-
-        Element session = doc.createElement("session");
-        session.setTextContent(name);
-
-        command.appendChild(msg);
-        command.appendChild(session);
-        doc.appendChild(command);
-        return doc;
-    }
-
-    private Document buildLogoutCommand(String name) throws Exception {
-        Document doc = newDocument();
-        Element command = doc.createElement("command");
-        command.setAttribute("name", "logout");
-
-        Element session = doc.createElement("session");
-        session.setTextContent(name);
-
-        command.appendChild(session);
-        doc.appendChild(command);
-        return doc;
-    }
-
-    public void requestUserList() {
-        try {
-            Document doc = newDocument();
-            Element command = doc.createElement("command");
-            command.setAttribute("name", "list");
-
-            Element session = doc.createElement("session");
-            session.setTextContent(sessionName);
-            command.appendChild(session);
-
-            doc.appendChild(command);
-            sendXML(doc);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Document newDocument() throws Exception {
-        return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    private Document receiveXml() throws Exception {
+        int len = in.readInt();
+        byte[] data = new byte[len];
+        in.readFully(data);
+        return builder.parse(new ByteArrayInputStream(data));
     }
 
     private String getText(Element parent, String tag) {
