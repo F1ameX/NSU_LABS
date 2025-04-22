@@ -1,222 +1,252 @@
 package lab_5.server;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.net.Socket;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.*;
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import java.io.*;
+import java.net.Socket;
 
 public class ClientHandlerXML extends ClientHandler {
-    private DocumentBuilder builder;
+    private final DataInputStream in;
+    private final DataOutputStream out;
+    private final DocumentBuilder builder;
 
-    public ClientHandlerXML(Socket socket, DataInputStream dis, DataOutputStream dos, Server server) {
-        super(socket, dis, dos, server);
+    public ClientHandlerXML(Socket socket, InputStream input, OutputStream output, Server server) throws IOException {
+        super(socket, server);
+        this.in = new DataInputStream(input);
+        this.out = new DataOutputStream(output);
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            builder = factory.newDocumentBuilder();
+            this.builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IOException("Failed to create XML parser", e);
         }
+    }
+
+    @Override
+    public void start() {
+        new Thread(this).start();
     }
 
     @Override
     public void run() {
-        boolean normalLogout = false;
         try {
-            label:
             while (true) {
-                int length;
-                try {
-                    length = dis.readInt();
-                } catch (EOFException eof) {
-                    break;
-                }
-                if (length <= 0) {
-                    continue;
-                }
-                byte[] data = new byte[length];
-                dis.readFully(data);
-                String request = new String(data, StandardCharsets.UTF_8);
-                Document doc;
-                try {
-                    doc = builder.parse(new ByteArrayInputStream(data));
-                } catch (Exception parseEx) {
-                    server.log("Failed to parse XML from client: " + parseEx.getMessage());
-                    continue;
-                }
+                int len = in.readInt();
+                byte[] data = new byte[len];
+                in.readFully(data);
+
+                updateLastActive();
+
+                Document doc = builder.parse(new ByteArrayInputStream(data));
                 Element root = doc.getDocumentElement();
-                if (root == null || !root.getTagName().equals("command")) {
-                    continue;
-                }
                 String command = root.getAttribute("name");
-                if (command == null) {
-                    continue;
-                }
+
                 switch (command) {
-                    case "login" -> {
-                        String loginName = "";
-                        String loginType = "";
-                        NodeList nameNodes = root.getElementsByTagName("name");
-                        if (nameNodes.getLength() > 0) {
-                            loginName = nameNodes.item(0).getTextContent().trim();
-                        }
-                        NodeList typeNodes = root.getElementsByTagName("type");
-                        if (typeNodes.getLength() > 0) {
-                            loginType = typeNodes.item(0).getTextContent().trim();
-                        }
-                        if (loginName.isEmpty()) {
-                            sendErrorResponse("Invalid name");
+                    case "login":
+                        String name = getText(root, "name");
+                        String type = getText(root, "type");
+
+                        if (name == null || type == null || name.isEmpty()) {
+                            sendError("Missing name/type");
                             continue;
                         }
-                        synchronized (server) {
-                            if (server.isNameTaken(loginName)) {
-                                sendErrorResponse("Name already taken");
-                                continue;
-                            }
-                            this.userName = loginName;
-                            this.clientType = !loginType.isEmpty() ? loginType : "XMLClient";
-                            this.sessionId = Server.generateSessionId();
-                            this.loggedIn = true;
-                            sendSuccessResponse("<session>" + sessionId + "</session>");
-                            server.broadcastUserLogin(this.userName, this.sessionId);
-                            server.log("User logged in: " + this.userName + " (" + this.clientType + ")");
-                        }
-                    }
-                    case "list" -> {
-                        if (!loggedIn) {
-                            sendErrorResponse("Not logged in");
+
+                        if (server.isNameTaken(name)) {
+                            sendError("Name already taken");
                             continue;
                         }
-                        NodeList sessionNodes = root.getElementsByTagName("session");
-                        String sess = (sessionNodes.getLength() > 0 ? sessionNodes.item(0).getTextContent() : null);
-                        if (sess == null || !sess.equals(this.sessionId)) {
-                            sendErrorResponse("Invalid session");
+
+                        this.userName = name;
+                        this.clientType = type;
+                        this.sessionId = Server.generateSessionId();
+
+                        updateLastActive();
+                        sendSuccess("login OK", sessionId);
+                        server.sendHistoryTo(this);
+                        server.broadcastUserLogin(userName, sessionId);
+                        break;
+
+                    case "message":
+                        String text = getText(root, "message");
+                        if (text == null || text.isEmpty()) {
+                            sendError("Empty message");
                             continue;
                         }
-                        sendUserList(server.getLoggedInClients());
-                    }
-                    case "message" -> {
-                        if (!loggedIn) {
-                            sendErrorResponse("Not logged in");
-                            continue;
-                        }
-                        NodeList sessionNodes = root.getElementsByTagName("session");
-                        String sess = (sessionNodes.getLength() > 0 ? sessionNodes.item(0).getTextContent() : null);
-                        if (sess == null || !sess.equals(this.sessionId)) {
-                            sendErrorResponse("Invalid session");
-                            continue;
-                        }
-                        NodeList msgNodes = root.getElementsByTagName("message");
-                        String msg = (msgNodes.getLength() > 0 ? msgNodes.item(0).getTextContent() : "");
-                        server.broadcastMessage(this.userName, msg, this.sessionId);
-                        sendSuccessResponse("");
-                    }
-                    case "logout" -> {
-                        if (!loggedIn) {
-                            break label;
-                        }
-                        NodeList sessionNodes = root.getElementsByTagName("session");
-                        String sess = (sessionNodes.getLength() > 0 ? sessionNodes.item(0).getTextContent() : null);
-                        if (sess == null || !sess.equals(this.sessionId)) {
-                            sendErrorResponse("Invalid session");
-                            continue;
-                        }
-                        sendSuccessResponse("");
-                        normalLogout = true;
-                        server.broadcastUserLogout(this.userName, this.sessionId);
-                        server.log("User logged out: " + this.userName);
-                        break label;
-                    }
+                        server.enqueueMessage(new ChatMessage(userName, text, sessionId));
+                        break;
+
+                    case "list":
+                        sendUserList();
+                        break;
+
+                    case "logout":
+                        sendSuccess("bye");
+                        return;
+
+                    default:
+                        sendError("Unknown command: " + command);
                 }
             }
-        } catch (IOException e) {
-            if (loggedIn) {
-                server.log("Connection lost with user: " + this.userName);
-            }
+        } catch (Exception e) {
+            server.log("[ERROR] XML client crashed: " + e.getMessage());
         } finally {
-            try {
-                if (loggedIn && !normalLogout) {
-                    server.broadcastUserLogout(this.userName, this.sessionId);
-                    server.log("User disconnected: " + this.userName);
-                }
-                server.removeClient(this);
-                if (socket != null && !socket.isClosed()) {
-                    socket.close();
-                }
-            } catch (IOException _) {
+            server.removeClient(this);
+            if (userName != null) {
+                server.broadcastUserLogout(userName, sessionId);
             }
         }
+    }
+
+    private void sendXml(Document doc) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Transformer t = TransformerFactory.newInstance().newTransformer();
+            t.transform(new DOMSource(doc), new StreamResult(baos));
+            byte[] xml = baos.toByteArray();
+            out.writeInt(xml.length);
+            out.write(xml);
+        } catch (Exception e) {
+            server.log("[ERROR] Failed to send XML: " + e.getMessage());
+        }
+    }
+
+    private String getText(Element parent, String tag) {
+        NodeList list = parent.getElementsByTagName(tag);
+        if (list.getLength() == 0) return null;
+        return list.item(0).getTextContent();
+    }
+
+    private Document newDocument() throws Exception {
+        return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
     @Override
     public void sendUserLoginEvent(String name) {
-        String xml = "<event name=\"userlogin\"><name>" + escapeXml(name) + "</name></event>";
-        sendXml(xml);
+        try {
+            Document doc = newDocument();
+            Element e = doc.createElement("event");
+            e.setAttribute("name", "userlogin");
+            Element n = doc.createElement("name");
+            n.setTextContent(name);
+            e.appendChild(n);
+            doc.appendChild(e);
+            sendXml(doc);
+        } catch (Exception e) {
+            sendError("Failed to send login event");
+        }
     }
 
     @Override
     public void sendUserLogoutEvent(String name) {
-        String xml = "<event name=\"userlogout\"><name>" + escapeXml(name) + "</name></event>";
-        sendXml(xml);
-    }
-
-    @Override
-    public void sendMessageEvent(String fromUser, String message) {
-        String xml = "<event name=\"message\"><message>" + escapeXml(message) + "</message><name>" + escapeXml(fromUser) + "</name></event>";
-        sendXml(xml);
-    }
-
-    @Override
-    public void sendSuccessResponse(String content) {
-        String xml;
-        if (content != null && !content.isEmpty()) {
-            xml = "<success>" + content + "</success>";
-        } else {
-            xml = "<success></success>";
-        }
-        sendXml(xml);
-    }
-
-    @Override
-    public void sendErrorResponse(String reason) {
-        String xml = "<error><message>" + escapeXml(reason) + "</message></error>";
-        sendXml(xml);
-    }
-
-    @Override
-    public void sendUserList(List<ClientHandler> clients) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<success><listusers>");
-        for (ClientHandler c : clients) {
-            if (!c.isLoggedIn()) continue;
-            sb.append("<user><name>").append(escapeXml(c.getUserName())).append("</name>");
-            sb.append("<type>").append(escapeXml(c.clientType)).append("</type></user>");
-        }
-        sb.append("</listusers></success>");
-        sendXml(sb.toString());
-    }
-
-    private String escapeXml(String text) {
-        if (text == null) return "";
-        String result = text;
-        result = result.replace("&", "&amp;");
-        result = result.replace("<", "&lt;");
-        result = result.replace(">", "&gt;");
-        result = result.replace("\"", "&quot;");
-        result = result.replace("'", "&apos;");
-        return result;
-    }
-
-    private void sendXml(String xml) {
         try {
-            byte[] bytes = xml.getBytes(StandardCharsets.UTF_8);
-            dos.writeInt(bytes.length);
-            dos.write(bytes);
-            dos.flush();
-        } catch (IOException e) {
-            server.log("Failed to send XML to " + this.userName);
+            Document doc = newDocument();
+            Element e = doc.createElement("event");
+            e.setAttribute("name", "userlogout");
+            Element n = doc.createElement("name");
+            n.setTextContent(name);
+            e.appendChild(n);
+            doc.appendChild(e);
+            sendXml(doc);
+        } catch (Exception e) {
+            sendError("Failed to send logout event");
+        }
+    }
+
+    @Override
+    public void sendMessageEvent(String from, String message) {
+        try {
+            Document doc = newDocument();
+            Element e = doc.createElement("event");
+            e.setAttribute("name", "message");
+
+            Element name = doc.createElement("name");
+            name.setTextContent(from);
+            Element msg = doc.createElement("message");
+            msg.setTextContent(message);
+
+            e.appendChild(name);
+            e.appendChild(msg);
+            doc.appendChild(e);
+            sendXml(doc);
+        } catch (Exception e) {
+            sendError("Failed to send message");
+        }
+    }
+
+    @Override
+    public void sendError(String msg) {
+        try {
+            Document doc = newDocument();
+            Element error = doc.createElement("error");
+            Element message = doc.createElement("message");
+            message.setTextContent(msg);
+            error.appendChild(message);
+            doc.appendChild(error);
+            sendXml(doc);
+        } catch (Exception e) {
+            server.log("[ERROR] Cannot send error XML: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendSuccess(String msg) {
+        try {
+            Document doc = newDocument();
+            Element success = doc.createElement("success");
+            Element message = doc.createElement("message");
+            message.setTextContent(msg);
+            success.appendChild(message);
+            doc.appendChild(success);
+            sendXml(doc);
+        } catch (Exception e) {
+            server.log("[ERROR] Cannot send success XML: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendSuccess(String msg, String sessionId) {
+        try {
+            Document doc = newDocument();
+            Element success = doc.createElement("success");
+            Element message = doc.createElement("message");
+            message.setTextContent(msg);
+            Element sess = doc.createElement("session");
+            sess.setTextContent(sessionId);
+            success.appendChild(message);
+            success.appendChild(sess);
+            doc.appendChild(success);
+            sendXml(doc);
+        } catch (Exception e) {
+            server.log("[ERROR] Cannot send session XML: " + e.getMessage());
+        }
+    }
+
+    private void sendUserList() {
+        try {
+            Document doc = newDocument();
+            Element success = doc.createElement("success");
+            Element list = doc.createElement("listusers");
+
+            for (ClientHandler client : server.getLoggedInClients()) {
+                Element user = doc.createElement("user");
+                Element name = doc.createElement("name");
+                name.setTextContent(client.getUserName());
+                Element type = doc.createElement("type");
+                type.setTextContent(client.getClientType());
+
+                user.appendChild(name);
+                user.appendChild(type);
+                list.appendChild(user);
+            }
+
+            success.appendChild(list);
+            doc.appendChild(success);
+            sendXml(doc);
+        } catch (Exception e) {
+            sendError("Failed to send user list");
         }
     }
 }
