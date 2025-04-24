@@ -14,12 +14,12 @@ public class ClientXML {
     private DataOutputStream out;
     private DataInputStream in;
     private String sessionId;
-    private String nickname;
     private DocumentBuilder builder;
     private volatile boolean running = true;
 
-    public static void main(String[] args) {
-        new ClientXML().start();
+    public static void main(String[] args) {new ClientXML().start();}
+    private String escape(String s) {
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     public void start() {
@@ -33,15 +33,15 @@ public class ClientXML {
             Scanner scanner = new Scanner(System.in);
             while (sessionId == null || sessionId.isEmpty()) {
                 System.out.print("Enter your nickname: ");
-                nickname = scanner.nextLine().trim();
+                String nickname = scanner.nextLine().trim();
                 if (nickname.isEmpty()) continue;
 
                 sendXml("<command name=\"login\"><name>" + escape(nickname) + "</name><type>XMLClient</type></command>");
                 Document response = receiveXml();
 
-                if (response.getDocumentElement().getTagName().equals("error")) {
-                    exitWithError(getText(response.getDocumentElement(), "message"));
-                } else {
+                if (response.getDocumentElement().getTagName().equals("error"))
+                    System.out.println("[ERROR] " + getText(response.getDocumentElement(), "message"));
+                else {
                     sessionId = getText(response.getDocumentElement(), "session");
                     System.out.println("[SUCCESS] login OK");
                 }
@@ -49,6 +49,19 @@ public class ClientXML {
 
             Thread listener = new Thread(this::listen);
             listener.start();
+
+            Thread pingThread = new Thread(() -> {
+                while (running) {
+                    try {
+                        sendXml("<command name=\"ping\"><session>" + sessionId + "</session></command>");
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                        exitWithError("Connection lost (ping failure).");
+                    }
+                }
+            });
+            pingThread.setDaemon(true);
+            pingThread.start();
 
             System.out.println("Type your messages below. Use /list to see users, /logout to exit:");
             Scanner inputScanner = new Scanner(System.in);
@@ -59,19 +72,17 @@ public class ClientXML {
                 if (input.equalsIgnoreCase("/logout")) {
                     sendXml("<command name=\"logout\"><session>" + sessionId + "</session></command>");
                     break;
-                } else if (input.equalsIgnoreCase("/list")) {
+                } else if (input.equalsIgnoreCase("/list"))
                     sendXml("<command name=\"list\"><session>" + sessionId + "</session></command>");
-                } else if (!input.isBlank()) {
+                else if (!input.isBlank())
                     sendXml("<command name=\"message\"><message>" + escape(input) + "</message><session>" + sessionId + "</session></command>");
-                    System.out.println("You: " + input);
-                }
             }
 
             running = false;
             listener.join();
 
         } catch (Exception e) {
-            exitWithError("Disconnected due to inactivity");
+            exitWithError("Disconnected due to inactivity or error");
         }
 
         System.out.println("[SYSTEM] You left the chat. Bye!");
@@ -92,9 +103,7 @@ public class ClientXML {
                             case "message" -> {
                                 String from = getText(root, "name");
                                 String msg = getText(root, "message");
-                                if (!from.equals(nickname)) {
-                                    System.out.println(from + ": " + msg);
-                                }
+                                System.out.println(from + ": " + msg);
                             }
                             case "userlogin" -> System.out.println("[SYSTEM] " + getText(root, "name") + " joined the chat");
                             case "userlogout" -> System.out.println("[SYSTEM] " + getText(root, "name") + " left the chat");
@@ -140,10 +149,6 @@ public class ClientXML {
         NodeList list = parent.getElementsByTagName(tag);
         if (list.getLength() == 0) return null;
         return list.item(0).getTextContent();
-    }
-
-    private String escape(String s) {
-        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     private void exitWithError(String msg) {

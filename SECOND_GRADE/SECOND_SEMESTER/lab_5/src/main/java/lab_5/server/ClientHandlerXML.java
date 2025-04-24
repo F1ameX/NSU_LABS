@@ -13,6 +13,7 @@ public class ClientHandlerXML extends ClientHandler {
     private final DataInputStream in;
     private final DataOutputStream out;
     private final DocumentBuilder builder;
+    private long lastPingTime = System.currentTimeMillis();
 
     public ClientHandlerXML(Socket socket, InputStream input, OutputStream output, Server server) throws IOException {
         super(socket, server);
@@ -26,8 +27,16 @@ public class ClientHandlerXML extends ClientHandler {
     }
 
     @Override
-    public void start() {
-        new Thread(this).start();
+    public void start() {new Thread(this).start();}
+
+    @Override
+    public void updatePingTime() {lastPingTime = System.currentTimeMillis();}
+
+    @Override
+    public long getLastPingTime() {return lastPingTime;}
+
+    private Document newDocument() throws Exception {
+        return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
     @Override
@@ -38,13 +47,15 @@ public class ClientHandlerXML extends ClientHandler {
                 byte[] data = new byte[len];
                 in.readFully(data);
 
-                updateLastActive();
-
                 Document doc = builder.parse(new ByteArrayInputStream(data));
                 Element root = doc.getDocumentElement();
                 String command = root.getAttribute("name");
 
                 switch (command) {
+                    case "ping":
+                        updatePingTime();
+                        break;
+
                     case "login":
                         String name = getText(root, "name");
                         String type = getText(root, "type");
@@ -54,16 +65,17 @@ public class ClientHandlerXML extends ClientHandler {
                             continue;
                         }
 
-                        if (server.isNameTaken(name)) {
-                            sendError("Name already taken");
-                            continue;
+                        synchronized (server) {
+                            if (server.isNameTaken(name)) {
+                                sendError("Name already taken");
+                                continue;
+                            }
                         }
 
                         this.userName = name;
                         this.clientType = type;
                         this.sessionId = Server.generateSessionId();
 
-                        updateLastActive();
                         sendSuccess("login OK", sessionId);
                         server.sendHistoryTo(this);
                         server.broadcastUserLogin(userName, sessionId);
@@ -94,9 +106,8 @@ public class ClientHandlerXML extends ClientHandler {
             server.log("[ERROR] XML client crashed: " + e.getMessage());
         } finally {
             server.removeClient(this);
-            if (userName != null) {
+            if (userName != null)
                 server.broadcastUserLogout(userName, sessionId);
-            }
         }
     }
 
@@ -117,10 +128,6 @@ public class ClientHandlerXML extends ClientHandler {
         NodeList list = parent.getElementsByTagName(tag);
         if (list.getLength() == 0) return null;
         return list.item(0).getTextContent();
-    }
-
-    private Document newDocument() throws Exception {
-        return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
     @Override

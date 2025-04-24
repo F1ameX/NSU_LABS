@@ -11,73 +11,49 @@ public class Client {
     private DataInputStream in;
     private DataOutputStream out;
     private Socket socket;
-    private String nickname;
     private String sessionId;
     private volatile boolean running = true;
 
-    public static void main(String[] args) {
-        new Client().start();
-    }
+    public static void main(String[] args) {new Client().start(); }
 
     public void start() {
         try {
             socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-
             out.writeUTF("JSON");
 
             Scanner scanner = new Scanner(System.in);
             while (sessionId == null || sessionId.isEmpty()) {
                 System.out.print("Enter your nickname: ");
-                nickname = scanner.nextLine().trim();
+                String nickname = scanner.nextLine().trim();
                 if (nickname.isEmpty()) continue;
 
                 String login = "{\"command\":\"login\",\"name\":\"" + nickname + "\",\"type\":\"JSONClient\"}";
                 out.writeUTF(login);
-
                 String response = in.readUTF();
-                if (response.contains("\"error\"")) {
-                    exitWithError(extractValue(response, "message"));
-                } else if (response.contains("\"success\"")) {
+                if (response.contains("\"error\""))
+                    System.out.println("[ERROR] " + extractValue(response, "message"));
+                else if (response.contains("\"success\"")) {
                     sessionId = extractValue(response, "session");
                     System.out.println("[SUCCESS] login OK");
                 }
             }
 
             Thread listener = new Thread(this::listenForMessages);
+            Thread pinger = new Thread(this::startPinger);
+            Thread inputThread = new Thread(this::handleUserInput);
+
             listener.start();
-
-            Thread inputThread = new Thread(() -> {
-                Scanner inputScanner = new Scanner(System.in);
-                System.out.println("Type your messages below. Use /list to see users, /logout to exit:");
-                while (running) {
-                    String input = inputScanner.nextLine();
-                    if (!running || socket.isClosed()) break;
-
-                    try {
-                        if (input.equalsIgnoreCase("/logout")) {
-                            sendLogout();
-                            running = false;
-                            break;
-                        } else if (input.equalsIgnoreCase("/list")) {
-                            sendListRequest();
-                        } else if (!input.isBlank()) {
-                            sendMessage(input);
-                            System.out.println("You: " + input);
-                        }
-                    } catch (IOException e) {
-                        exitWithError("Failed to send message: " + e.getMessage());
-                    }
-                }
-            });
+            pinger.start();
             inputThread.start();
 
             listener.join();
             inputThread.join();
+            pinger.interrupt();
 
         } catch (IOException | InterruptedException e) {
-            exitWithError("Disconnected due to error: " + e.getMessage());
+            exitWithError("Disconnected or error: " + e.getMessage());
         } finally {
             closeResources();
             System.out.println("[SYSTEM] You left the chat. Bye!");
@@ -90,16 +66,14 @@ public class Client {
                 String message = in.readUTF();
 
                 if (message.contains("\"event\"")) {
-                    if (message.contains("\"event\":\"userlogin\"")) {
+                    if (message.contains("\"event\":\"userlogin\""))
                         System.out.println("[SYSTEM] " + extractValue(message, "name") + " joined the chat");
-                    } else if (message.contains("\"event\":\"userlogout\"")) {
+                    else if (message.contains("\"event\":\"userlogout\""))
                         System.out.println("[SYSTEM] " + extractValue(message, "name") + " left the chat");
-                    } else if (message.contains("\"event\":\"message\"")) {
+                    else if (message.contains("\"event\":\"message\"")) {
                         String from = extractValue(message, "name");
                         String text = extractValue(message, "message");
-                        if (!from.equals(nickname)) {
-                            System.out.println(from + ": " + text);
-                        }
+                        System.out.println(from + ": " + text);
                     }
                 } else if (message.contains("\"success\"") && message.contains("listusers")) {
                     System.out.println("Users online:");
@@ -111,14 +85,45 @@ public class Client {
                             System.out.println(" - " + name + " (" + type + ")");
                         }
                     }
-                } else if (message.contains("\"error\"")) {
+                } else if (message.contains("\"error\""))
                     exitWithError(extractValue(message, "message"));
-                }
             }
         } catch (IOException e) {
-            exitWithError("Disconnected due to inactivity or error.");
-        } finally {
-            running = false;
+            exitWithError("Disconnected by server.");
+        }
+    }
+
+    private void handleUserInput() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Type your messages below. Use /list to see users, /logout to exit:");
+        while (running) {
+            String input = scanner.nextLine();
+            if (!running || socket.isClosed()) break;
+
+            try {
+                if (input.equalsIgnoreCase("/logout")) {
+                    sendLogout();
+                    running = false;
+                    break;
+                } else if (input.equalsIgnoreCase("/list"))
+                    sendListRequest();
+                else if (!input.isBlank())
+                    sendMessage(input);
+            } catch (IOException e) {
+                exitWithError("Failed to send message: " + e.getMessage());
+            }
+        }
+    }
+
+    private void startPinger() {
+        while (running) {
+            try {
+                Thread.sleep(1000);
+                out.writeUTF("{\"command\":\"ping\"}");
+            } catch (Exception e) {
+                exitWithError("Ping failed, server probably unreachable.");
+                break;
+            }
         }
     }
 

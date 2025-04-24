@@ -9,13 +9,15 @@ public abstract class ClientHandler implements Runnable {
     protected String sessionId;
     protected String clientType;
 
-    private long lastActive;
-
     public ClientHandler(Socket socket, Server server) {
         this.socket = socket;
         this.server = server;
-        updateLastActive();
     }
+
+    public boolean isLoggedIn() {return userName != null;}
+    public String getUserName() {return userName;}
+    public String getSessionId() {return sessionId;}
+    public String getClientType() {return clientType;}
 
     public abstract void start();
 
@@ -25,28 +27,6 @@ public abstract class ClientHandler implements Runnable {
     public abstract void sendError(String msg);
     public abstract void sendSuccess(String msg);
     public abstract void sendSuccess(String msg, String sessionId);
-
-    public boolean isLoggedIn() {
-        return userName != null;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public String getClientType() {
-        return clientType;
-    }
-
-    public long getLastActive() {
-        return lastActive;
-    }
-
-    public void updateLastActive() {
-        lastActive = System.currentTimeMillis();
-    }
+    public abstract void updatePingTime();
+    public abstract long getLastPingTime();
 }

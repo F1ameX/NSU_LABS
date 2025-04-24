@@ -7,6 +7,7 @@ import java.net.Socket;
 public class ClientHandlerJSON extends ClientHandler {
     private final DataInputStream in;
     private final DataOutputStream out;
+    private long lastPingTime = System.currentTimeMillis();
 
     public ClientHandlerJSON(Socket socket, InputStream input, OutputStream output, Server server) throws IOException {
         super(socket, server);
@@ -15,17 +16,19 @@ public class ClientHandlerJSON extends ClientHandler {
     }
 
     @Override
-    public void start() {
-        new Thread(this).start();
-    }
+    public void start() {new Thread(this).start();}
+
+    @Override
+    public void updatePingTime() {lastPingTime = System.currentTimeMillis();}
+
+    @Override
+    public long getLastPingTime() {return lastPingTime;}
 
     @Override
     public void run() {
         try {
             while (true) {
                 String msg = in.readUTF();
-                updateLastActive();
-
                 JsonObject json;
                 try {
                     json = JsonParser.parseString(msg).getAsJsonObject();
@@ -42,6 +45,10 @@ public class ClientHandlerJSON extends ClientHandler {
                 String command = json.get("command").getAsString();
 
                 switch (command) {
+                    case "ping":
+                        updatePingTime();
+                        break;
+
                     case "login":
                         if (!json.has("name") || !json.has("type")) {
                             sendError("Missing fields for login");
@@ -51,16 +58,16 @@ public class ClientHandlerJSON extends ClientHandler {
                         String name = json.get("name").getAsString();
                         String type = json.get("type").getAsString();
 
-                        if (server.isNameTaken(name)) {
-                            sendError("Name already taken");
-                            continue;
+                        synchronized (server) {
+                            if (server.isNameTaken(name)) {
+                                sendError("Name already taken");
+                                continue;
+                            }
+
+                            this.userName = name;
+                            this.sessionId = Server.generateSessionId();
+                            this.clientType = type;
                         }
-
-                        this.userName = name;
-                        this.sessionId = Server.generateSessionId();
-                        this.clientType = type;
-
-                        updateLastActive();
 
                         sendSuccess("login OK", sessionId);
                         server.sendHistoryTo(this);
@@ -93,9 +100,8 @@ public class ClientHandlerJSON extends ClientHandler {
             server.log("[ERROR] JSON client crashed: " + e.getMessage());
         } finally {
             server.removeClient(this);
-            if (userName != null) {
+            if (userName != null)
                 server.broadcastUserLogout(userName, sessionId);
-            }
         }
     }
 
