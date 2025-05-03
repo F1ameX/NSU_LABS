@@ -14,7 +14,7 @@ public class Client {
     private String sessionId;
     private volatile boolean running = true;
 
-    public static void main(String[] args) {new Client().start(); }
+    public static void main(String[] args) {new Client().start();}
 
     public void start() {
         try {
@@ -32,8 +32,7 @@ public class Client {
                 String login = "{\"command\":\"login\",\"name\":\"" + nickname + "\",\"type\":\"JSONClient\"}";
                 out.writeUTF(login);
                 String response = in.readUTF();
-                if (response.contains("\"error\""))
-                    System.out.println("[ERROR] " + extractValue(response, "message"));
+                if (response.contains("\"error\"")) System.out.println("[ERROR] " + extractValue(response, "message"));
                 else if (response.contains("\"success\"")) {
                     sessionId = extractValue(response, "session");
                     System.out.println("[SUCCESS] login OK");
@@ -73,9 +72,12 @@ public class Client {
                     else if (message.contains("\"event\":\"message\"")) {
                         String from = extractValue(message, "name");
                         String text = extractValue(message, "message");
-                        System.out.println(from + ": " + text);
+
+                        if (from.equals("You")) System.out.println("You: " + text);
+                        else System.out.println(from + ": " + text);
                     }
-                } else if (message.contains("\"success\"") && message.contains("listusers")) {
+                }
+                else if (message.contains("\"success\"") && message.contains("listusers")) {
                     System.out.println("Users online:");
                     String[] entries = message.split("\\{");
                     for (String entry : entries) {
@@ -85,8 +87,8 @@ public class Client {
                             System.out.println(" - " + name + " (" + type + ")");
                         }
                     }
-                } else if (message.contains("\"error\""))
-                    exitWithError(extractValue(message, "message"));
+                }
+                else if (message.contains("\"error\"")) exitWithError(extractValue(message, "message"));
             }
         } catch (IOException e) {
             exitWithError("Disconnected by server.");
@@ -105,7 +107,8 @@ public class Client {
                     sendLogout();
                     running = false;
                     break;
-                } else if (input.equalsIgnoreCase("/list"))
+                }
+                else if (input.equalsIgnoreCase("/list"))
                     sendListRequest();
                 else if (!input.isBlank())
                     sendMessage(input);

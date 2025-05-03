@@ -7,6 +7,7 @@ import java.net.Socket;
 public class ClientHandlerJSON extends ClientHandler {
     private final DataInputStream in;
     private final DataOutputStream out;
+    private final Object sendLock = new Object();
     private long lastPingTime = System.currentTimeMillis();
 
     public ClientHandlerJSON(Socket socket, InputStream input, OutputStream output, Server server) throws IOException {
@@ -45,11 +46,9 @@ public class ClientHandlerJSON extends ClientHandler {
                 String command = json.get("command").getAsString();
 
                 switch (command) {
-                    case "ping":
-                        updatePingTime();
-                        break;
+                    case "ping" -> updatePingTime();
 
-                    case "login":
+                    case "login" -> {
                         if (!json.has("name") || !json.has("type")) {
                             sendError("Missing fields for login");
                             continue;
@@ -72,9 +71,9 @@ public class ClientHandlerJSON extends ClientHandler {
                         sendSuccess("login OK", sessionId);
                         server.sendHistoryTo(this);
                         server.broadcastUserLogin(userName, sessionId);
-                        break;
+                    }
 
-                    case "message":
+                    case "message" -> {
                         if (!json.has("message")) {
                             sendError("Missing 'message' field");
                             continue;
@@ -82,26 +81,23 @@ public class ClientHandlerJSON extends ClientHandler {
 
                         String text = json.get("message").getAsString();
                         server.enqueueMessage(new ChatMessage(userName, text, sessionId));
-                        break;
+                    }
 
-                    case "list":
-                        sendUserList();
-                        break;
+                    case "list" -> sendUserList();
 
-                    case "logout":
+                    case "logout" -> {
                         sendSuccess("bye");
                         return;
+                    }
 
-                    default:
-                        sendError("Unknown command: " + command);
+                    default -> sendError("Unknown command: " + command);
                 }
             }
         } catch (IOException e) {
             server.log("[ERROR] JSON client crashed: " + e.getMessage());
         } finally {
             server.removeClient(this);
-            if (userName != null)
-                server.broadcastUserLogout(userName, sessionId);
+            if (userName != null) server.broadcastUserLogout(userName, sessionId);
         }
     }
 
@@ -173,11 +169,11 @@ public class ClientHandlerJSON extends ClientHandler {
     }
 
     private void sendJson(JsonObject json) {
-        try {
-            out.writeUTF(json.toString());
-            out.flush();
-        } catch (IOException e) {
-            server.log("[ERROR] Failed to send JSON: " + e.getMessage());
+        synchronized (sendLock) {
+            try {
+                out.writeUTF(json.toString());
+                out.flush();
+            } catch (IOException e) {server.log("[ERROR] Failed to send JSON: " + e.getMessage());}
         }
     }
 }

@@ -5,7 +5,6 @@ import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import java.io.*;
 import java.net.Socket;
 
@@ -13,6 +12,7 @@ public class ClientHandlerXML extends ClientHandler {
     private final DataInputStream in;
     private final DataOutputStream out;
     private final DocumentBuilder builder;
+    private final Object sendLock = new Object();
     private long lastPingTime = System.currentTimeMillis();
 
     public ClientHandlerXML(Socket socket, InputStream input, OutputStream output, Server server) throws IOException {
@@ -21,9 +21,7 @@ public class ClientHandlerXML extends ClientHandler {
         this.out = new DataOutputStream(output);
         try {
             this.builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (Exception e) {
-            throw new IOException("Failed to create XML parser", e);
-        }
+        } catch (Exception e) {throw new IOException("Failed to create XML parser", e);}
     }
 
     @Override
@@ -52,11 +50,9 @@ public class ClientHandlerXML extends ClientHandler {
                 String command = root.getAttribute("name");
 
                 switch (command) {
-                    case "ping":
-                        updatePingTime();
-                        break;
+                    case "ping" -> updatePingTime();
 
-                    case "login":
+                    case "login" -> {
                         String name = getText(root, "name");
                         String type = getText(root, "type");
 
@@ -79,48 +75,45 @@ public class ClientHandlerXML extends ClientHandler {
                         sendSuccess("login OK", sessionId);
                         server.sendHistoryTo(this);
                         server.broadcastUserLogin(userName, sessionId);
-                        break;
+                    }
 
-                    case "message":
+                    case "message" -> {
                         String text = getText(root, "message");
                         if (text == null || text.isEmpty()) {
                             sendError("Empty message");
                             continue;
                         }
                         server.enqueueMessage(new ChatMessage(userName, text, sessionId));
-                        break;
+                    }
 
-                    case "list":
-                        sendUserList();
-                        break;
+                    case "list" -> sendUserList();
 
-                    case "logout":
+                    case "logout" -> {
                         sendSuccess("bye");
                         return;
+                    }
 
-                    default:
-                        sendError("Unknown command: " + command);
+                    default -> sendError("Unknown command: " + command);
                 }
             }
         } catch (Exception e) {
             server.log("[ERROR] XML client crashed: " + e.getMessage());
         } finally {
             server.removeClient(this);
-            if (userName != null)
-                server.broadcastUserLogout(userName, sessionId);
+            if (userName != null) server.broadcastUserLogout(userName, sessionId);
         }
     }
 
     private void sendXml(Document doc) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            Transformer t = TransformerFactory.newInstance().newTransformer();
-            t.transform(new DOMSource(doc), new StreamResult(baos));
-            byte[] xml = baos.toByteArray();
-            out.writeInt(xml.length);
-            out.write(xml);
-        } catch (Exception e) {
-            server.log("[ERROR] Failed to send XML: " + e.getMessage());
+        synchronized (sendLock) {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                Transformer t = TransformerFactory.newInstance().newTransformer();
+                t.transform(new DOMSource(doc), new StreamResult(baos));
+                byte[] xml = baos.toByteArray();
+                out.writeInt(xml.length);
+                out.write(xml);
+            } catch (Exception e) {server.log("[ERROR] Failed to send XML: " + e.getMessage());}
         }
     }
 
@@ -141,9 +134,7 @@ public class ClientHandlerXML extends ClientHandler {
             e.appendChild(n);
             doc.appendChild(e);
             sendXml(doc);
-        } catch (Exception e) {
-            sendError("Failed to send login event");
-        }
+        } catch (Exception e) {sendError("Failed to send login event");}
     }
 
     @Override
@@ -157,9 +148,7 @@ public class ClientHandlerXML extends ClientHandler {
             e.appendChild(n);
             doc.appendChild(e);
             sendXml(doc);
-        } catch (Exception e) {
-            sendError("Failed to send logout event");
-        }
+        } catch (Exception e) {sendError("Failed to send logout event");}
     }
 
     @Override
@@ -178,9 +167,7 @@ public class ClientHandlerXML extends ClientHandler {
             e.appendChild(msg);
             doc.appendChild(e);
             sendXml(doc);
-        } catch (Exception e) {
-            sendError("Failed to send message");
-        }
+        } catch (Exception e) {sendError("Failed to send message");}
     }
 
     @Override
@@ -193,9 +180,7 @@ public class ClientHandlerXML extends ClientHandler {
             error.appendChild(message);
             doc.appendChild(error);
             sendXml(doc);
-        } catch (Exception e) {
-            server.log("[ERROR] Cannot send error XML: " + e.getMessage());
-        }
+        } catch (Exception e) {server.log("[ERROR] Cannot send error XML: " + e.getMessage());}
     }
 
     @Override
@@ -208,9 +193,7 @@ public class ClientHandlerXML extends ClientHandler {
             success.appendChild(message);
             doc.appendChild(success);
             sendXml(doc);
-        } catch (Exception e) {
-            server.log("[ERROR] Cannot send success XML: " + e.getMessage());
-        }
+        } catch (Exception e) {server.log("[ERROR] Cannot send success XML: " + e.getMessage());}
     }
 
     @Override
@@ -226,9 +209,7 @@ public class ClientHandlerXML extends ClientHandler {
             success.appendChild(sess);
             doc.appendChild(success);
             sendXml(doc);
-        } catch (Exception e) {
-            server.log("[ERROR] Cannot send session XML: " + e.getMessage());
-        }
+        } catch (Exception e) {server.log("[ERROR] Cannot send session XML: " + e.getMessage());}
     }
 
     private void sendUserList() {
@@ -252,8 +233,6 @@ public class ClientHandlerXML extends ClientHandler {
             success.appendChild(list);
             doc.appendChild(success);
             sendXml(doc);
-        } catch (Exception e) {
-            sendError("Failed to send user list");
-        }
+        } catch (Exception e) {sendError("Failed to send user list");}
     }
 }
