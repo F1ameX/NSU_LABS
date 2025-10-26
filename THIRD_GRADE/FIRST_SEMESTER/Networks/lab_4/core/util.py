@@ -1,0 +1,1 @@
+def wrap(v, n): return (v + n) % n
