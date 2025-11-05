@@ -1,8 +1,8 @@
-# snakenet/game/rules.py
 from __future__ import annotations
 import random
 from dataclasses import dataclass
 from typing import Dict, Set, Tuple, List
+from core.util import wrap
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
 
@@ -14,49 +14,53 @@ class Cell:
 @dataclass
 class Snake:
     player_id: int
-    cells: list[Cell]        # head -> tail
-    dir: int                 # UP/DOWN/LEFT/RIGHT
+    cells: List[Cell]
+    dir: int
     alive: bool = True
 
 class Engine:
-    def __init__(self, cfg, rng: random.Random):
+    def __init__(self, cfg, rng: random.Random | None = None):
         self.cfg = cfg
-        self.rng = rng
-        self.width = cfg.width
-        self.height = cfg.height
-        self.state_order = 0
+        self.width: int = int(cfg.width)
+        self.height: int = int(cfg.height)
+        self.rng: random.Random = rng or random.Random()
+        self.snakes: Dict[int, Snake] = {}
+        self.scores: Dict[int, int] = {}
+        self.food: Set[Tuple[int,int]] = set()
+        self.state_order: int = 0
 
-        self.snakes: Dict[int, Snake] = {}    # pid -> Snake
-        self.scores: Dict[int, int] = {}      # pid -> score
-        self.food: Set[Tuple[int, int]] = set()
+    def _dir_vec(self, d:int) -> Tuple[int,int]:
+        return {UP:(0,-1), DOWN:(0,1), LEFT:(-1,0), RIGHT:(1,0)}[d]
 
-        self._ensure_food()
+    def _opposite(self, d:int) -> int:
+        return {UP:DOWN, DOWN:UP, LEFT:RIGHT, RIGHT:LEFT}[d]
 
-    def add_snake(self, pid: int, center: Tuple[int, int], tail_dir: int):
-        if pid in self.snakes:
-            return
+    def add_snake(self, pid:int, center:Tuple[int,int], start_score:int=0):
+        # Head + directon chosen randomly
         cx, cy = center
-        if tail_dir == UP:
-            tail = (cx, (cy + 1) % self.height); dir0 = DOWN
-        elif tail_dir == DOWN:
-            tail = (cx, (cy - 1) % self.height); dir0 = UP
-        elif tail_dir == LEFT:
-            tail = ((cx + 1) % self.width, cy); dir0 = RIGHT
-        else:  # RIGHT
-            tail = ((cx - 1) % self.width, cy); dir0 = LEFT
+        dirs = [UP, DOWN, LEFT, RIGHT]
+        self.rng.shuffle(dirs)
 
-        self.food.discard(center); self.food.discard(tail)
-        snake = Snake(pid, [Cell(cx, cy), Cell(tail[0], tail[1])], dir0, True)
-        self.snakes[pid] = snake
-        self.scores.setdefault(pid, 0)
-        self._ensure_food()
+        occupied = {(c.x, c.y) for s in self.snakes.values() for c in s.cells if s.alive}
+        for d in self.rng.sample((UP, DOWN, LEFT, RIGHT), 4):
+            dx, dy = self._dir_vec(d)
+            head = (cx, cy)
+            tail = (wrap(cx - dx, self.width), wrap(cy - dy, self.height))
+            if head not in occupied and tail not in occupied:
+                break
+        
+        # Snake appending
+        self.food.discard(head)
+        self.food.discard(tail)
+        s = Snake(pid, [Cell(head[0], head[1]), Cell(tail[0], tail[1])], dir=self._opposite(d))
+        self.snakes[pid] = s
+        self.scores[pid] = int(start_score)
 
     def steer(self, pid: int, new_dir: int):
         s = self.snakes.get(pid)
         if not s or not s.alive:
             return
-        if (s.dir == UP and new_dir == DOWN) or (s.dir == DOWN and new_dir == UP) or \
-           (s.dir == LEFT and new_dir == RIGHT) or (s.dir == RIGHT and new_dir == LEFT):
+        if new_dir == self._opposite(s.dir):
             return
         s.dir = new_dir
 
@@ -66,105 +70,95 @@ class Engine:
             self._ensure_food()
             return
 
-        w, h = self.width, self.height
-
-        # 1) вычисляем новые головы + кто ест
-        new_heads: Dict[int, Tuple[int, int]] = {}
+        new_heads: Dict[int, Tuple[int,int]] = {}
         grew: Set[int] = set()
-        for pid, s in self.snakes.items():
-            if not s.alive: continue
-            hx, hy = s.cells[0].x, s.cells[0].y
-            if s.dir == UP:    hy = (hy - 1) % h
-            elif s.dir == DOWN: hy = (hy + 1) % h
-            elif s.dir == LEFT: hx = (hx - 1) % w
-            else:               hx = (hx + 1) % w
-            new_heads[pid] = (hx, hy)
-            if (hx, hy) in self.food:
-                grew.add(pid)
 
-        # 2) применяем движение
-        for pid, s in self.snakes.items():
-            if not s.alive: continue
-            hx, hy = new_heads[pid]
-            s.cells.insert(0, Cell(hx, hy))
-            if pid in grew:
-                self.food.discard((hx, hy))
+        # New head positions
+        for pid, s in list(self.snakes.items()):
+            if not s.alive:
+                continue
+            hx, hy = s.cells[0].x, s.cells[0].y
+            dx, dy = self._dir_vec(s.dir)
+            nx, ny = wrap(hx + dx, self.width), wrap(hy + dy, self.height)
+            new_heads[pid] = (nx, ny)
+
+        # Move snakes, eat food
+        for pid, (nx, ny) in new_heads.items():
+            s = self.snakes[pid]
+            if not s.alive:
+                continue
+            s.cells.insert(0, Cell(nx, ny))
+            if (nx, ny) in self.food:
+                self.food.remove((nx, ny))
                 self.scores[pid] = self.scores.get(pid, 0) + 1
+                grew.add(pid)
             else:
                 s.cells.pop()
 
-        # 3) коллизии и начисление очков «жертве»
-        # строим карту: клетка -> список (pid, index_in_snake)
-        occ: Dict[Tuple[int, int], List[Tuple[int, int]]] = {}
+        # Check collisions (head - head)
+        head_counts: Dict[Tuple[int,int], List[int]] = {}
+        for pid, (x, y) in new_heads.items():
+            head_counts.setdefault((x,y), []).append(pid)
+        deaths: Set[int] = set()
+        for _, pids in head_counts.items():
+            if len(pids) > 1:
+                deaths.update(pids)
+
+        # Check collisions (head - body)
+        body_owners: Dict[Tuple[int,int], int] = {}
         for pid, s in self.snakes.items():
-            if not s.alive: continue
-            for idx, c in enumerate(s.cells):
-                occ.setdefault((c.x, c.y), []).append((pid, idx))
-
-        dead: Set[int] = set()
-        bonus_for_victim: Dict[int, int] = {}  # victim_pid -> +1 (накопим; на многократные попадания можно увеличить)
-
-        for pid, s in self.snakes.items():
-            if not s.alive: continue
-            hx, hy = s.cells[0].x, s.cells[0].y
-            occupants = occ.get((hx, hy), [])
-            # если в клетке >1 головы (несколько змей приехали в одну): все головы умрут, без бонусов
-            heads_here = sum(1 for (opid, idx) in occupants if idx == 0)
-            if heads_here > 1:
-                dead.add(pid)
+            if not s.alive:
                 continue
+            for c in s.cells[1:]:
+                body_owners[(c.x, c.y)] = pid
 
-            # самоврез (голова в собственное тело)
-            for (opid, idx) in occupants:
-                if opid == pid and idx > 0:
-                    dead.add(pid)
-                    # self-collision НЕ даёт бонуса «жертве» (жертва = сам себя)
-                    occupants = []  # чтобы ниже не дать бонус
-                    break
-            if pid in dead:
+        for pid, (hx, hy) in new_heads.items():
+            s = self.snakes[pid]
+            if not s.alive or pid in deaths:
                 continue
+            owner = body_owners.get((hx, hy)) # owner of the cell where head moved
+            if owner is None:
+                continue
+            if owner == pid: # suicide
+                deaths.add(pid)
+                continue
+            deaths.add(pid) # killed by another snake
+            self._reward_side_hit(victim_pid=owner)
 
-            # врезались в чужое тело/хвост ⇒ умираем, жертве +1
-            for (opid, idx) in occupants:
-                if opid != pid:  # чужая змея
-                    dead.add(pid)
-                    # «жертве» (той, в кого врезались) +1, если она не сама умерла «сама о себя»
-                    # Бонус давать только если это не множественная голова (мы уже исключили heads_here>1)
-                    bonus_for_victim[opid] = bonus_for_victim.get(opid, 0) + 1
-                    break
-
-        # 4) применяем смерти: конвертация клеток в еду p=0.5
-        if dead:
-            for pid in dead:
-                s = self.snakes.get(pid)
-                if not s: continue
-                s.alive = False
-                for c in s.cells:
+        for pid in deaths:
+            s = self.snakes.get(pid)
+            if s and s.alive:
+                s.alive = False # snake dies
+                for c in s.cells: # every cell has 50% chance to become food
                     if self.rng.random() < 0.5:
                         self.food.add((c.x, c.y))
-                s.cells = []
 
-        # 5) начисляем бонусы жертвам (если они ещё существуют — «не врезались сами в себя»)
-        for victim_pid, add in bonus_for_victim.items():
-            vs = self.snakes.get(victim_pid)
-            if vs and vs.alive:
-                self.scores[victim_pid] = self.scores.get(victim_pid, 0) + add
-
-        # 6) поддерживаем объём еды
         self._ensure_food()
+
+    def _reward_side_hit(self, victim_pid: int) -> None:
+        victim = self.snakes.get(victim_pid)
+        if not victim or not victim.alive or not victim.cells:
+            return
+        self.scores[victim_pid] = self.scores.get(victim_pid, 0) + 1
+        tail = victim.cells[-1]
+        victim.cells.append(Cell(tail.x, tail.y))
 
     def _ensure_food(self):
         need = int(self.cfg.food_static) + sum(1 for s in self.snakes.values() if s.alive)
         cur = len(self.food)
-        if cur >= need: return
 
-        occupied = {(c.x, c.y) for s in self.snakes.values() for c in s.cells if s.alive}
-        free_total = self.width * self.height - len(occupied) - cur
-        to_place = min(need - cur, max(0, free_total))
+        if cur >= need:
+            return
 
-        tries = 0
-        while to_place > 0 and tries < 10000:
-            tries += 1
-            x = self.rng.randrange(self.width); y = self.rng.randrange(self.height)
-            if (x, y) in occupied or (x, y) in self.food: continue
-            self.food.add((x, y)); to_place -= 1
+        occupied = {(c.x, c.y) for s in self.snakes.values() if s.alive for c in s.cells}
+        free = [(x, y) for x in range(self.width) for y in range(self.height)
+                if (x, y) not in occupied and (x, y) not in self.food]
+        if not free:
+            return
+        
+        to_add = min(need - cur, len(free))
+        if to_add == 0:
+            return
+
+        for xy in self.rng.sample(free, to_add):
+            self.food.add(xy)
