@@ -3,37 +3,73 @@ import asyncio, socket, struct
 MCAST_GRP = "239.192.0.4"
 MCAST_PORT = 9192
 
-class Transport:
-    def __init__(self, loop: asyncio.AbstractEventLoop, state_delay_ms: int):
-        self.loop = loop # Asyncio event loop
-        self.state_delay_ms = state_delay_ms
-
-        self.uni = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) # IPv4, UDP-socket, UDP-protocol
-        self.uni.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # Socket level, reuse address
-        self.uni.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) # Socket level, reuse port
-
-        self.uni.bind(('', 0)) # Bind to any address, any port
-        self.uni.setblocking(False) # Non-blocking mode
-
-        self.uni.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 1) # Multicast loopback
-        self.uni.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, struct.pack('b', 1)) # Multicast TTL = 1
-
-
-        self.mc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) # IPv4, UDP-socket, UDP-protocol
-        self.mc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # Socket level, reuse address
-        self.mc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) # Socket level, reuse port
-
-
+def _detect_default_iface_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
-            self.mc.bind(('', MCAST_PORT)) # Bind to any address, multicast port
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+        finally:
+            s.close()
+        return ip
+    except Exception:
+        return "0.0.0.0"
+
+class Transport:
+    def __init__(self, loop: asyncio.AbstractEventLoop, state_delay_ms: int, mcast_iface_ip: str | None = None, uni_port: int | None = None):
+        self.loop = loop
+        self.state_delay_ms = state_delay_ms
+        self.mcast_iface_ip = mcast_iface_ip or _detect_default_iface_ip()
+
+        self.uni = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        try:
+            self.uni.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         except OSError:
-            self.mc.bind((MCAST_GRP, MCAST_PORT)) # Bind to multicast address, multicast port
+            pass
+        try:
+            self.uni.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        except OSError:
+            pass
+        bind_port = 0 if uni_port is None else int(uni_port)
+        self.uni.bind(('', bind_port))
+        self.uni.setblocking(False)
+        try:
+            self.uni.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 1)
+        except OSError:
+            pass
+        try:
+            self.uni.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, struct.pack('b', 1))
+        except OSError:
+            pass
+        try:
+            iface = socket.inet_aton(self.mcast_iface_ip)
+            self.uni.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF, iface)
+        except OSError:
+            pass
 
-        mreq = struct.pack("=4sl", socket.inet_aton(MCAST_GRP), socket.INADDR_ANY) # =: native byte order, 4s: 4-byte string, l: long
-
-        self.mc.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq) # Join multicast group
-        self.mc.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 1) # Multicast loopback
-
+        self.mc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        try:
+            self.mc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        except OSError:
+            pass
+        try:
+            self.mc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        except OSError:
+            pass
+        try:
+            self.mc.bind(('', MCAST_PORT))
+        except OSError:
+            self.mc.bind((MCAST_GRP, MCAST_PORT))
+        try:
+            mreq = struct.pack("=4s4s", socket.inet_aton(MCAST_GRP), socket.inet_aton(self.mcast_iface_ip))
+            self.mc.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+        except OSError:
+            mreq = struct.pack("=4sl", socket.inet_aton(MCAST_GRP), socket.INADDR_ANY)
+            self.mc.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+        try:
+            self.mc.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 1)
+        except OSError:
+            pass
         self.mc.setblocking(False)
         self._mc_handler = None
 
@@ -50,13 +86,13 @@ class Transport:
         await self.loop.sock_sendto(self.uni, data, (MCAST_GRP, MCAST_PORT))
 
     def on_multicast(self, cb):
-        self._mc_handler = cb # Callback for incoming multicast packets
+        self._mc_handler = cb
         self.loop.add_reader(self.mc.fileno(), self._read_mc)
 
     def _read_mc(self):
         try:
-            data, addr = self.mc.recvfrom(65535) # Non-blocking UDP recv
-            if self._mc_handler: 
+            data, addr = self.mc.recvfrom(65535)
+            if self._mc_handler:
                 self._mc_handler(data, addr)
         except BlockingIOError:
             pass

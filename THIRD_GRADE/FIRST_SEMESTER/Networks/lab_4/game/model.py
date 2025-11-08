@@ -1,5 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
+from core.util import wrap
 
 UP, DOWN, LEFT, RIGHT = (0,1,2,3)
 
@@ -8,7 +9,7 @@ class Cell: x:int; y:int
 
 class Snake:
     def __init__(self, cells: list[Cell], direction:int):
-        self.cells = deque(cells)
+        self.cells = deque(cells)  # head = leftmost
         self.dir = direction
         self.alive = True
 
