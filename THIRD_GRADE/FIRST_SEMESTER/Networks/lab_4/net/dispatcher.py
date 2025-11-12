@@ -1,5 +1,4 @@
 import time
-from collections import deque
 
 class Dispatcher:
     def __init__(self, state_delay_ms: int):

@@ -1,4 +1,5 @@
 import time
+
 class Ticker:
     def __init__(self, delay_ms, on_tick):
         self.delay = delay_ms / 1000.0

@@ -1,9 +1,7 @@
-# game/place.py
 import random
 from core.util import wrap
 
 def find_free_5x5(occupied: set[tuple[int, int]], w: int, h: int):
-    # Все возможные центры
     centers = [(cx, cy) for cy in range(h) for cx in range(w)]
     random.shuffle(centers)
 

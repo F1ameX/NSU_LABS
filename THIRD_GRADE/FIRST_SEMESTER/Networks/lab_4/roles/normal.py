@@ -1,51 +1,74 @@
 import asyncio
 import time
-from snakes_proto import snakes_pb2 as pb
+from proto import snakes_pb2 as pb
 from net.transport import Transport
 from net.dispatcher import Dispatcher
 from net.peers import Peers
-from roles.master import MasterController
 
-IGNORE_TTL = 5.0
+IGNORE_TTL = 10.0          
+HANDOVER_GRACE = 10.0       
+DEPUTY_FAST_THR = 0.45      
+NO_DEPUTY_GRACE = 12.0      
+HANDOVER_FALLBACK_PAD = 2.0 
 
 class NormalController:
-    def __init__(self, loop, cfg, ui_push_state, ui_set_games, ui_error=None):
+    def __init__(self, loop, cfg, ui_push_state, ui_set_games, ui_error=None, ui_promote=None):
         self.loop = loop
         self.cfg = cfg
         self.transport = Transport(loop, cfg.state_delay_ms, getattr(cfg, "mcast_iface_ip", None))
         self.dispatch = Dispatcher(cfg.state_delay_ms)
         self.peers = Peers()
+
         self.ui_push_state = ui_push_state
         self.ui_set_games = ui_set_games
         self.ui_error = ui_error
+        self.ui_promote = ui_promote
+
         self.player_id = None
         self.center = None
+        self.master_addr = None
+        self.deputy_addr = None
         self.pending_join_addr = None
         self.joining = False
         self.master_id = None
         self.deputy_id = None
-        self.deputy_addr = None
         self.await_unicast = True
+
         self._last_unicast = time.monotonic()
         self._last_tx = {}
         self._last_state_order = -1
         self._last_state = None
+
         self.games_map = {}
         self.games_ts = {}
         self.games = []
         self.current_game = None
+
         self._await_rc_seq = None
         self._respawn_name = None
         self._join_deadline = None
         self._respawn_failsafe_at = None
+
         self.lost_master = False
         self._lost_since = None
         self.ignore_unicast_until = {}
+
         self.tasks = []
         self._promoted_master = None
+        self._promoting = False
+
+        self._handover_until = None
+        self._handover_fallback_at = None
+        self._announce_seen_at = 0.0
+        self._auto_rebind_tried = set()
+
+        self._timeout_thr = 1.5
 
     async def start(self):
         self.transport.on_multicast(self._on_mc)
+        if self.ui_set_games:
+            self.ui_set_games([])
+
         self.tasks = [
             self.loop.create_task(self._loop_unicast()),
             self.loop.create_task(self._loop_retries_and_ping()),
@@ -55,16 +78,32 @@ class NormalController:
         ]
 
     async def stop(self):
-        for t in list(self.tasks):
+        tasks = list(self.tasks)
+        for t in tasks:
             t.cancel()
-        self.tasks.clear()
-        if self._promoted_master:
-            await self._promoted_master.stop()
-            self._promoted_master = None
-        self.transport.close()
+        try:
+            if tasks:
+                await asyncio.gather(*tasks, return_exceptions=True)
+        finally:
+            self.tasks.clear()
+            try:
+                self.transport.close()
+            except Exception:
+                pass
 
     def _touch_tx(self, addr):
         self._last_tx[addr] = time.monotonic()
+
+    def _my_name(self) -> str:
+        name = "player"
+        try:
+            if self._last_state and self.player_id is not None:
+                for gp in self._last_state.players.players:
+                    if gp.id == self.player_id and getattr(gp, "name", None):
+                        return gp.name
+        except Exception:
+            pass
+        return name
 
     def _on_mc(self, data, addr):
         msg = pb.GameMessage()
@@ -72,9 +111,10 @@ class NormalController:
             msg.ParseFromString(data)
         except Exception:
             return
+
         if msg.HasField("announcement") and msg.announcement.games:
             g = msg.announcement.games[0]
-            name = g.game_name or "chervi"
+            name = g.game_name or "o_TT_A_p_bI_III_bI"
             fixed_addr = (addr[0], addr[1])
             self.games_map[fixed_addr] = name
             self.games_ts[fixed_addr] = time.monotonic()
@@ -82,112 +122,168 @@ class NormalController:
             if self.ui_set_games:
                 self.ui_set_games(self.games)
 
+            self._announce_seen_at = time.monotonic()
+
+            if (self._handover_until or self.lost_master) and self.current_game and not self.joining:
+                if fixed_addr not in self._auto_rebind_tried:
+                    self._auto_rebind_tried.add(fixed_addr)
+                    self._adopt_center(fixed_addr)
+                    self.loop.create_task(self._poke_new_master(fixed_addr))
+                    try:
+                        pname = self._my_name()
+                        self.loop.create_task(self._send_join_to(name, fixed_addr, pname))
+                    except Exception:
+                        pass
+
     def _purge_ignored(self):
         now = time.monotonic()
         stale = [a for a, until in self.ignore_unicast_until.items() if until <= now]
         for a in stale:
             self.ignore_unicast_until.pop(a, None)
 
+    def _adopt_center(self, addr2):
+        if self.center != addr2:
+            self.center = addr2
+            self.master_addr = addr2
+            self.peers.set_center(addr2)
+
     async def _promote_to_master(self):
-        if self._promoted_master:
+        if self._promoting:
             return
-        # Become the new master using the last known state
-        self.center = None
-        local_port = self.transport.unicast_addr()[1]
-        pname = "player"
+        self._promoting = True
+
         try:
-            if self._last_state:
-                for gp in self._last_state.players.players:
-                    if gp.id == (self.player_id or -1):
-                        pname = gp.name or pname
-                        break
+            local_port = self.transport.unicast_addr()[1]
+        except Exception:
+            local_port = None
+        try:
+            self.transport.close()
         except Exception:
             pass
-        mc = MasterController(self.loop, self.cfg, ui_push_state=self.ui_push_state, player_name=pname, bootstrap_state=self._last_state, bind_port=local_port)
-        await mc.start()
-        # Adjust roles after taking over as master
-        old_master_id = None
+
+        pname = self._my_name()
+
         try:
-            old_master_id = self.master_id
+            self.ui_promote(self._last_state, local_port, pname, self.player_id or 1)
         except Exception:
-            old_master_id = None
-        if old_master_id and old_master_id in mc.players:
-            mc.players[old_master_id].role = pb.VIEWER
-            if old_master_id in mc.engine.snakes:
-                try:
-                    mc.engine.snakes[old_master_id].state = "ZOMBIE"
-                    mc.engine.snakes[old_master_id].alive = True
-                except Exception:
-                    pass
-        if self.player_id and self.player_id in mc.players:
-            mc.players[self.player_id].role = pb.MASTER
-        if self.player_id:
-            mc.actual_master_id = self.player_id
-        if mc.deputy_id == self.player_id:
-            mc.deputy_id = None
-        mc._prune_join_order()
-        mc._choose_and_set_deputy()
-        self._promoted_master = mc
+            pass
+
+    def _end_handover(self):
+        self._handover_until = None
+        self._handover_fallback_at = None
+
+    async def _poke_new_master(self, addr):
+        if not addr:
+            return
+        try:
+            discover = pb.GameMessage(discover=pb.GameMessage.DiscoverMsg())
+            await self.transport.send_unicast(addr, discover.SerializeToString())
+        except Exception:
+            pass
+        try:
+            ping = pb.GameMessage(
+                msg_seq=self.dispatch.next_seq(),
+                sender_id=self.player_id or 0,
+                receiver_id=self.master_id or 0,
+                ping=pb.GameMessage.PingMsg(),
+            )
+            data = ping.SerializeToString()
+            await self.transport.send_unicast(addr, data)
+            self.dispatch.track(addr, ping.msg_seq, data)
+            self._touch_tx(addr)
+        except Exception:
+            pass
 
     async def _loop_unicast(self):
         while True:
-            data, addr = await self.transport.recv_unicast()
+            try:
+                data, addr = await self.transport.recv_unicast()
+            except (OSError, RuntimeError, asyncio.CancelledError):
+                return
             addr2 = (addr[0], addr[1])
-            self._purge_ignored()
-            until = self.ignore_unicast_until.get(addr2)
-            if until is not None:
-                continue
-            if self.center is not None:
-                if addr2 != self.center:
-                    continue
-            else:
-                if not self.joining or addr2 != self.pending_join_addr:
-                    continue
-            self._last_unicast = time.monotonic()
-            self.await_unicast = False
-            self._lost_since = None
-            if self.center != addr2:
-                self.center = addr2
-                self.peers.set_center(addr2)
+
             msg = pb.GameMessage()
             try:
                 msg.ParseFromString(data)
             except Exception:
                 continue
+
+            self._purge_ignored()
+            until = self.ignore_unicast_until.get(addr2)
+            if until is not None:
+                continue
+
             if msg.HasField("ack"):
                 self.dispatch.ack(addr2, msg.msg_seq)
-                if self._await_rc_seq is not None and msg.msg_seq == self._await_rc_seq:
-                    self._await_rc_seq = None
-                    self._respawn_failsafe_at = None
-                    name = self._respawn_name or "player"
-                    self._respawn_name = None
-                    if self.current_game and self.center:
-                        game_name, center_addr = self.current_game
-                        self.loop.create_task(self._send_join_to(game_name, center_addr, name))
-                    continue
-                if msg.receiver_id and self.joining and not self.player_id:
-                    self.player_id = msg.receiver_id
+                self._adopt_center(addr2)
+                self._end_handover()
+
+                if self.joining:
+                    if msg.receiver_id:
+                        if (self.player_id is None) or (self.player_id != msg.receiver_id):
+                            self.player_id = msg.receiver_id
                     self.joining = False
                     self._join_deadline = None
                     self.pending_join_addr = None
                     self.ignore_unicast_until.pop(addr2, None)
+
+                if self._await_rc_seq is not None and msg.msg_seq == self._await_rc_seq:
+                    self._await_rc_seq = None
+                    self._respawn_failsafe_at = None
+                    name = self._respawn_name or self._my_name()
+                    self._respawn_name = None
+                    if self.current_game:
+                        game_name, _ = self.current_game
+                        self.loop.create_task(self._send_join_to(game_name, addr2, name))
+
+                self._last_unicast = time.monotonic()
+                self.await_unicast = False
+                self._lost_since = None
+                self.lost_master = False
                 continue
+
+            if self.center is None or addr2 != self.center:
+                self._adopt_center(addr2)
+
             need_ack = False
+
             if msg.HasField("state"):
                 st = msg.state.state
+
+                self._adopt_center(addr2)
+                self._end_handover()
+
+                if self.joining:
+                    self.joining = False
+                    self._join_deadline = None
+                    self.pending_join_addr = None
+                    if self.player_id is None:
+                        try:
+                            my_ip, my_port = self.transport.unicast_addr()
+                            for gp in st.players.players:
+                                if getattr(gp, "ip_address", None) == my_ip and getattr(gp, "port", 0) == my_port:
+                                    self.player_id = gp.id
+                                    break
+                        except Exception:
+                            pass
+
                 if st.state_order > self._last_state_order:
                     self._last_state_order = st.state_order
                     self._last_state = st
                     if self.ui_push_state:
                         self.ui_push_state(st)
                 need_ack = True
+
                 try:
                     m_id = None
                     d_id = None
+                    m_addr = None
                     d_addr = None
                     for gp in st.players.players:
                         if gp.role == pb.MASTER:
                             m_id = gp.id
+                            if getattr(gp, "ip_address", None) and getattr(gp, "port", 0):
+                                m_addr = (gp.ip_address, gp.port)
                         elif gp.role == pb.DEPUTY:
                             d_id = gp.id
                             if getattr(gp, "ip_address", None) and getattr(gp, "port", 0):
@@ -198,17 +294,44 @@ class NormalController:
                         self.deputy_id = d_id
                     if d_addr is not None:
                         self.deputy_addr = d_addr
+                    if m_addr is not None and self.center != m_addr:
+                        self._adopt_center(m_addr)
                 except Exception:
                     pass
+
+                self._last_unicast = time.monotonic()
+                self.await_unicast = False
+                self._lost_since = None
+                self.lost_master = False
+
             elif msg.HasField("ping"):
                 need_ack = True
+                self._adopt_center(addr2)
+                self._end_handover()
+                self._last_unicast = time.monotonic()
+                self.await_unicast = False
+                self._lost_since = None
+                self.lost_master = False
+
             elif msg.HasField("role_change"):
                 need_ack = True
                 try:
-                    if msg.role_change.receiver_role == pb.MASTER and (self.player_id is not None) and (msg.receiver_id == self.player_id):
+                    if (
+                        msg.role_change.receiver_role == pb.MASTER
+                        and (self.player_id is not None)
+                        and (msg.receiver_id == self.player_id)
+                    ):
                         await self._promote_to_master()
+                        return
                 except Exception:
                     pass
+                self._adopt_center(addr2)
+                self._end_handover()
+                self._last_unicast = time.monotonic()
+                self.await_unicast = False
+                self._lost_since = None
+                self.lost_master = False
+
             elif msg.HasField("error"):
                 need_ack = True
                 if self.ui_error:
@@ -216,40 +339,56 @@ class NormalController:
                         self.ui_error(msg.error.error_message or "Error")
                     except Exception:
                         pass
-            if need_ack and self.center:
+                self._adopt_center(addr2)
+                self._end_handover()
+                self._last_unicast = time.monotonic()
+                self.await_unicast = False
+                self._lost_since = None
+                self.lost_master = False
+
+            if need_ack:
                 rid = msg.sender_id if msg.sender_id is not None else (self.master_id or 0)
-                ack = pb.GameMessage(
-                    msg_seq=self.dispatch.next_seq(),
-                    sender_id=self.player_id or 0,
-                    receiver_id=rid,
-                    ack=pb.GameMessage.AckMsg(),
-                )
-                data_ack = ack.SerializeToString()
-                await self.transport.send_unicast(self.center, data_ack)
-                self.dispatch.track(self.center, ack.msg_seq, data_ack)
-                self._touch_tx(self.center)
+                dest = addr2
+                try:
+                    ack = pb.GameMessage(
+                        msg_seq=self.dispatch.next_seq(),
+                        sender_id=self.player_id or 0,
+                        receiver_id=rid,
+                        ack=pb.GameMessage.AckMsg(),
+                    )
+                    data_ack = ack.SerializeToString()
+                    await self.transport.send_unicast(dest, data_ack)
+                    self.dispatch.track(dest, ack.msg_seq, data_ack)
+                    self._touch_tx(dest)
+                except (OSError, RuntimeError, asyncio.CancelledError):
+                    return
 
     async def _send_join_to(self, game_name, addr, player_name):
         addr2 = (addr[0], addr[1])
-        self.center = None
+        self._adopt_center(addr2)
         self.pending_join_addr = addr2
         self.await_unicast = True
         the_time = time.monotonic()
         self._last_unicast = the_time
         self._lost_since = None
         self.ignore_unicast_until.pop(addr2, None)
-        self.peers.set_center(addr2)
+
         join = pb.GameMessage.JoinMsg(
             player_type=pb.HUMAN,
             player_name=player_name,
-            game_name=game_name,
+            game_name=game_name if isinstance(game_name, str) else (self.current_game[0] if self.current_game else "O_TT_A_p_bI_III_bI"),
             requested_role=pb.NORMAL,
         )
-        msg = pb.GameMessage(msg_seq=self.dispatch.next_seq(), join=join)
+        seq = self.dispatch.next_seq()
+        msg = pb.GameMessage(msg_seq=seq, sender_id=(self.player_id or 0), join=join)
         data = msg.SerializeToString()
-        await self.transport.send_unicast(addr2, data)
-        self.dispatch.track(addr2, msg.msg_seq, data)
-        self._touch_tx(addr2)
+        try:
+            await self.transport.send_unicast(addr2, data)
+            self.dispatch.track(addr2, seq, data)
+            self._touch_tx(addr2)
+        except (OSError, RuntimeError, asyncio.CancelledError):
+            return
+
         self.joining = True
         self._join_deadline = the_time + 5.0
 
@@ -289,9 +428,12 @@ class NormalController:
             steer=steer,
         )
         data = msg.SerializeToString()
-        await self.transport.send_unicast(self.center, data)
-        self.dispatch.track(self.center, msg.msg_seq, data)
-        self._touch_tx(self.center)
+        try:
+            await self.transport.send_unicast(self.center, data)
+            self.dispatch.track(self.center, msg.msg_seq, data)
+            self._touch_tx(self.center)
+        except (OSError, RuntimeError, asyncio.CancelledError):
+            return
 
     async def leave_and_respawn(self, game_idx, player_name):
         if not self.center or self.joining:
@@ -301,7 +443,9 @@ class NormalController:
                 self.current_game = self.games[game_idx]
             else:
                 return
+
         old_center = self.center
+
         rc = pb.GameMessage.RoleChangeMsg(sender_role=pb.VIEWER)
         seq = self.dispatch.next_seq()
         msg = pb.GameMessage(
@@ -311,16 +455,24 @@ class NormalController:
             role_change=rc
         )
         data = msg.SerializeToString()
-        await self.transport.send_unicast(old_center, data)
-        self.dispatch.track(old_center, seq, data)
-        self._touch_tx(old_center)
+        try:
+            await self.transport.send_unicast(old_center, data)
+            self.dispatch.track(old_center, seq, data)
+            self._touch_tx(old_center)
+        except (OSError, RuntimeError, asyncio.CancelledError):
+            return
+
         self._await_rc_seq = seq
         self._respawn_name = player_name
+        self._respawn_failsafe_at = time.monotonic() + 0.6
+
+        self.joining = True
+        self.pending_join_addr = old_center
+        self.center = old_center
+        self.await_unicast = True
+        self._last_unicast = time.monotonic()
+
         self.player_id = None
-        self._respawn_failsafe_at = time.monotonic() + 0.4
-        self.ignore_unicast_until[old_center] = time.monotonic() + IGNORE_TTL
-        self.center = None
-        self.pending_join_addr = None
 
     async def leave(self):
         if not self.center:
@@ -334,10 +486,13 @@ class NormalController:
             role_change=rc
         )
         data = msg.SerializeToString()
-        await self.transport.send_unicast(old_center, data)
-        self.dispatch.track(old_center, msg.msg_seq, data)
-        self._touch_tx(old_center)
-        self.player_id = None
+        try:
+            await self.transport.send_unicast(old_center, data)
+            self.dispatch.track(old_center, msg.msg_seq, data)
+            self._touch_tx(old_center)
+        except (OSError, RuntimeError, asyncio.CancelledError):
+            pass
+
         self.joining = False
         self._join_deadline = None
         self._respawn_failsafe_at = None
@@ -349,67 +504,110 @@ class NormalController:
 
     async def _loop_retries_and_ping(self):
         while True:
-            for (addr, seq), payload in self.dispatch.due_retries():
-                await self.transport.send_unicast(addr, payload)
-                self._touch_tx(addr)
-            if self.center:
-                last = self._last_tx.get(self.center, 0.0)
-                ping_interval = 0.3
-                if time.monotonic() - last > ping_interval:
-                    ping = pb.GameMessage(
-                        msg_seq=self.dispatch.next_seq(),
-                        sender_id=self.player_id or 0,
-                        receiver_id=self.master_id or 0,
-                        ping=pb.GameMessage.PingMsg(),
-                    )
-                    data_ping = ping.SerializeToString()
-                    await self.transport.send_unicast(self.center, data_ping)
-                    self.dispatch.track(self.center, ping.msg_seq, data_ping)
-                    self._touch_tx(self.center)
+            try:
+                for (addr, _), payload in self.dispatch.due_retries():
+                    await self.transport.send_unicast(addr, payload)
+                    self._touch_tx(addr)
+
+                dest = self.center or self.master_addr
+                if self._handover_until and self.deputy_addr:
+                    dest = self.deputy_addr
+
+                if dest:
+                    last = self._last_tx.get(dest, 0.0)
+                    ping_interval = 0.3
+                    if time.monotonic() - last > ping_interval:
+                        ping = pb.GameMessage(
+                            msg_seq=self.dispatch.next_seq(),
+                            sender_id=self.player_id or 0,
+                            receiver_id=self.master_id or 0,
+                            ping=pb.GameMessage.PingMsg(),
+                        )
+                        data_ping = ping.SerializeToString()
+                        await self.transport.send_unicast(dest, data_ping)
+                        self.dispatch.track(dest, ping.msg_seq, data_ping)
+                        self._touch_tx(dest)
+            except (OSError, RuntimeError, asyncio.CancelledError):
+                return
+
             await asyncio.sleep(0.01)
 
     async def _loop_timeout(self):
         while True:
-            if self.center and not self.await_unicast:
-                # If no unicast received for more than 1.0s, consider master unresponsive
-                if time.monotonic() - self._last_unicast > 1.0:
-                    if self.deputy_id is not None and self.player_id == self.deputy_id:
-                        # This client is the deputy and will take over as master
+            now = time.monotonic()
+            if (self.center or self.pending_join_addr) and not self.await_unicast and not self.joining:
+                is_deputy_me = (self.deputy_id is not None and self.player_id == self.deputy_id)
+                thr = DEPUTY_FAST_THR if is_deputy_me else self._timeout_thr
+
+                if now - self._last_unicast > thr:
+                    if is_deputy_me:
                         await self._promote_to_master()
-                        self._last_unicast = time.monotonic()
-                        self._lost_since = None
-                    elif self.deputy_addr and self.center != self.deputy_addr:
-                        # Switch over to deputy (new master) if not already connected to it
-                        self.center = self.deputy_addr
-                        self._last_unicast = time.monotonic()
-                        self._lost_since = None
+                        return
+
+                    know_deputy_somehow = bool(self.deputy_addr) or (self.deputy_id is not None)
+
+                    if know_deputy_somehow:
+                        if not self._handover_until:
+                            self._handover_until = now + HANDOVER_GRACE
+                            self._handover_fallback_at = self._handover_until + HANDOVER_FALLBACK_PAD
+                            if self.deputy_addr:
+                                self._adopt_center(self.deputy_addr)
+                                self._last_unicast = now
+                                self._lost_since = None
+                                self.loop.create_task(self._poke_new_master(self.deputy_addr))
+                            self.lost_master = True
+                            await asyncio.sleep(0.05)
+                            continue
+
+                        if now < self._handover_until:
+                            await asyncio.sleep(0.05)
+                            continue
+
+                        if self._handover_fallback_at and now < self._handover_fallback_at:
+                            await asyncio.sleep(0.05)
+                            continue
+
+                        self._end_handover()
+                        await self._handle_host_lost(to_lobby=True)
+
                     else:
                         if self._lost_since is None:
-                            self._lost_since = time.monotonic()
-                        elif time.monotonic() - self._lost_since >= 1.0:
-                            # No master and no deputy available for 1s -> host is lost
-                            await self._handle_host_lost()
+                            self._lost_since = now
+                            self.lost_master = True
+                        else:
+                            if (now - self._announce_seen_at) < NO_DEPUTY_GRACE:
+                                await asyncio.sleep(0.05)
+                                continue
+                            if now - self._lost_since >= NO_DEPUTY_GRACE:
+                                await self._handle_host_lost(to_lobby=True)
             await asyncio.sleep(0.05)
 
-    async def _handle_host_lost(self):
+    async def _handle_host_lost(self, to_lobby: bool = False):
         if self.center:
             self.ignore_unicast_until[self.center] = time.monotonic() + IGNORE_TTL
+
         self.center = None
-        self.player_id = self.player_id
+        self.master_addr = None
+        self.deputy_addr = None
+
         self.joining = False
         self._join_deadline = None
         self._await_rc_seq = None
         self._respawn_name = None
         self._respawn_failsafe_at = None
-        self.master_id = None
-        self.current_game = None
-        self.pending_join_addr = None
         self._lost_since = None
-        if self.ui_error:
-            try:
-                self.ui_error("Host disconnected")
-            except Exception:
-                pass
+        self._end_handover()
+
+        self.lost_master = True
+        if to_lobby:
+            self.master_id = None
+            self.current_game = None
+            self.pending_join_addr = None
+            if self.ui_error:
+                try:
+                    self.ui_error("Host disconnected")
+                except Exception:
+                    pass
 
     async def _loop_games_gc(self):
         while True:
@@ -432,18 +630,17 @@ class NormalController:
             if self.joining and self._join_deadline is not None and time.monotonic() > self._join_deadline:
                 self.joining = False
                 self._join_deadline = None
-                self.player_id = None
-                self.current_game = None
-                self.center = None
-                self.pending_join_addr = None
                 if self.ui_error:
                     self.ui_error("Join timed out")
+
             if self._await_rc_seq is not None and self._respawn_failsafe_at is not None:
                 if time.monotonic() >= self._respawn_failsafe_at:
                     self._respawn_failsafe_at = None
-                    name = self._respawn_name or "player"
+                    name = self._respawn_name or self._my_name()
                     self._respawn_name = None
-                    if self.current_game and self.pending_join_addr:
-                        game_name, center_addr = self.current_game
-                        await self._send_join_to(game_name, center_addr, name)
+                    if self.current_game and (self.pending_join_addr or self.center):
+                        addr = self.pending_join_addr or self.center
+                        game_name, _ = self.current_game
+                        await self._send_join_to(game_name, addr, name)
+
             await asyncio.sleep(0.05)

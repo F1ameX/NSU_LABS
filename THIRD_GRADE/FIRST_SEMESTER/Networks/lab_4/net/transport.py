@@ -16,7 +16,8 @@ def _detect_default_iface_ip():
         return "0.0.0.0"
 
 class Transport:
-    def __init__(self, loop: asyncio.AbstractEventLoop, state_delay_ms: int, mcast_iface_ip: str | None = None, uni_port: int | None = None):
+    def __init__(self, loop: asyncio.AbstractEventLoop, state_delay_ms: int,
+                 mcast_iface_ip: str | None = None, bind_port: int | None = None):
         self.loop = loop
         self.state_delay_ms = state_delay_ms
         self.mcast_iface_ip = mcast_iface_ip or _detect_default_iface_ip()
@@ -30,8 +31,10 @@ class Transport:
             self.uni.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         except OSError:
             pass
-        bind_port = 0 if uni_port is None else int(uni_port)
-        self.uni.bind(('', bind_port))
+        if bind_port is not None:
+            self.uni.bind(('', int(bind_port)))
+        else:
+            self.uni.bind(('', 0))
         self.uni.setblocking(False)
         try:
             self.uni.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 1)
@@ -72,6 +75,7 @@ class Transport:
             pass
         self.mc.setblocking(False)
         self._mc_handler = None
+        self._mc_reader_added = False
 
     def unicast_addr(self):
         return self.uni.getsockname()
@@ -87,25 +91,46 @@ class Transport:
 
     def on_multicast(self, cb):
         self._mc_handler = cb
-        self.loop.add_reader(self.mc.fileno(), self._read_mc)
+        if not self._mc_reader_added:
+            try:
+                self.loop.add_reader(self.mc.fileno(), self._read_mc)
+                self._mc_reader_added = True
+            except Exception:
+                pass
 
     def _read_mc(self):
         try:
             data, addr = self.mc.recvfrom(65535)
+        except (BlockingIOError, InterruptedError):
+            return
+        except (OSError, ValueError):
+            try:
+                if self._mc_reader_added:
+                    self.loop.remove_reader(self.mc.fileno())
+            except Exception:
+                pass
+            self._mc_reader_added = False
+            self._mc_handler = None
+            return
+        try:
             if self._mc_handler:
                 self._mc_handler(data, addr)
-        except BlockingIOError:
+        except Exception:
             pass
 
     def close(self):
         try:
-            self.loop.remove_reader(self.mc.fileno())
+            if self._mc_reader_added:
+                self.loop.remove_reader(self.mc.fileno())
+        except Exception:
+            pass
+        self._mc_reader_added = False
+        self._mc_handler = None
+        try:
+            self.mc.close()
         except Exception:
             pass
         try:
-            self.mc.close()
-        finally:
-            try:
-                self.uni.close()
-            except Exception:
-                pass
+            self.uni.close()
+        except Exception:
+            pass
