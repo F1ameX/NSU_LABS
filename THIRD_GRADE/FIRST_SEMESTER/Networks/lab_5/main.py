@@ -1,6 +1,6 @@
 import selectors
 import socket
-
+import socks5
 from config import Config
 from State import State
 from socks5 import handle_client
@@ -27,12 +27,9 @@ def run_server(config: Config) -> None:
     server_socket.bind((config.host, config.port))
     server_socket.listen()
 
-    selector.register(server_socket, selectors.EVENT_READ,
-                      {'handler': handle_new_connection, 'state': None})
+    selector.register(server_socket, selectors.EVENT_READ, {'handler': handle_new_connection, 'state': None})
 
     dns_resolver = DnsResolver(selector)
-
-    import socks5
     socks5.DNS_RESOLVER = dns_resolver
 
     print(f"[SOCKS5 Proxy] Listening on {config.host}:{config.port}")

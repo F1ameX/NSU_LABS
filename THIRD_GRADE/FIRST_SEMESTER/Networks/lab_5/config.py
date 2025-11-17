@@ -1,12 +1,12 @@
 class Config:
-    def __init__(self, host='127.0.0.1', port=1080):
+    def __init__(self, host='127.0.0.1', port=8080):
         self.host = host
         self.port = port
 
     @classmethod
     def from_dict(cls, config_dict):
         host = config_dict.get('host', '127.0.0.1')
-        port = config_dict.get('port', 1080)
+        port = config_dict.get('port', 8080)
         return cls(host, port)
 
     def to_dict(self):
