@@ -1,23 +1,21 @@
 import selectors
 import socket
 import sys
-
 from State import State
 from proxy import start_proxy_connection, send_socks_reply
 
 SOCKS_VERSION = 5
-METHOD_NO_AUTH = 0x00
-CMD_CONNECT = 0x01
-ATYP_IPV4 = 0x01
-ATYP_DOMAIN = 0x03
-
+METHOD_NO_AUTH = 0x00 # No authentication required
+CMD_CONNECT = 0x01 # Only CONNECT command supported
+ATYP_IPV4 = 0x01 # IPv4 address type
+ATYP_DOMAIN = 0x03 # Domain name address type
 DNS_RESOLVER = None
 
 
 def handle_greeting_state(sock: socket.socket, data: dict) -> bool:
     buf: bytearray = data.setdefault("buffer", bytearray())
     if len(buf) < 2:
-        return False
+        return False # Skip this iteration, wait for more data
     ver = buf[0]
     if ver != SOCKS_VERSION:
         raise Exception("Unsupported SOCKS version")
@@ -27,18 +25,17 @@ def handle_greeting_state(sock: socket.socket, data: dict) -> bool:
     methods = buf[2:2 + nmethods]
     if METHOD_NO_AUTH not in methods:
         raise Exception("No suitable auth method")
-    del buf[:2 + nmethods]
+    del buf[:2 + nmethods] 
     response = bytes([SOCKS_VERSION, METHOD_NO_AUTH])
     try:
         sock.send(response)
     except BlockingIOError:
         pass
-    data["state"] = State.CONNECTION_REQUEST
+    data["state"] = State.CONNECTION_REQUEST # Wait for connection request
     return True
 
 
-def handle_connection_request(sock: socket.socket, data: dict,
-                              selector: selectors.BaseSelector) -> bool:
+def handle_connection_request(sock: socket.socket, data: dict, selector: selectors.BaseSelector) -> bool:
     buf: bytearray = data.setdefault("buffer", bytearray())
     if len(buf) < 4:
         return False
@@ -49,20 +46,31 @@ def handle_connection_request(sock: socket.socket, data: dict,
         raise Exception("Only CONNECT command is supported")
     if rsv != 0x00:
         raise Exception("Reserved field must be 0")
-    offset = 4
+    
+    offset = 4 # Offset after header
     if atyp == ATYP_IPV4:
+        '''
+        DST.ADDR is 4 bytes
+        DST.PORT is 2 bytes
+        '''
         if len(buf) < offset + 4 + 2:
             return False
         addr_bytes = buf[offset:offset + 4]
         offset += 4
         port_bytes = buf[offset:offset + 2]
         offset += 2
-        host = socket.inet_ntoa(addr_bytes)
-        port = int.from_bytes(port_bytes, "big")
+        host = socket.inet_ntoa(addr_bytes) # Convert bytes to IPv4 string
+        port = int.from_bytes(port_bytes, "big") # Network order to integer
         del buf[:offset]
         start_proxy_connection(sock, data, selector, host, port)
         return False
+    
     elif atyp == ATYP_DOMAIN:
+        '''
+        NAME.LEN is 1 byte
+        NAME.LEN bytes
+        DST.PORT is 2 bytes
+        '''
         if len(buf) < offset + 1:
             return False
         name_len = buf[offset]
@@ -86,8 +94,8 @@ def handle_connection_request(sock: socket.socket, data: dict,
 
 
 def handle_client(key: selectors.SelectorKey, selector: selectors.BaseSelector) -> None:
-    sock = key.fileobj
-    data: dict = key.data
+    sock = key.fileobj # Socket
+    data: dict = key.data # Client-specific data
     buf: bytearray = data.setdefault("buffer", bytearray())
     try:
         chunk = sock.recv(4096)

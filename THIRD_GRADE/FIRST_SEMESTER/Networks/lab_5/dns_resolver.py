@@ -1,21 +1,28 @@
 import selectors
 import socket
 import struct
-
 from proxy import send_socks_reply, start_proxy_connection
 
 
 def build_dns_query(name: str, txid: int) -> bytes:
-    flags = 0x0100
+    flags = 0x0100 # Recursion Desired (only IP)
+    '''
+    Big-endian DNS query message, 12 bytes
+    Txid - unique identifier
+    Flags - recursion desired
+    QDCOUNT - 1 question
+    ANCOUNT, NSCOUNT, ARCOUNT - 0
+    '''
     header = struct.pack("!HHHHHH", txid, flags, 1, 0, 0, 0)
     labels = name.strip(".").split(".")
-    qname = b"".join(len(label).to_bytes(1, "big") + label.encode("ascii") for label in labels) + b"\x00"
-    question = qname + struct.pack("!HH", 1, 1)
+    # <length byte><label><length byte><label>...<0 byte>
+    qname = b"".join(len(label).to_bytes(1, "big") + label.encode("ascii") for label in labels) + b"\x00" 
+    question = qname + struct.pack("!HH", 1, 1) # IPv4, Internet 
     return header + question
 
 
 def _skip_dns_name(data: bytes, offset: int) -> int:
-    length = data[offset]
+    length = data[offset] 
     while length != 0:
         if length & 0xC0 == 0xC0:
             offset += 2
@@ -27,9 +34,9 @@ def _skip_dns_name(data: bytes, offset: int) -> int:
 
 
 def parse_dns_response(data: bytes) -> tuple[int, list[str]]:
-    if len(data) < 12:
+    if len(data) < 12: # No header
         return 0, []
-    txid, flags, qdcount, ancount, nscount, arcount = struct.unpack("!HHHHHH", data[:12])
+    txid, _, qdcount, ancount, _, _ = struct.unpack("!HHHHHH", data[:12])
     offset = 12
     for _ in range(qdcount):
         offset = _skip_dns_name(data, offset)
@@ -39,7 +46,7 @@ def parse_dns_response(data: bytes) -> tuple[int, list[str]]:
         offset = _skip_dns_name(data, offset)
         if offset + 10 > len(data):
             break
-        rtype, rclass, ttl, rdlength = struct.unpack("!HHIH", data[offset:offset + 10])
+        rtype, rclass, _, rdlength = struct.unpack("!HHIH", data[offset:offset + 10])
         offset += 10
         if offset + rdlength > len(data):
             break
@@ -61,8 +68,10 @@ class DnsQuery:
 class DnsResolver:
     def __init__(self, selector: selectors.BaseSelector, server_addr: tuple[str, int] | None = None):
         self.server_addr = server_addr or ("8.8.8.8", 53)
+
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setblocking(False)
+
         self.selector = selector
         self.selector.register(self.sock, selectors.EVENT_READ, data=self)
         self.pending: dict[int, DnsQuery] = {}
@@ -95,7 +104,7 @@ class DnsResolver:
 
     def handle_read(self) -> None:
         try:
-            data, addr = self.sock.recvfrom(512)
+            data, _ = self.sock.recvfrom(512)
         except BlockingIOError:
             return
         txid, ips = parse_dns_response(data)
@@ -114,4 +123,4 @@ class DnsResolver:
                 pass
             return
         ip = ips[0]
-        start_proxy_connection(query.client_sock, query.client_data, self.selector, ip, query.port)
+        start_proxy_connection(query.client_sock, self.selector, ip, query.port)

@@ -27,20 +27,14 @@ def send_socks_reply(sock: socket.socket, rep: int, bind_addr: str, bind_port: i
         addr_bytes = socket.inet_aton(bind_addr)
     except OSError:
         addr_bytes = socket.inet_aton("0.0.0.0")
-    reply = bytes([
-        SOCKS_VERSION,
-        rep,
-        0x00,
-        ATYP_IPV4,
-    ]) + addr_bytes + bind_port.to_bytes(2, "big", signed=False)
+    reply = bytes([SOCKS_VERSION, rep, 0x00, ATYP_IPV4]) + addr_bytes + bind_port.to_bytes(2, "big", signed=False)
     try:
         sock.send(reply)
     except BlockingIOError:
         pass
 
 
-def update_events_for(conn: ProxyConnection, selector: selectors.BaseSelector,
-                      sock: socket.socket) -> None:
+def update_events_for(conn: ProxyConnection, selector: selectors.BaseSelector, sock: socket.socket) -> None:
     if conn.closed:
         return
     if sock is conn.client:
@@ -93,8 +87,7 @@ def cleanup_proxy(conn: ProxyConnection, selector: selectors.BaseSelector) -> No
             pass
 
 
-def handle_proxy_io(key: selectors.SelectorKey, mask: int,
-                    selector: selectors.BaseSelector) -> None:
+def handle_proxy_io(key: selectors.SelectorKey, mask: int, selector: selectors.BaseSelector) -> None:
     conn: ProxyConnection = key.data
     sock: socket.socket = key.fileobj
     other = conn.remote if sock is conn.client else conn.client
@@ -156,8 +149,7 @@ def handle_proxy_io(key: selectors.SelectorKey, mask: int,
         cleanup_proxy(conn, selector)
 
 
-def start_proxy_connection(client_sock: socket.socket, client_data: dict,
-                           selector: selectors.BaseSelector, ip: str, port: int) -> None:
+def start_proxy_connection(client_sock: socket.socket, selector: selectors.BaseSelector, ip: str, port: int) -> None:
     remote = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     remote.setblocking(False)
     try:
