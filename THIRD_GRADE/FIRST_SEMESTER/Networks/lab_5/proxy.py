@@ -21,17 +21,16 @@ class ProxyConnection:
         self.client_registered = False
         self.remote_registered = False
 
-
-def send_socks_reply(sock: socket.socket, rep: int, bind_addr: str, bind_port: int) -> None:
+def send_socks_reply(sock: socket.socket, rep: int, bind_addr: str, bind_port: int, conn : ProxyConnection | None = None, selector : selectors.BaseSelector | None = None) -> None:
     try:
         addr_bytes = socket.inet_aton(bind_addr)
     except OSError:
         addr_bytes = socket.inet_aton("0.0.0.0")
     reply = bytes([SOCKS_VERSION, rep, 0x00, ATYP_IPV4]) + addr_bytes + bind_port.to_bytes(2, "big", signed=False)
-    try:
-        sock.send(reply)
-    except BlockingIOError:
-        pass
+
+    conn.buffer_r2c.extend(reply)
+    update_events_for(conn, selector, conn.client)
+    return
 
 
 def update_events_for(conn: ProxyConnection, selector: selectors.BaseSelector, sock: socket.socket) -> None:
@@ -73,7 +72,8 @@ def update_events_for(conn: ProxyConnection, selector: selectors.BaseSelector, s
 def cleanup_proxy(conn: ProxyConnection, selector: selectors.BaseSelector) -> None:
     if conn.closed:
         return
-    conn.closed = True    # noqa: E702
+    conn.closed = True    # no more working proxy
+    # Both sockets unregistering and closing
     for s, attr in ((conn.client, "client_registered"), (conn.remote, "remote_registered")):
         try:
             if getattr(conn, attr):
@@ -94,21 +94,26 @@ def handle_proxy_io(key: selectors.SelectorKey, mask: int, selector: selectors.B
     if conn.closed:
         return
     try:
+        # Shuting down non-blocking connection
         if conn.connecting and sock is conn.remote and (mask & selectors.EVENT_WRITE):
             err = conn.remote.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
             if err != 0:
-                send_socks_reply(conn.client, 0x05, "0.0.0.0", 0)
+                send_socks_reply(conn.client, 0x05, "0.0.0.0", 0, conn, selector)
                 cleanup_proxy(conn, selector)
                 return
+            # If connected successfully
             conn.connecting = False
             try:
                 bind_addr, bind_port = conn.remote.getsockname()
             except OSError:
                 bind_addr, bind_port = "0.0.0.0", 0
-            send_socks_reply(conn.client, 0x00, bind_addr, bind_port)
+            send_socks_reply(conn.client, 0x00, bind_addr, bind_port, conn, selector)
             update_events_for(conn, selector, conn.remote)
             update_events_for(conn, selector, conn.client)
+
+        # Usual work
         if not conn.connecting:
+            # Read part
             if mask & selectors.EVENT_READ:
                 if sock is conn.client and len(conn.buffer_c2r) >= MAX_BUFFER_SIZE:
                     update_events_for(conn, selector, sock)
@@ -119,9 +124,18 @@ def handle_proxy_io(key: selectors.SelectorKey, mask: int, selector: selectors.B
                     if not data:
                         if sock is conn.client:
                             conn.client_eof = True
+                            update_events_for(conn, selector, sock)
+                            try:
+                                conn.remote.shutdown(socket.SHUT_WR)
+                            except Exception:
+                                pass
                         else:
                             conn.remote_eof = True
-                        update_events_for(conn, selector, sock)
+                            update_events_for(conn, selector, sock)
+                            try:
+                                conn.client.shutdown(socket.SHUT_WR)
+                            except Exception:
+                                pass
                     else:
                         if sock is conn.client:
                             conn.buffer_c2r.extend(data)
@@ -130,6 +144,7 @@ def handle_proxy_io(key: selectors.SelectorKey, mask: int, selector: selectors.B
                             conn.buffer_r2c.extend(data)
                             update_events_for(conn, selector, conn.client)
                         update_events_for(conn, selector, sock)
+            # Write part
             if mask & selectors.EVENT_WRITE:
                 if sock is conn.client:
                     buf = conn.buffer_r2c
@@ -142,6 +157,7 @@ def handle_proxy_io(key: selectors.SelectorKey, mask: int, selector: selectors.B
                     del buf[:sent]
                     update_events_for(conn, selector, sock)
                     update_events_for(conn, selector, other)
+        # Tunnel closing
         if conn.client_eof and conn.remote_eof and not conn.buffer_c2r and not conn.buffer_r2c:
             cleanup_proxy(conn, selector)
     except Exception as e:

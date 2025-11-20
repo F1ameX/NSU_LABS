@@ -78,29 +78,42 @@ class DnsResolver:
         self._next_id = 1
 
     def _next_txid(self) -> int:
-        txid = self._next_id & 0xFFFF
-        self._next_id = (self._next_id + 1) & 0xFFFF
-        while txid in self.pending:
-            txid = (txid + 1) & 0xFFFF
-        return txid
+        start = self._next_id & 0xFFFF
+        txid = start
 
-    def resolve(self, hostname: str, port: int, client_sock: socket.socket, client_data: dict) -> None:
+        for _ in range(65536):
+            if txid not in self.pending:
+                self._next_id = (txid + 1) & 0xFFFF
+                return txid
+            txid = (txid + 1) & 0xFFFF
+
+        return -1
+
+    def resolve(self, hostname, port, client_sock, client_data):
         txid = self._next_txid()
+
+        if txid == -1:
+            send_socks_reply(client_sock, 0x04, "0.0.0.0", 0)
+            try: 
+                self.selector.unregister(client_sock)
+            except: 
+                pass
+            client_sock.close()
+            return
+
         message = build_dns_query(hostname, txid)
         self.pending[txid] = DnsQuery(hostname, port, client_sock, client_data)
+
         try:
             self.sock.sendto(message, self.server_addr)
         except BlockingIOError:
             self.pending.pop(txid, None)
             send_socks_reply(client_sock, 0x04, "0.0.0.0", 0)
-            try:
+            try: 
                 self.selector.unregister(client_sock)
-            except Exception:
+            except: 
                 pass
-            try:
-                client_sock.close()
-            except Exception:
-                pass
+            client_sock.close()
 
     def handle_read(self) -> None:
         try:

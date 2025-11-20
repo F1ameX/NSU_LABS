@@ -33,17 +33,32 @@ def run_server(config: Config) -> None:
     socks5.DNS_RESOLVER = dns_resolver # For asynchronous DNS resolution in socks5 module
 
     print(f"[SOCKS5 Proxy] Listening on {config.host}:{config.port}")
-    while True:
-        events = selector.select() # Blocking call, waits for I/O events
-        for key, mask in events:
-            data = key.data
-            if isinstance(data, dict):
-                callback = data['handler']
-                callback(key, selector)
-            elif isinstance(data, ProxyConnection):
-                handle_proxy_io(key, mask, selector)
-            elif isinstance(data, DnsResolver):
-                data.handle_read()
+    try:
+        while True:
+            events = selector.select()
+            for key, mask in events:
+                data = key.data
+                if isinstance(data, dict):
+                    callback = data['handler']
+                    callback(key, selector)
+                elif isinstance(data, ProxyConnection):
+                    handle_proxy_io(key, mask, selector)
+                elif isinstance(data, DnsResolver):
+                    data.handle_read()
+    except KeyboardInterrupt:
+        print("\n[SOCKS5 Proxy] Shutting down...")
+    finally:
+        try:
+            selector.unregister(server_socket)
+        except Exception:
+            pass
+        try:
+            server_socket.close()
+        except Exception:
+            pass
+
+        selector.close()
+        print("[SOCKS5 Proxy] Stopped.")
 
 
 if __name__ == "__main__":
